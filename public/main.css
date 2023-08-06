@@ -1,0 +1,15 @@
+html, body {
+    height: 100%;
+}
+
+#root-window {
+    height: 100%;
+}
+
+#game-window {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+}
