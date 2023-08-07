@@ -13,16 +13,21 @@ export function createCamera(gameWindow) {
     const MIN_CAMERA_RADIUS = 2;
     const MAX_CAMERA_RADIUS = 10;
 
+    // Vector 
+    const Y_AXIS = new THREE.Vector3(0, 1, 0);
+
     const camera = new THREE.PerspectiveCamera(75, gameWindow.offsetWidth / gameWindow.offsetHeight, 0.1, 1000);
 
     camera.position.z = 5;
+    let cameraOrigin = new THREE.Vector3();
     let cameraRadius = 4;
     let cameraElevation = 0;
     let cameraAzimuth = 0;
     let isLeftMouseDown = false;
     let isRightMouseDown = false;
     let isMiddleMouseDown = false;
-    let isKeyboardZooming = false;
+    let isZoomingMore = false;
+    let isZoomingLess = false;
     let prevMouseX = 0;
     let prevMouseY = 0;
     updateCameraPosition();
@@ -30,22 +35,22 @@ export function createCamera(gameWindow) {
     function onKeyBoardDown(event){
         if(event.key === KEYBOARD_ZOOM_PLUS){
             console.log('zooming +');
-            isKeyboardZooming = true;
+            isZoomingMore = true;
         }
         if(event.key === KEYBOARD_ZOOM_MINUS){
             console.log('zooming -');
-            isKeyboardZooming = true;
+            isZoomingLess = true;
         }
     }
 
     function onKeyBoardUp(event){
         if(event.key === KEYBOARD_ZOOM_PLUS){
             console.log('cease +');
-            isKeyboardZooming = false;
+            isZoomingMore = false;
         }
         if(event.key === KEYBOARD_ZOOM_MINUS){
             console.log('cease -');
-            isKeyboardZooming = false;
+            isZoomingLess = false;
         }
     }
 
@@ -76,7 +81,8 @@ export function createCamera(gameWindow) {
     }
 
     function onKeyBoardStay(event){ 
-        if(isKeyboardZooming){
+        console.log('zooming stay');
+        if(isZoomingMore){
             cameraRadius += deltaY * 0.02;
             cameraRadius = Math.min(MAX_CAMERA_RADIUS, Math.max(MIN_CAMERA_RADIUS, cameraRadius));
             updateCameraPosition();
@@ -98,6 +104,14 @@ export function createCamera(gameWindow) {
 
         // zoom in and out
         if(isMiddleMouseDown) { 
+          const forward = new THREE.Vector3(0,0,1).applyAxisAngle(Y_AXIS, cameraAzimuth * Math.PI / 180);
+          const left = new THREE.Vector3(1,0,0).applyAxisAngle(Y_AXIS, cameraAzimuth * Math.PI / 180);
+          cameraOrigin.add(forward.multiplyScalar(-deltaY * 0.01));
+          cameraOrigin.add(left.multiplyScalar(-deltaX * 0.01));
+          updateCameraPosition();
+        }
+
+        if(isRightMouseDown) {
             console.log('zooming');
             // 0.01 controls the speed of zooming
             cameraRadius += deltaY * 0.02;
@@ -115,7 +129,8 @@ export function createCamera(gameWindow) {
         camera.position.x = cameraRadius * Math.sin(thetaAzimuth) * Math.cos(phiElevation);
         camera.position.y = cameraRadius * Math.sin(phiElevation);
         camera.position.z = cameraRadius * Math.cos(thetaAzimuth) * Math.cos(phiElevation);
-        camera.lookAt(0,0,0);
+        camera.position.add(cameraOrigin);
+        camera.lookAt(cameraOrigin);
         camera.updateMatrix();
     }
 
@@ -127,6 +142,5 @@ export function createCamera(gameWindow) {
         onKeyBoardDown,
         onKeyBoardUp,
         onKeyBoardStay
-
     }
 }
