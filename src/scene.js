@@ -49,7 +49,9 @@ export function createScene() {
         camera.onKeyBoardUp(event);
     }
 
-
+    function onKeyBoardStay(event){
+        camera.onKeyBoardStay(event);
+    }
 
     return {
         start,
@@ -58,6 +60,7 @@ export function createScene() {
         onMouseUp,
         onMouseMove, 
         onKeyBoardDown,
-        onKeyBoardUp
+        onKeyBoardUp,
+        onKeyBoardStay
     }
 }
