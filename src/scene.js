@@ -107,6 +107,6 @@ export function createScene() {
         onKeyBoardDown,
         onKeyBoardUp,
         setUpLights,
-        onKeyBoardStay
+        onKeyBoardStay 
     }
 }
