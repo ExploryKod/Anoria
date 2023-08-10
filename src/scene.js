@@ -13,6 +13,10 @@ export function createScene() {
     renderer.setSize(gameWindow.offsetWidth, gameWindow.offsetHeight);
     gameWindow.appendChild(renderer.domElement);
 
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let selectedObject = undefined;
+
     let terrain = [];
     let buildings = [];
     function initialize(city) { 
@@ -95,6 +99,25 @@ export function createScene() {
 
     function onKeyBoardDown(event){
         camera.onKeyBoardDown(event);
+        // Raycasting need y and x axis as + on the terrain (plan) (y-1,y1,x1,x-1)
+        // (number btw 0 and 1) * 2 - 1 > to get the value between -1 and 1
+        mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+        mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera.camera);
+        // array of object > all objects from our scene that intersect with the ray (false = non recursive = only the first object)
+        // array of intersections sorted by distance with the closest object 
+        const intersections = raycaster.intersectObjects(scene.children, false);
+
+        if(intersections.length > 0) {
+            // get the first object (the intersection) of the array of intersections
+            const selected = intersects[0].object;
+            if(selected) {
+                selected.material.emissive.setHex(0x000000);
+            }
+            selected.material.emissive.setHex(0xff0000);
+            console.log(selectedObject);
+        }
     }
 
     function onKeyBoardUp(event){
