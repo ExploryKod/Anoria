@@ -7,24 +7,7 @@ export function createCity(size) {
         for(let x = 0; x < size; x++) {
             const column = [];
             for(let y = 0; y < size; y++) {
-             const tile = { 
-                x, 
-                y, 
-                buildingId: undefined,
-                update(){
-                   const x = Math.random();
-                   if(x < 0.01) {
-                    if(this.buildingId === undefined) {
-                        this.buildingId = 'building-1';
-                    } else if(this.buildingId === 'building-1') {
-                        this.buildingId = 'building-2';
-                    } else if(this.buildingId === 'building-2') {
-                        this.buildingId = 'building-3';
-                    } 
-                      
-                   } 
-                }
-            };
+             const tile = createTile(x,y);
              column.push(tile);
             }
             data.push(column);
@@ -45,4 +28,26 @@ export function createCity(size) {
         data,
         update,
     }
+}
+
+function createTile(x,y) {
+    return { 
+        x, 
+        y, 
+        terrainId: 'grass',
+        buildingId: undefined,
+        update(){
+           const x = Math.random();
+           if(x < 0.01) {
+            if(this.buildingId === undefined) {
+                this.buildingId = 'building-1';
+            } else if(this.buildingId === 'building-1') {
+                this.buildingId = 'building-2';
+            } else if(this.buildingId === 'building-2') {
+                this.buildingId = 'building-3';
+            } 
+              
+           } 
+        }
+    };
 }

@@ -23,7 +23,8 @@ export function createScene() {
             let column = [];
             for(let y = 0; y < city.size; y++) {
                 // Grass
-                const mesh = createAsset('grass', x, y);
+                const terrainId = city.data[x][y].terrainId;
+                const mesh = createAsset(terrainId, x, y);
                 scene.add(mesh);
                 column.push(mesh);
             }
