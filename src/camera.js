@@ -10,8 +10,8 @@ export function createCamera(gameWindow) {
     const KEYBOARD_ZOOM_MINUS = '-';
 
     // Camera constants for zooming in and out
-    const MIN_CAMERA_RADIUS = 2;
-    const MAX_CAMERA_RADIUS = 10;
+    const MIN_CAMERA_RADIUS = 10;
+    const MAX_CAMERA_RADIUS = 20;
 
     // Vector 
     const Y_AXIS = new THREE.Vector3(0, 1, 0);
@@ -20,9 +20,9 @@ export function createCamera(gameWindow) {
 
     camera.position.z = 5;
     let cameraOrigin = new THREE.Vector3();
-    let cameraRadius = 4;
-    let cameraElevation = 0;
-    let cameraAzimuth = 0;
+    let cameraRadius = (MAX_CAMERA_RADIUS + MIN_CAMERA_RADIUS) / 2;
+    let cameraElevation = 45;
+    let cameraAzimuth = 135;
     let isLeftMouseDown = false;
     let isRightMouseDown = false;
     let isMiddleMouseDown = false;
