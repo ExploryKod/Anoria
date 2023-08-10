@@ -14,10 +14,12 @@ export function createScene() {
 
  
 
-    let meshes = [];
+    let terrain = [];
+    let buildings = [];
     function initialize(city) { 
         scene.clear();
-        meshes = [];
+        terrain = [];
+        buildings = [];
         for(let x = 0; x < city.size; x++) {
             let column = [];
             for(let y = 0; y < city.size; y++) {
@@ -28,22 +30,35 @@ export function createScene() {
                 mesh.position.set(x, -0.5, y);
                 scene.add(mesh);
                 column.push(mesh);
+            }
+            terrain.push(column);
+            // create empty array for buildings : an array of undefined values
+            buildings.push([...Array(city.size)]);
+            setUpLights();
+        }
+    }
 
-                // Building
+    function update(city) {
+        for(let x = 0; x < city.size; x++) {
+    
+            for(let y = 0; y < city.size; y++) {
+                // Building update
                 const tile = city.data[x][y];
-                if(tile.building === 'building') {
-                const buildingGeometry = new THREE.BoxGeometry(1,1,1);
-                const materialGeometry = new THREE.MeshLambertMaterial({ color: 0x777777 });
-                const meshGeometry = new THREE.Mesh(buildingGeometry, materialGeometry);
-                meshGeometry.position.set(x, 0.5, y);
-                scene.add(meshGeometry);
-                column.push(meshGeometry);
+                if(tile.building && tile.building.startsWith('building')) {
+                    const height = Number(tile.building.slice(-1));    
+                    const buildingGeometry = new THREE.BoxGeometry(1,height,1);
+                    const materialGeometry = new THREE.MeshLambertMaterial({ color: 0x777777 });
+                    const buildingMesh = new THREE.Mesh(buildingGeometry, materialGeometry);
+                    buildingMesh.position.set(x, height/2, y);
+
+                    if(buildings[x][y]) {
+                        scene.remove(buildings[x][y]);
+                    }
+                    scene.add(buildingMesh);
+                    buildings[x][y] = buildingMesh;
                 }
             }
-            meshes.push(column);
         }
-
-        setUpLights();
     }
 
     function setUpLights() {
@@ -99,6 +114,7 @@ export function createScene() {
 
     return {
         initialize,
+        update,
         start,
         stop,
         onMouseDown,
@@ -107,6 +123,6 @@ export function createScene() {
         onKeyBoardDown,
         onKeyBoardUp,
         setUpLights,
-        onKeyBoardStay 
+        onKeyBoardStay,
     }
 }
