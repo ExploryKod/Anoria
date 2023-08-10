@@ -20,9 +20,9 @@ export function createGame() {
         }
     }; 
 
-    // setInterval(() => {
-    //      game.update();
-    // }, 3000);
+    setInterval(() => {
+         game.update();
+    }, 1000);
 
     scene.start();
     return game;
