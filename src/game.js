@@ -14,6 +14,14 @@ export function createGame() {
         const tile = city.data[x][y];
         console.log('Tile data--------------------')
         console.log(tile);
+
+        if(activeToolId === 'bulldoze') {
+            // remove building from that location
+            tile.buildingId = undefined;
+        } else if(!tile.buildingId) {
+            // place building at that location
+            tile.buildingId = activeToolId;
+        }
     }
     //    on onMouse we bind the scene object itself to the handler function onObjectSelected to work with the scene object
     // these event listeners are added to the document object, not the scene object itself - they are call by HTML document so we need to bind the scene object to the handler function

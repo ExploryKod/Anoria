@@ -11,29 +11,37 @@ const assets = {
         mesh.position.set(x, -0.5, y);
         return mesh;
     },
-    'building-1': (x, y) => {    
-        const material = new THREE.MeshLambertMaterial({ color: 0x777777 });
+    'residential': (x, y) => {    
+        const material = new THREE.MeshLambertMaterial({ color: 0x115995 });
         const mesh = new THREE.Mesh(geometry, material);
-        mesh.userData = { id: 'building-1',x,y};
+        mesh.userData = { id: 'residential',x,y};
         mesh.position.set(x, 0.5, y);
         return mesh;
     },
-    'building-2': (x, y) => {
-        const material = new THREE.MeshLambertMaterial({ color: 0x777562 });
+    'industrial': (x, y) => {
+        const material = new THREE.MeshLambertMaterial({ color: 0x777777 });
         const mesh = new THREE.Mesh(geometry, material);
-        mesh.userData = { id: 'building-2',x,y};
+        mesh.userData = { id: 'industrial',x,y};
         // size of the building
-        mesh.scale.set(1, 2, 1);
+        // mesh.scale.set(1, 2, 1);
         // position of the building
-        mesh.position.set(x, 1, y);
+        mesh.position.set(x, 0.5, y);
         return mesh;
     },
-    'building-3': (x, y) => {
-        const material = new THREE.MeshLambertMaterial({ color: 0x777852 });
+    'commercial': (x, y) => {
+        const material = new THREE.MeshLambertMaterial({ color: 0x123545 });
         const mesh = new THREE.Mesh(geometry, material);
-        mesh.userData = { id: 'building-3',x,y};
-        mesh.scale.set(1, 3, 1);
-        mesh.position.set(x, 1.5, y);
+        mesh.userData = { id: 'commercial',x,y};
+        // mesh.scale.set(1, 3, 1);
+        mesh.position.set(x, 0.5, y);
+        return mesh;
+    },
+    'roads': (x, y) => {
+        const material = new THREE.MeshLambertMaterial({ color: 0x000000 });
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.userData = { id: 'roads',x,y};
+        // mesh.scale.set(1, 3, 1);
+        mesh.position.set(x, 0.05, y);
         return mesh;
     }
 }
