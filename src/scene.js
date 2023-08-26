@@ -16,6 +16,8 @@ export function createScene() {
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     let selectedObject = undefined;
+    // a reference to a function that will be called when an object is selected
+    let onObjectSelected = undefined;
 
     let terrain = [];
     let buildings = [];
@@ -99,12 +101,19 @@ export function createScene() {
         // if any intersection where found (if the array is not empty)
         if(intersections.length > 0) {
             // get the first object (the intersection) of the array of intersections
-            const selected = intersections[0].object;
-            if(selected) {
-                selected.material.emissive.setHex(0x000000);
+            console.log(intersections[0]);
+            if(selectedObject) selectedObject.material.emissive.setHex(0);
+            selectedObject = intersections[0].object;
+            selectedObject.material.emissive.setHex(0xff0000);
+            console.log('-------- Selected Object data --------')
+            console.log(selectedObject.userData)
+            console.log('-------- Selected Object id --------')
+             // print the id of the selected object found in asset.js (ex: 'grass')
+            console.log(selectedObject.userData.id)
+
+            if(this.onObjectSelected) {
+                this.onObjectSelected(selectedObject);
             }
-            selected.material.emissive.setHex(0xff0000);
-            console.log(selectedObject);
         }
     }
 
@@ -148,6 +157,8 @@ export function createScene() {
     }
 
     return {
+        // make the game know the object userData I selected (to reach x and y position of the object or its id from asset)
+        onObjectSelected,
         initialize,
         update,
         start,
