@@ -2,7 +2,7 @@ import { createScene } from './scene.js';
 import { createCity } from './city.js';
 
 export function createGame() {
-
+    let activeToolId = '';
     const scene = createScene();
     const city = createCity(8);
     scene.initialize(city);
@@ -14,6 +14,16 @@ export function createGame() {
         const tile = city.data[x][y];
         console.log('Tile data--------------------')
         console.log(tile);
+
+        if(activeToolId === 'bulldoze') {
+            // remove building from that location
+            tile.buildingId = undefined;
+            scene.update(city);
+        } else if(!tile.buildingId) {
+            // place building at that location
+            tile.buildingId = activeToolId;
+            scene.update(city);
+        }
     }
     //    on onMouse we bind the scene object itself to the handler function onObjectSelected to work with the scene object
     // these event listeners are added to the document object, not the scene object itself - they are call by HTML document so we need to bind the scene object to the handler function
@@ -27,12 +37,17 @@ export function createGame() {
         update() {
             city.update();
             scene.update(city);
+        },
+        setActiveToolId(toolId) {
+            activeToolId = toolId;
+            console.log('+++++++++++ active tool id +++++++++++++');
+            console.log(activeToolId);
         }
     }; 
 
     setInterval(() => {
          game.update();
-    }, 1000);
+    }, 3000);
 
     scene.start();
     return game;
