@@ -18,9 +18,11 @@ export function createGame() {
         if(activeToolId === 'bulldoze') {
             // remove building from that location
             tile.buildingId = undefined;
+            scene.update(city);
         } else if(!tile.buildingId) {
             // place building at that location
             tile.buildingId = activeToolId;
+            scene.update(city);
         }
     }
     //    on onMouse we bind the scene object itself to the handler function onObjectSelected to work with the scene object

@@ -41,7 +41,7 @@ const assets = {
         const mesh = new THREE.Mesh(geometry, material);
         mesh.userData = { id: 'roads',x,y};
         // mesh.scale.set(1, 3, 1);
-        mesh.position.set(x, 0.05, y);
+        mesh.position.set(x, 0.01, y);
         return mesh;
     }
 }

@@ -53,7 +53,7 @@ export function createScene() {
                 buildings[x][y] = undefined;
             }
             // if data model has changed, update the mesh
-            if(newBuildingId !== currentBuildingId) {
+            if(newBuildingId && (newBuildingId !== currentBuildingId)) {
                 scene.remove(buildings[x][y]);
                 buildings[x][y] = createAsset(newBuildingId, x, y);
                 scene.add(buildings[x][y]);
