@@ -2,7 +2,7 @@ import { createScene } from './scene.js';
 import { createCity } from './city.js';
 
 export function createGame() {
-
+    let activeToolId = '';
     const scene = createScene();
     const city = createCity(8);
     scene.initialize(city);
@@ -27,12 +27,17 @@ export function createGame() {
         update() {
             city.update();
             scene.update(city);
+        },
+        setActiveToolId(toolId) {
+            activeToolId = toolId;
+            console.log('+++++++++++ active tool id +++++++++++++');
+            console.log(activeToolId);
         }
     }; 
 
     setInterval(() => {
          game.update();
-    }, 1000);
+    }, 3000);
 
     scene.start();
     return game;
