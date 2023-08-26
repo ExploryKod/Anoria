@@ -19,6 +19,7 @@ export function createScene() {
 
     let terrain = [];
     let buildings = [];
+
     function initialize(city) { 
         scene.clear();
         terrain = [];
@@ -87,6 +88,24 @@ export function createScene() {
 
     function onMouseDown(event){
         camera.onMouseDown(event);
+        // Raycasting need y and x axis as + on the terrain (plan) (y-1,y1,x1,x-1)
+        mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+        mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera.camera);
+        // all children of the scene (all objects) and recursive = true (all children of the children)
+        // @return {Array} An array of intersections, which are objects containing distance, point, face, faceIndex, and object fields.
+        // The clossest object is the first one in the array
+        let intersections = raycaster.intersectObjects(scene.children, false);
+        // if any intersection where found (if the array is not empty)
+        if(intersections.length > 0) {
+            // get the first object (the intersection) of the array of intersections
+            const selected = intersections[0].object;
+            if(selected) {
+                selected.material.emissive.setHex(0x000000);
+            }
+            selected.material.emissive.setHex(0xff0000);
+            console.log(selectedObject);
+        }
     }
 
     function onMouseUp(event){
