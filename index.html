@@ -18,9 +18,17 @@
     <title>City Builder with three js and live server</title>
 </head>
 <body>
-<div id="root-window">
+<div id="root-window" class="root-window">
   <!-- Part 5 (Raycasting) -->
-    <div id="game-window"></div>
+    <div id="game-window" class="game-window">
+      <div id="toolbar" class="toolbar">
+        <button type="button" id="delete-btn" class="toolbar-btn selected">Bulldoze</button>
+        <button type="button" id="houses-btn" class="toolbar-btn">Houses</button>
+        <button type="button" id="industries-btn" class="toolbar-btn">Industries</button>
+        <button type="button" id="commercial-btn" class="toolbar-btn">Commercial</button>
+        <button type="button" id="roads-btn" class="toolbar-btn">Roads</button> 
+      </div>
+    </div>
 </div>
 <script type="module">
     import { createGame } from './src/game.js';
