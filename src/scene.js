@@ -1,45 +1,84 @@
 import * as THREE from 'three';
 import { createCamera } from './camera.js';
 import { createAsset } from './asset.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+const SKY_URL = 'public/resources/textures/skies/plain_sky.jpg';
 
 export function createScene() {
     const gameWindow = document.getElementById('game-window');
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x79845);
+    // scene.background = new THREE.Color(0x79845);
+
+    var skyLoader = new THREE.TextureLoader();
+    skyLoader.load(
+        // URL of the image
+        SKY_URL,
+        function (texture) {
+            // Set the scene's background to the loaded texture
+            scene.background = texture;
+        }
+    );
 
     const camera = createCamera(gameWindow);
-
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(gameWindow.offsetWidth, gameWindow.offsetHeight);
+    renderer.setClearColor(0x000000, 0);
+    renderer.shadowMap.enabled = true;
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // const controls = new OrbitControls(camera.camera, renderer.domElement);
     gameWindow.appendChild(renderer.domElement);
 
+    // Selections d'un objet
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     let selectedObject = undefined;
-    // a reference to a function that will be called when an object is selected
+    // Référence une fonction appelée si un objet est sélectionné
     let onObjectSelected = undefined;
 
     let terrain = [];
     let buildings = [];
+    let loadingPromises = [];
 
     function initialize(city) { 
         scene.clear();
         terrain = [];
         buildings = [];
+        loadingPromises = [];
+       
         for(let x = 0; x < city.size; x++) {
             let column = [];
             for(let y = 0; y < city.size; y++) {
                 // Grass
                 const terrainId = city.data[x][y].terrainId;
                 const mesh = createAsset(terrainId, x, y);
+                mesh.name = terrainId;
                 scene.add(mesh);
-                column.push(mesh);
+                column.push(mesh);  
             }
             terrain.push(column);
+
             // create empty array for buildings : an array of undefined values
             buildings.push([...Array(city.size)]);
             setUpLights();
         }
+
+        // const playerData = {
+        //     url: avatarPath,
+        //     x: 6,
+        //     y: 0,
+        //     z: 5,
+        //     size: 2
+        // }
+
+        // const playerAnimationsData = {
+        //     name: 'Idle',
+        //     isAnimated: false
+        // }
+
+        // fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData, playerData)
+        // freePromises(loadingPromises)  
+
     }
 
     function update(city) {
@@ -56,23 +95,53 @@ export function createScene() {
             if(newBuildingId && (newBuildingId !== currentBuildingId)) {
                 scene.remove(buildings[x][y]);
                 buildings[x][y] = createAsset(newBuildingId, x, y);
+                console.log(buildings[x][y])
                 scene.add(buildings[x][y]);
                 }
             }
-        }
+          
+        }   
     }
 
+   
+
     function setUpLights() {
+        // const light = new THREE.DirectionalLight(0xffffff, 1)
+        // light.position.set(20,20,20);
+        // light[1].castShadow = true;
+        // light[1].shadow.camera.left = -10;
+        // light[1].shadow.camera.right = 10;
+        // light[1].shadow.camera.top = 0;
+        // light[1].shadow.camera.bottom = -10;
+        // light[1].shadow.mapSize.width = 1024;
+        // light[1].shadow.mapSize.height = 1024;
+        // light[1].shadow.camera.near = 0.5;
+        // light[1].shadow.camera.far = 50;
+        // scene.add(light)
+        // scene.add(new THREE.AmbientLight(0xffffff, 0.3))
+        // const helper = new THREE.CameraHelper(light.shadow.camera);
+        // scene.add(helper);
         const lights = [
-            new THREE.AmbientLight(0xffffff, 0.2),
-            new THREE.DirectionalLight(0xffffff, 0.3),
-            new THREE.DirectionalLight(0xffffff, 0.3),
-            new THREE.DirectionalLight(0xffffff, 0.3)
+            new THREE.AmbientLight(0xffffff, 0.03),
+            new THREE.DirectionalLight(0x999999, 0.05),
+            new THREE.DirectionalLight(0x999999, 0.05),
+            new THREE.DirectionalLight(0x999999, 0.05)
         ];
 
         lights[1].position.set(0, 1, 0);
         lights[2].position.set(0, 1, 0);
         lights[3].position.set(0, 1, 0);
+
+        // lights[1].castShadow = true;
+        lights[1].shadow.camera.left = -10;
+        lights[1].shadow.camera.right = 10;
+        lights[1].shadow.camera.top = 0;
+        lights[1].shadow.camera.bottom = -10;
+        lights[1].shadow.mapSize.width = 1024;
+        lights[1].shadow.mapSize.height = 1024;
+        lights[1].shadow.camera.near = 0.5;
+        lights[1].shadow.camera.far = 50;
+
         scene.add(...lights);
     }
 
@@ -88,6 +157,8 @@ export function createScene() {
         renderer.setAnimationLoop(null);
     }
 
+    function playerGoingLeft(event) {}
+
     function onMouseDown(event){
         camera.onMouseDown(event);
         // Raycasting need y and x axis as + on the terrain (plan) (y-1,y1,x1,x-1)
@@ -101,16 +172,16 @@ export function createScene() {
         // if any intersection where found (if the array is not empty)
         if(intersections.length > 0) {
             // get the first object (the intersection) of the array of intersections
-            console.log(intersections[0]);
-            if(selectedObject) selectedObject.material.emissive.setHex(0);
+            console.log('intersection', intersections[0]);
+            // if(selectedObject) selectedObject.material.emissive.setHex(0);
             selectedObject = intersections[0].object;
-            selectedObject.material.emissive.setHex(0xff0000);
-            console.log('-------- Selected Object data --------')
-            console.log(selectedObject.userData)
-            console.log('-------- Selected Object id --------')
-             // print the id of the selected object found in asset.js (ex: 'grass')
-            console.log(selectedObject.userData.id)
-
+            // if(selectedObject.material.length !== undefined) {
+               
+            // }
+            // console.log('selected object scene onMouseD ==>', selectedObject.material)
+            // console.log('selected object scene is an array ? ==>', selectedObject.material.length)
+            // selectedObject.material.emissive.setHex(0xff0000);
+        
             if(this.onObjectSelected) {
                 this.onObjectSelected(selectedObject);
             }
@@ -141,19 +212,15 @@ export function createScene() {
             // get the first object (the intersection) of the array of intersections
             const selected = intersects[0].object;
             if(selected) {
-                selected.material.emissive.setHex(0x000000);
+                console.log('selected material scene: ===> ', selected.material)
             }
-            selected.material.emissive.setHex(0xff0000);
-            console.log(selectedObject);
+            // selected.material.emissive.setHex(0xff0000);
+            console.log('selected Object ==> ', selectedObject);
         }
     }
 
     function onKeyBoardUp(event){
         camera.onKeyBoardUp(event);
-    }
-
-    function onKeyBoardStay(event){
-        camera.onKeyBoardStay(event);
     }
 
     return {
@@ -168,7 +235,6 @@ export function createScene() {
         onMouseMove, 
         onKeyBoardDown,
         onKeyBoardUp,
-        setUpLights,
-        onKeyBoardStay,
+        setUpLights
     }
 }

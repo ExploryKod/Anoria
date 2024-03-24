@@ -11,18 +11,18 @@ export function createCamera(gameWindow) {
 
     // Camera constants for zooming in and out
     const MIN_CAMERA_RADIUS = 10;
-    const MAX_CAMERA_RADIUS = 20;
+    const MAX_CAMERA_RADIUS = 30;
 
     // Vector 
-    const Y_AXIS = new THREE.Vector3(0, 1, 0);
+    const Y_AXIS = new THREE.Vector3(2, 2, 2);
 
-    const camera = new THREE.PerspectiveCamera(75, gameWindow.offsetWidth / gameWindow.offsetHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(75,   window.innerWidth / window.innerHeight, 1, 1000);
 
-    camera.position.z = 5;
+    camera.position.z = 0.5;
     let cameraOrigin = new THREE.Vector3();
     let cameraRadius = (MAX_CAMERA_RADIUS + MIN_CAMERA_RADIUS) / 2;
-    let cameraElevation = 45;
-    let cameraAzimuth = 135;
+    let cameraElevation = 20;
+    let cameraAzimuth = 50;
     let isLeftMouseDown = false;
     let isRightMouseDown = false;
     let isMiddleMouseDown = false;
@@ -32,30 +32,37 @@ export function createCamera(gameWindow) {
     let prevMouseY = 0;
     updateCameraPosition();
 
+   
+
     function onKeyBoardDown(event){
+        // console.log('onKeyBoardDown', event)
         if(event.key === KEYBOARD_ZOOM_PLUS){
-            console.log('zooming +');
             isZoomingMore = true;
+            // console.log(isZoomingMore)
         }
         if(event.key === KEYBOARD_ZOOM_MINUS){
-            console.log('zooming -');
             isZoomingLess = true;
+            // console.log(isZoomingLess)
         }
     }
 
     function onKeyBoardUp(event){
+        // console.log('onKeyBoardUp', event)
         if(event.key === KEYBOARD_ZOOM_PLUS){
-            console.log('cease +');
             isZoomingMore = false;
+            // console.log(isZoomingMore)
+            cameraRadius += 0.02;
+            cameraRadius = Math.min(MAX_CAMERA_RADIUS, Math.max(MIN_CAMERA_RADIUS, cameraRadius));
+            updateCameraPosition();
         }
         if(event.key === KEYBOARD_ZOOM_MINUS){
-            console.log('cease -');
             isZoomingLess = false;
+            // console.log(isZoomingLess)
         }
     }
 
     function onMouseDown(event){
-        console.log('mouse down');
+        // console.log('mouse down');
         if(event.button === LEFT_MOUSE_BUTTON){
             isLeftMouseDown = true;
         }
@@ -68,7 +75,7 @@ export function createCamera(gameWindow) {
     }
 
     function onMouseUp(event){
-        console.log('mouse up');
+        // console.log('mouse up');
         if(event.button === LEFT_MOUSE_BUTTON){
             isLeftMouseDown = false;
         }
@@ -80,17 +87,8 @@ export function createCamera(gameWindow) {
         }
     }
 
-    function onKeyBoardStay(event){ 
-        console.log('zooming stay');
-        if(isZoomingMore){
-            cameraRadius += deltaY * 0.02;
-            cameraRadius = Math.min(MAX_CAMERA_RADIUS, Math.max(MIN_CAMERA_RADIUS, cameraRadius));
-            updateCameraPosition();
-        }
-    }
-
     function onMouseMove(event){
-        console.log('mouse move');
+        // console.log('mouse move');
         const deltaY = event.clientY - prevMouseY;
         const deltaX = event.clientX - prevMouseX;
 
@@ -112,7 +110,7 @@ export function createCamera(gameWindow) {
         }
 
         if(isRightMouseDown) {
-            console.log('zooming');
+            // console.log('zooming');
             // 0.01 controls the speed of zooming
             cameraRadius += deltaY * 0.02;
             cameraRadius = Math.min(MAX_CAMERA_RADIUS, Math.max(MIN_CAMERA_RADIUS, cameraRadius));
@@ -140,7 +138,6 @@ export function createCamera(gameWindow) {
         onMouseMove,
         onMouseUp,
         onKeyBoardDown,
-        onKeyBoardUp,
-        onKeyBoardStay
+        onKeyBoardUp
     }
 }
