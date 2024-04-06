@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { createCamera } from './camera.js';
 import { createAsset } from './asset.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-const SKY_URL = 'public/resources/textures/skies/plain_sky.jpg';
+import {fetchPlayer, freePromises} from "./fetchPlayer.js";
+const SKY_URL = './resources/textures/skies/plain_sky.jpg';
 
 export function createScene() {
     const gameWindow = document.getElementById('game-window');
@@ -63,21 +64,23 @@ export function createScene() {
             setUpLights();
         }
 
-        // const playerData = {
-        //     url: avatarPath,
-        //     x: 6,
-        //     y: 0,
-        //     z: 5,
-        //     size: 2
-        // }
+        const avatarPath = './resources/soldierx.glb'
 
-        // const playerAnimationsData = {
-        //     name: 'Idle',
-        //     isAnimated: false
-        // }
+        const playerData = {
+            url: avatarPath,
+            x: 8,
+            y: 0,
+            z: 4,
+            size: 4
+        }
 
-        // fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData, playerData)
-        // freePromises(loadingPromises)  
+        const playerAnimationsData = {
+            name: 'Walk',
+            isAnimated: true
+        }
+
+        fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData, playerData)
+        freePromises(loadingPromises)
 
     }
 
@@ -121,6 +124,7 @@ export function createScene() {
         // scene.add(new THREE.AmbientLight(0xffffff, 0.3))
         // const helper = new THREE.CameraHelper(light.shadow.camera);
         // scene.add(helper);
+
         const lights = [
             new THREE.AmbientLight(0xffffff, 0.03),
             new THREE.DirectionalLight(0x999999, 0.05),
@@ -143,6 +147,23 @@ export function createScene() {
         lights[1].shadow.camera.far = 50;
 
         scene.add(...lights);
+
+        // const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.61);
+        // hemiLight.position.set(0, 50, 0);
+        // scene.add(hemiLight);
+        //
+        // const d = 8.25;
+        // const dirLight = new THREE.DirectionalLight(0xffffff, 0.54);
+        // dirLight.position.set(-8, 12, 8);
+        // dirLight.castShadow = true;
+        // dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
+        // dirLight.shadow.camera.near = 0.1;
+        // dirLight.shadow.camera.far = 1500;
+        // dirLight.shadow.camera.left = d * -1;
+        // dirLight.shadow.camera.right = d;
+        // dirLight.shadow.camera.top = d;
+        // dirLight.shadow.camera.bottom = d * -1;
+        // scene.add(dirLight);
     }
 
     function draw() {
@@ -197,6 +218,7 @@ export function createScene() {
     }
 
     function onKeyBoardDown(event){
+
         camera.onKeyBoardDown(event);
         // Raycasting need y and x axis as + on the terrain (plan) (y-1,y1,x1,x-1)
         // (number btw 0 and 1) * 2 - 1 > to get the value between -1 and 1
@@ -207,7 +229,7 @@ export function createScene() {
         // array of object > all objects from our scene that intersect with the ray (false = non recursive = only the first object)
         // array of intersections sorted by distance with the closest object 
         const intersections = raycaster.intersectObjects(scene.children, false);
-
+    
         if(intersections.length > 0) {
             // get the first object (the intersection) of the array of intersections
             const selected = intersects[0].object;
@@ -217,6 +239,7 @@ export function createScene() {
             // selected.material.emissive.setHex(0xff0000);
             console.log('selected Object ==> ', selectedObject);
         }
+
     }
 
     function onKeyBoardUp(event){

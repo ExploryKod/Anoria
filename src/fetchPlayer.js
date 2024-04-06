@@ -11,6 +11,7 @@ export function fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData,
             playerData.url,
             function(gltf) {
                 const model = gltf.scene;
+                console.log('AVATAR ', model)
                 model.scale.set(playerData.size, playerData.size, playerData.size);
                 model.position.y = playerData.y;
                 model.position.x = playerData.x;
@@ -21,14 +22,7 @@ export function fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData,
                     mixer = new THREE.AnimationMixer(model);
                       // Armature|mixamo.com|Layer0
                     let fileAnimations = gltf.animations;
-                    // let animate;
-                    // let idle;
-                    // fileAnimations.map((anim, index) => {
-                    //     console.log('animation name ===> ', anim.name)
-                    //     animate = THREE.AnimationClip.findByName(fileAnimations, anim.name);
-                    //     idle = mixer.clipAction(animate);  
-                    //     idle.play();
-                    // })
+                    console.log('ANIMATIONS PLAYER', fileAnimations)
                     let animate = THREE.AnimationClip.findByName(fileAnimations, playerAnimationsData.name);
                     let idle = mixer.clipAction(animate);  
                     idle.play();
@@ -40,6 +34,8 @@ export function fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData,
                     if (mixer) {
                         // console.log('updated mixer')
                         mixer.update(clock.getDelta());
+                        scene.add(model);
+                    } else {
                         scene.add(model);
                     }
 

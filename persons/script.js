@@ -9,7 +9,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
   init();
 
   function init() {
-    const MODEL_PATH = '../public/resources/RobotExpressive.glb';
+    const MODEL_PATH = './RobotExpressive.glb';
     const canvas = document.querySelector('#c');
     const backgroundColor = 0xf1f1f1;
 
