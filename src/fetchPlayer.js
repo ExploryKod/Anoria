@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
+let mixer;
+const loader = new GLTFLoader();
+const clock = new THREE.Clock();
+let playerMesh;
 export function fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData, playerData) {
-  
-    let mixer;
-    const loader = new GLTFLoader();
-    const clock = new THREE.Clock();
+
+
     loadingPromises.push(new Promise((resolve, reject) => {
         loader.load(
             playerData.url,
@@ -16,7 +17,18 @@ export function fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData,
                 model.position.y = playerData.y;
                 model.position.x = playerData.x;
                 model.position.z = playerData.z;
-               
+                model.name = 'player'
+                let x = playerData.x
+                let y = playerData.y
+                model.userData = { id:  'player', x, y, vicinities: [x-1, y-1]};
+
+                model.traverse((child) => {
+
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
 
                 if(playerAnimationsData.isAnimated) {
                     mixer = new THREE.AnimationMixer(model);
@@ -24,10 +36,11 @@ export function fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData,
                     let fileAnimations = gltf.animations;
                     console.log('ANIMATIONS PLAYER', fileAnimations)
                     let animate = THREE.AnimationClip.findByName(fileAnimations, playerAnimationsData.name);
-                    let idle = mixer.clipAction(animate);  
+                    let idle = mixer.clipAction(animate);
                     idle.play();
-        
                 }
+
+                playerMesh = model;
 
                 function update() {
 
@@ -42,8 +55,6 @@ export function fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData,
                     requestAnimationFrame(update)
 
                 }
-
-            
                 update()
                 resolve(); // Resolve the promise when the model is loaded
             },
@@ -61,9 +72,14 @@ export function freePromises(loadingPromises) {
         Promise.all(loadingPromises)
     .then(() => {
         console.log('All models loaded successfully');
+
         // Now you can proceed with other scene initialization tasks if needed
     })
     .catch((error) => {
         console.error('Error loading models:', error);
     });
+}
+
+export {
+    playerMesh
 }

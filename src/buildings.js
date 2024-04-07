@@ -3,22 +3,59 @@ import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
 const fbxLoader = new FBXLoader();
 const plyLoader = new PLYLoader();
-const buildingModels = [];
+const playerLoader = new GLTFLoader();
+
+const avatarPath = './resources/hero.glb'
+const playerData = {
+    url: avatarPath,
+    size: 0.8
+}
+
+
+
+let mixer;
+const toolIds = {
+    zones: ['grass', 'roads'],
+    houses: ['House-Blue', 'House-Red', 'House-Purple'],
+    tombs:  ['Tombstone-1', 'Tombstone-2', 'Tombstone-3'],
+    farms: ['Farm-Wheat', 'Farm-Carrot'],
+    nature : []
+}
+
+let allAssetsNames = [
+    {houses: []},
+    {nature: []},
+    {farm: []},
+    {other: []}
+];
+let assetFullName;
+
 const buildingModelsObj = {};
 
-const tombstonesModels = [];
 const tombstonesModelsObj = {};
 const miscellaneous = [];
 const assetNames = [];
 const tombstonesNames = [];
 
-const animalsNames = [];
-const animalsModels = [];
-const animalsModelsObj = {};
+const farmsNames = [];
+const farmsModelsObj = {};
+
+const playerModelObj = {};
+let playerAnimations;
+const playerNames = [];
 
 const dragonModelObj = {};
+
+let buttonData = [];
+
+const wantedHouses = [
+    'House-Blue',
+    'House-Red',
+    'House-Purple'
+]
 
 // Instantiate a loader
 const gltfloader = new GLTFLoader();
@@ -48,29 +85,53 @@ gltfloader.load(
         gltf.scene.traverse(function (child) {
             // console.log(child);
             if (child instanceof THREE.Mesh) { 
-                const assetFullName = child.userData.name
+                assetFullName = child.userData.name
                 const firstNamePart = assetFullName.split('_')[0]
                 const secondNamePart = assetFullName.split('_')[1]
+                const toolName = `${firstNamePart}-${secondNamePart}`
+
+                allAssetsNames.map((asset, index) => {
+                    if(asset.houses && toolIds.houses.includes(toolName)) {
+                        if(wantedHouses.includes(toolName)) {
+                            buttonData.push({text: firstNamePart+ ' ' + secondNamePart, tool: toolName, group: firstNamePart})
+                        }
+                        assetNames.push(`${firstNamePart}-${secondNamePart}`);
+                        Object.assign(buildingModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
+                        asset.houses.push({
+                            'fullName':child.userData.name,
+                            name : `${firstNamePart}-${secondNamePart}` ,
+                            'mesh': child})
+                    } else if(asset.nature && toolIds.nature.includes(toolName)) {
+                        asset.nature.push({
+                            'fullName':child.userData.name,
+                            name : `${firstNamePart}-${secondNamePart}` ,
+                            'mesh': child})
+                    } else if(asset.farm && toolIds.farms.includes(toolName)) {
+                        asset.farm.push({
+                            'fullName':child.userData.name,
+                            name : `${firstNamePart}-${secondNamePart}` ,
+                            'mesh': child})
+                        buttonData.push({text: firstNamePart+ ' ' + secondNamePart, tool: toolName, group: firstNamePart})
+                        farmsNames.push(`${firstNamePart}-${secondNamePart}`);
+                        Object.assign(farmsModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
+
+                    }else if(asset.other) {
+                        if(firstNamePart === 'Tombstone') {
+                            buttonData.push({text: firstNamePart+ ' ' + secondNamePart, tool: toolName, group: firstNamePart})
+                            tombstonesNames.push(`${firstNamePart}-${secondNamePart}`);
+                            Object.assign(tombstonesModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
+                        }
+
+                        asset.other.push({
+                            'fullName': child.userData.name,
+                            name : `${firstNamePart}-${secondNamePart}`,
+                            'mesh': child
+                        })
+                    }
+                })
 
                 // console.log('ASSETS NAMES => ', assetNames)
                 // console.log('TOMBSTONE NAMES => ', tombstonesNames)
-                       
-                switch(firstNamePart) {
-                    case 'House':
-                        assetNames.push(`${firstNamePart}-${secondNamePart}`);
-                        buildingModels.push(child)
-                        Object.assign(buildingModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
-                        break;
-                    case 'Tombstone':
-                        tombstonesNames.push(`${firstNamePart}-${secondNamePart}`);
-                        tombstonesModels.push(child)
-                        Object.assign(tombstonesModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
-                        break;
-                    default:
-                        // console.log(miscellaneous)
-                        // miscellaneous.push(child)
-                        break
-                }
             }
         });
     },
@@ -87,6 +148,43 @@ gltfloader.load(
 
     }
 );
+
+// Load a glTF resource if file with several assets
+playerLoader.load(
+    playerData.url,
+    function(gltf) {
+        const model = gltf.scene;
+        console.log('AVATAR ', model)
+        // model.traverse((child) => {
+        //     if (child.isMesh) {
+        //         child.castShadow = true;
+        //         child.receiveShadow = true;
+        //     }
+        // });
+        //
+        // if(playerAnimationsData.isAnimated) {
+        //     mixer = new THREE.AnimationMixer(model);
+        //     // Armature|mixamo.com|Layer0
+        //     let fileAnimations = gltf.animations;
+        //     console.log('ANIMATIONS PLAYER', fileAnimations)
+        //     let animate = THREE.AnimationClip.findByName(fileAnimations, playerAnimationsData.name);
+        //     let idle = mixer.clipAction(animate);
+        //     idle.play();
+        // }
+        playerAnimations = gltf.animations;
+        const firstNamePart = 'player'
+        const secondNamePart = 'hero'
+        playerNames.push(`${firstNamePart}-${secondNamePart}`);
+        Object.assign(playerModelObj, {[`${firstNamePart}-${secondNamePart}`]: model})
+    },
+    undefined,
+    function(error) {
+        console.error('player error', error);
+    }
+);
+
+
+
 
 // Animals
 
@@ -149,72 +247,22 @@ gltfloader.load(
 //     }
 // );
 
-gltfloader.load(
-    // resource URL
-    './resources/lowpoly/dragon.glb',
-    // called when the resource is loaded
-    function ( gltf ) {
+// console.log('all assets names', allAssetsNames);
 
-        // scene.add( gltf.scene );
-        console.log('DRAGON GLTF', gltf);
-
-        gltf.animations; // Array<THREE.AnimationClip>
-        gltf.scene; // THREE.Group
-        gltf.scenes; // Array<THREE.Group>
-        gltf.cameras; // Array<THREE.Camera>
-        gltf.asset; // Object
-
-        gltf.scene.traverse(function (child) {
-            console.log('dragon', child);
-            if (child instanceof THREE.Mesh) {
-                const animalFullName = child.userData.name
-                const firstNamePart = animalFullName.split('_')[0]
-                const secondNamePart = animalFullName.split('_')[1]
-
-                console.log('ANIMAL NAMES => ', animalsNames)
-
-                switch(firstNamePart) {
-                    case 'dragon':
-                        animalsNames.push(`${firstNamePart}-${secondNamePart}`);
-                        animalsModels.push(child)
-                        Object.assign(dragonModelObj, {[`${firstNamePart}-${secondNamePart}`]: child})
-                        break;
-                    case 'Tombstone':
-                        animalsNames.push(`${firstNamePart}-${secondNamePart}`);
-                        animalsModels.push(child)
-                        Object.assign(animalsModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
-                        break;
-                    default:
-                        console.log('dragons miscenallous', miscellaneous)
-                        miscellaneous.push(child)
-                        break
-                }
-            }
-        });
-        console.log('buildings js - DRAGON OBJECTS => ', animalsModelsObj)
-    },
-    // called while loading is progressing
-    function ( xhr ) {
-
-        // console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-    },
-    // called when loading has errors
-    function ( error ) {
-
-        console.error( 'An error happened' , error);
-
-    }
-);
+// console.log('player > >> ', playerModelObj)
 
 export {
-    animalsModelsObj,
-    animalsModels,
-    animalsNames,
-    buildingModels,
+    toolIds,
+    buttonData,
+    allAssetsNames,
+    assetFullName,
+    playerModelObj,
     miscellaneous,
     assetNames,
     buildingModelsObj,
     tombstonesModelsObj,
-    dragonModelObj
+    dragonModelObj,
+    farmsModelsObj,
+    playerNames,
+    playerAnimations
  };

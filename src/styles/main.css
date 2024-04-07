@@ -28,7 +28,7 @@ body {
     gap: 20px;
 }
 
-.toolbar .toolbar-btn, .select-object .toolbar-btn {
+.toolbar .toolbar-btn {
     margin: 0 0 0 20px;
     height: 50px;
     width: 70%;
@@ -36,6 +36,22 @@ body {
     border-radius: 10px;
    
     background-color: #000235;
+    color: #fff;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.panel-layout .panel-btn {
+    margin: 0 0 0 20px;
+    height: 50px;
+    width: 70%;
+    border: 3px solid #000235;
+    border-radius: 10px;
+
+    background-color: #009999;
     color: #fff;
     text-align: center;
     font-size: 18px;
@@ -70,12 +86,11 @@ body {
 
 /* Select object */
 
-.game-window .select-object {
+.game-window .panel-layout {
     position: absolute;
-    top: 10%;
-    left: 0;
+    top: 0;
     right: 0;
-    transform: translateY(-130%);
+    transform: translateX(130%);
     background-color: rgba(0, 0, 0, 0.5);
     margin: 0 auto;
     padding: 20px 10px;
@@ -84,10 +99,19 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
-
     transition: transform, 0.3s ease;
 }
 
-.game-window .select-object.active {
-    transform: translateY(-10%);
+.game-window .panel-layout.active {
+    transform: translateX(0%);
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.clickable {
+  pointer-events: auto;
+  opacity: 1;
 }

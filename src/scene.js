@@ -2,15 +2,23 @@ import * as THREE from 'three';
 import { createCamera } from './camera.js';
 import { createAsset } from './asset.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import {fetchPlayer, freePromises} from "./fetchPlayer.js";
+import {fetchPlayer, freePromises, playerMesh} from "./fetchPlayer.js";
+import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 const SKY_URL = './resources/textures/skies/plain_sky.jpg';
+let mixer;
+const loader = new GLTFLoader();
+const clock = new THREE.Clock();
 
 export function createScene() {
     const gameWindow = document.getElementById('game-window');
+    const displayPop = document.querySelector('.info-panel .display-pop')
+    const displayNeed = document.querySelector('.info-panel .display-need')
+    const displayLife = document.querySelector('.info-panel .display-life')
+
     const scene = new THREE.Scene();
     // scene.background = new THREE.Color(0x79845);
 
-    var skyLoader = new THREE.TextureLoader();
+    let skyLoader = new THREE.TextureLoader();
     skyLoader.load(
         // URL of the image
         SKY_URL,
@@ -40,6 +48,12 @@ export function createScene() {
     let terrain = [];
     let buildings = [];
     let loadingPromises = [];
+    let population  = 0;
+    let need = 0;
+    let farm = 0;
+    let life = 0;
+    let conso = 0;
+    console.log('initial population', population)
 
     function initialize(city) { 
         scene.clear();
@@ -51,7 +65,7 @@ export function createScene() {
             let column = [];
             for(let y = 0; y < city.size; y++) {
                 // Grass
-                const terrainId = city.data[x][y].terrainId;
+                const terrainId = city.tiles[x][y].terrainId;
                 const mesh = createAsset(terrainId, x, y);
                 mesh.name = terrainId;
                 scene.add(mesh);
@@ -64,67 +78,110 @@ export function createScene() {
             setUpLights();
         }
 
-        const avatarPath = './resources/soldierx.glb'
-
-        const playerData = {
-            url: avatarPath,
-            x: 8,
-            y: 0,
-            z: 4,
-            size: 4
-        }
-
-        const playerAnimationsData = {
-            name: 'Walk',
-            isAnimated: true
-        }
-
-        fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData, playerData)
-        freePromises(loadingPromises)
+        displayPop.textContent = population.toString()
+        displayNeed.textContent = need.toString()
+        displayLife.textContent = life.toString()
+        // addPlayerToScene(4, 0, 4)
 
     }
 
     function update(city) {
+        console.log('population ', population)
+        need += population * 1.5
+        farm += 1
+        conso = farm - need
+        console.log('conso', conso)
+        life -= conso
+        displayPop.textContent = population.toString()
+        displayNeed.textContent = need.toString()
+        if(life >= 0) {
+            displayLife.textContent = life.toString()
+        } else {
+            displayLife.textContent = 'MORT'
+        }
+
+        console.log('life', life)
+
         for(let x = 0; x < city.size; x++) {
             for(let y = 0; y < city.size; y++) {
-              const currentBuildingId = buildings[x][y]?.userData.id;
-              const newBuildingId = city.data[x][y].buildingId;
+                // console.log(`the city at y ${y}- x ${x} : >>`, city)
+              const currentBuildingId = buildings[x][y]?.userData?.id;
+              const newBuildingId = city.tiles[x][y].buildingId;
+                console.log('NEW BUILDING ID', newBuildingId);
+
             //  Remove a building from the scene if a player remove a building
             if(!newBuildingId && currentBuildingId) {
                 scene.remove(buildings[x][y]);
                 buildings[x][y] = undefined;
             }
+
             // if data model has changed, update the mesh
             if(newBuildingId && (newBuildingId !== currentBuildingId)) {
                 scene.remove(buildings[x][y]);
                 buildings[x][y] = createAsset(newBuildingId, x, y);
-                console.log(buildings[x][y])
-                scene.add(buildings[x][y]);
+
+                if(newBuildingId === 'House-Red') {
+                    life = 20
+                    population += 1
+                }
+
+                if(newBuildingId === 'Farm-Wheat') {
+                    farm += 1
+                }
+
+                if(newBuildingId === 'player-hero') {
+                    // addPlayerToScene(x,0,y)
+                } else {
+
+                    scene.add(buildings[x][y]);
+                }
+
+
                 }
             }
-          
-        }   
+
+        }
+
     }
 
+    // function updatePlayer(mixer, model) {
+    //
+    //     if (mixer) {
+    //         console.log('updated mixer')
+    //         mixer.update(clock.getDelta());
+    //         scene.add(model);
+    //     } else {
+    //         scene.add(model);
+    //     }
+    //
+    //     requestAnimationFrame(update)
+    //
+    // }
+
+    function addPlayerToScene(x=0, y=0, z=0) {
+        const avatarPath = './resources/dragon.glb'
+        const playerData = {
+            url: avatarPath,
+            x: x,
+            y: y,
+            z: z,
+            size: 0.8
+        }
+
+        const playerAnimationsData = {
+            name: 'Flying',
+            isAnimated: true
+        }
+        if(playerMesh) {
+            playerMesh.userData = {id: 'player-hero', x, y}
+        }
+
+        fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData, playerData)
+        freePromises(loadingPromises)
+    }
    
 
     function setUpLights() {
-        // const light = new THREE.DirectionalLight(0xffffff, 1)
-        // light.position.set(20,20,20);
-        // light[1].castShadow = true;
-        // light[1].shadow.camera.left = -10;
-        // light[1].shadow.camera.right = 10;
-        // light[1].shadow.camera.top = 0;
-        // light[1].shadow.camera.bottom = -10;
-        // light[1].shadow.mapSize.width = 1024;
-        // light[1].shadow.mapSize.height = 1024;
-        // light[1].shadow.camera.near = 0.5;
-        // light[1].shadow.camera.far = 50;
-        // scene.add(light)
-        // scene.add(new THREE.AmbientLight(0xffffff, 0.3))
-        // const helper = new THREE.CameraHelper(light.shadow.camera);
-        // scene.add(helper);
-
         const lights = [
             new THREE.AmbientLight(0xffffff, 0.03),
             new THREE.DirectionalLight(0x999999, 0.05),
@@ -148,22 +205,9 @@ export function createScene() {
 
         scene.add(...lights);
 
-        // const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.61);
-        // hemiLight.position.set(0, 50, 0);
-        // scene.add(hemiLight);
-        //
-        // const d = 8.25;
-        // const dirLight = new THREE.DirectionalLight(0xffffff, 0.54);
-        // dirLight.position.set(-8, 12, 8);
-        // dirLight.castShadow = true;
-        // dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
-        // dirLight.shadow.camera.near = 0.1;
-        // dirLight.shadow.camera.far = 1500;
-        // dirLight.shadow.camera.left = d * -1;
-        // dirLight.shadow.camera.right = d;
-        // dirLight.shadow.camera.top = d;
-        // dirLight.shadow.camera.bottom = d * -1;
-        // scene.add(dirLight);
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.1);
+        hemiLight.position.set(0, 50, 0);
+        scene.add(hemiLight);
     }
 
     function draw() {
@@ -258,6 +302,7 @@ export function createScene() {
         onMouseMove, 
         onKeyBoardDown,
         onKeyBoardUp,
-        setUpLights
+        setUpLights,
+        addPlayerToScene
     }
 }

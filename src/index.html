@@ -12,74 +12,162 @@
   <!-- Part 5 (Raycasting) -->
     <div id="game-window" class="game-window">
       <div id="toolbar" class="toolbar">
-        <button type="button" id="bulldoze-btn" class="toolbar-btn selected" onclick="setActiveTool(event,'bulldoze')">Détruire</button>
-        <button type="button" id="residential-btn" class="toolbar-btn" onclick="openModal(event,'residential')">Panel</button>
-        <button type="button" id="roads-btn" class="toolbar-btn" onclick="setActiveTool(event,'roads')">Routes</button> 
-      
-      </div>
+        <button type="button" id="bulldoze-btn" data-toolid="bulldoze" class="toolbar-btn selected">Détruire</button>
+        <button type="button" id="select-btn" data-toolid="select-object" class="toolbar-btn">Select</button>
+        <button type="button" id="residential-btn" class="toolbar-btn" data-group="residential">Maisons</button>
+        <button type="button" id="farm-btn" class="toolbar-btn" data-group="farms">Farms</button>
+        <button type="button" id="roads-btn" data-toolid="roads" class="toolbar-btn">Routes</button>
+        <button type="button" id="player-btn" data-toolid="player-hero" class="toolbar-btn">Player</button>
 
-      <div id="select-object" class="select-object">
-            {{/* <button type="button" id="person-btn" class="toolbar-btn" onclick="setActiveTool(event,'House-Blue')">Résidence Bleu</button>
-            <button type="button" id="person-btn" class="toolbar-btn" onclick="setActiveTool(event,'House-Red')">Résidence Rouge</button> */}}
+          <div class="info-panel toolbar-btn">
+              <p>Population:</p>
+              <span class="display-pop"></span>
+          </div>
+            <br>
+          <div class="info-panel toolbar-btn">
+              <p>Faim:</p>
+              <span class="display-need"></span>
+          </div>
+          <div class="info-panel toolbar-btn">
+              <p>Life:</p>
+              <span class="display-life"></span>
+          </div>
+
       </div>
-      
+      <div id="panel-layout" class="panel-layout"></div>
     </div>
 </div>
 <script type="module" src="./game.js"></script>
 <script type="module">
     import { createGame } from './game.js';
-    import { buildingModels, miscellaneous, assetNames, buildingModelsObj, dragonModelObj } from './buildings.js';
+    import { buttonData, toolIds } from './buildings.js';
+
+    const panelLayout = document.getElementById('panel-layout')
     let selectedControl = document.getElementById('bulldoze-btn');
-  
+    const toolBarButtons = document.querySelectorAll('.toolbar-btn');
+    const roadButton = document.getElementById('roads-btn');
+    const bullDozeButton = document.getElementById('bulldoze-btn');
+    const selectButton = document.getElementById('select-btn');
+    const playerButton = document.getElementById('player-btn');
+    const housesButton = document.getElementById('residential-btn');
+    const farmsButton = document.getElementById('farm-btn');
+    const panelButtons = document.querySelector('.panel-btn');
+
+
+    bullDozeButton.addEventListener('click', (e) => {
+        setActiveTool(e);
+    })
+
+    selectButton.addEventListener('click', (e) => {
+        setActiveTool(e);
+    })
+
+    playerButton.addEventListener('click', (e) => {
+        setActiveTool(e);
+    })
+
+    roadButton.addEventListener('click', (e) => {
+        setActiveTool(e);
+    })
+    housesButton.addEventListener('click', toggleModal)
+
+    farmsButton.addEventListener('click', toggleModal)
+
     window.onload = () => {
        window.game = createGame();
-    } 
-
-    const buttonData = [
-        { text: "Maison bleu", tool: "House-Blue" },
-        { text: "Maison rouge", tool: "House-Red" },
-        { text: "Maison violette", tool: "House-Purple" },
-        { text: "Tombstone", tool: "Tombstone-1"},
-        { text: "Dragon", tool: "Dragon"}
-    ];
-
-
-    window.openModal = (event, toolId) => {
-       console.log('we click')
-       let objectsPanel = document.querySelector('.select-object');
-       objectsPanel.classList.toggle('active');
-       window.game.setActiveToolId('residential');
-       console.log('------>>>> ', buildingModelsObj)
-       console.log('------>>>> ', dragonModelObj)
-       createButtons(buttonData,  objectsPanel);
-
     }
 
-function createButtons(data, modalLayout) {
-    modalLayout.innerHTML = '';
-    buttonData.forEach(buttonInfo => {
+    function getButtonsUnactive() {
+        toolBarButtons.forEach(button => {
+            button.classList.remove('selected')
+        })
+    }
+
+    function getButtonsDisabled() {
+        toolBarButtons.forEach(button => {
+            if(button.classList.contains('disabled')) {
+                button.classList.remove('disabled')
+            } else {
+                button.classList.add('disabled')
+            }
+
+        })
+    }
+
+    function toggleModal(e) {
+        console.log('we click on modal button')
+        console.log('button data on arrival', buttonData);
+        console.log('tool id on arrival', toolIds);
+
+       switch(e.target.dataset.group) {
+          case 'residential':
+              getButtonsUnactive()
+              getButtonsDisabled()
+              e.target.classList.toggle('selected')
+              if(!panelLayout.classList.contains('active')) {
+                  panelLayout.classList.add('active');
+              }
+             createHousesButtons(buttonData);
+            break;
+          case 'farms':
+              getButtonsUnactive()
+              getButtonsDisabled()
+              if(!panelLayout.classList.contains('active')) {
+                  panelLayout.classList.add('active');
+              }
+              e.target.classList.toggle('selected')
+             createFarmsButtons(buttonData);
+             break;
+          default:
+              e.target.classList.toggle('selected')
+              panelLayout.classList.remove('active');
+             break;
+       }
+    }
+
+    function createHousesButtons(buttonData) {
+        panelLayout.innerHTML = '';
+        const houseToolIDs = toolIds.houses || [];
+        buttonData.filter(buttonInfo => houseToolIDs.includes(buttonInfo.tool)).forEach(buttonInfo => {
+            makeNewButton(buttonInfo)
+        });
+    }
+
+    function createFarmsButtons(buttonData) {
+        panelLayout.innerHTML = ''
+        const farmToolIDs = toolIds.farms || [];
+        buttonData.filter(buttonInfo => farmToolIDs.includes(buttonInfo.tool)).forEach(buttonInfo => {
+            makeNewButton(buttonInfo)
+        });
+    }
+
+    function makeNewButton(buttonInfo) {
         const button = document.createElement('button');
         button.type = 'button';
-        button.id = buttonInfo.id;
+        button.id = buttonInfo.tool;
+        button.dataset.toolid = buttonInfo.tool;
         button.classList.add('toolbar-btn');
-        button.textContent = buttonInfo.text;
-        button.addEventListener('click', () => {
-            setActiveTool(event, buttonInfo.tool);
-            // Or call openModal if needed
-            // openModal(event, buttonInfo.tool);
-        });
-        modalLayout.appendChild(button);
-    });
-}
+        button.classList.add('panel-btn');
 
-    window.setActiveTool = (event, toolId) => {
-      if(selectedControl){
-        selectedControl.classList.remove('selected');
-      }
-      selectedControl = event.target;
-      selectedControl.classList.add('selected');
-      window.game.setActiveToolId(toolId);      
+        button.textContent = buttonInfo.text;
+        button.addEventListener('click', (e) => {
+            setActiveTool(e);
+        });
+        panelLayout.appendChild(button);
     }
+
+    window.setActiveTool = (e) => {
+        console.log('tool id', e.target.dataset.toolid)
+        getButtonsUnactive(e)
+        if(e.target.classList.contains('panel-btn')) {
+            getButtonsDisabled()
+        }
+        toggleModal(e)
+        selectedControl = e.currentTarget;
+        selectedControl.classList.add('selected');
+        window.game.setActiveToolId(e.target.dataset.toolid);
+    }
+
 
 </script>
 

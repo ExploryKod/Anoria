@@ -1,8 +1,6 @@
+import { changeMeshMaterial, changeMeshColor, textures, changeBuildingSides } from "./asset.js";
 import { createScene } from './scene.js';
 import { createCity } from './city.js'; 
-import { buildingModels, miscellaneous, assetNames, buildingModelsObj } from './buildings.js';
-
-
 
 export function createGame() {
     let activeToolId = '';
@@ -12,22 +10,25 @@ export function createGame() {
 
     // handler function to extract coordinate of an object I click on (data from asset js and using scene js methods)
     scene.onObjectSelected = (selectedObject) => {
-        console.log('the selected Object', selectedObject.name);
+        selectedObject.info = '';
         selectedObject.name = activeToolId;
-        console.log('the selected Object new name', selectedObject.name);
+        console.log('the selected Object: ', selectedObject);
+
         let { x, y } = selectedObject.userData;
         // location of the tile in the data model
-        const tile = city.data[x][y];
-
+        const tile = city.tiles[x][y];
+        console.log('actuel buildingId', tile)
         if(activeToolId === 'bulldoze') {
             // remove building from that location
             tile.buildingId = undefined;
             scene.update(city);
+        } else if(activeToolId === "select-object") {
+            changeMeshMaterial(selectedObject, textures['roads'])
         } else if(!tile.buildingId) {
             // place building at that location
             tile.buildingId = activeToolId;
             scene.update(city);
-        } 
+        }
     }
     //    on onMouse we bind the scene object itself to the handler function onObjectSelected to work with the scene object
     // these event listeners are added to the document object, not the scene object itself - they are call by HTML document so we need to bind the scene object 
