@@ -12,16 +12,14 @@ const clock = new THREE.Clock();
 export function createScene() {
     const gameWindow = document.getElementById('game-window');
     const displayPop = document.querySelector('.info-panel .display-pop')
-    const displayNeed = document.querySelector('.info-panel .display-need')
-    const displayLife = document.querySelector('.info-panel .display-life')
     const displayFood = document.querySelector('.info-panel .display-food')
     const displayDead = document.querySelector('.info-panel .display-dead')
     const displayDelay = document.querySelector('.info-panel .display-delay')
-    const displaySurplus = document.querySelector('.info-panel .display-surplus')
+
 
     // Accounts
     const displayFunds = document.querySelector('.info-panel .display-funds')
-
+    const displayDebt = document.querySelector('.info-panel .display-debt')
 
     const scene = new THREE.Scene();
     // scene.background = new THREE.Color(0x79845);
@@ -53,20 +51,18 @@ export function createScene() {
     // Référence une fonction appelée si un objet est sélectionné
     let onObjectSelected = undefined;
 
+    //  Variables de items
     let terrain = [];
     let buildings = [];
     let loadingPromises = [];
+
+    // Variables de gameplay
+    let maxPop = 5;
     let population  = 0;
-    let need = 0;
     let food = 0;
-    let life = 0;
     let deads = 0;
-    let turn = 0;
+    let debt = 0;
     let delay = 0;
-
-    let sales = true;
-
-    let surplus = 0;
     let funds = 0;
 
     const houses = ['House-Red', 'House-Purple', 'House-Blue']
@@ -95,14 +91,14 @@ export function createScene() {
             setUpLights();
         }
 
+        //  Initialize gameplay
         displayPop.textContent = population.toString()
-        // displayNeed.textContent = need.toString()
-        // displayLife.textContent = life.toString()
         displayFood.textContent = food.toString()
         displayDead.textContent = deads.toString()
         displayFunds.textContent = funds.toString()
-        displayDelay.textContent = delay.toString()
-        // displaySurplus.textContent = surplus.toString()
+        displayDelay.textContent = delay.toString() + ' délai'
+        displayDebt.textContent = debt.toString() + ' $$'
+
         // addPlayerToScene(4, 0, 4)
 
     }
@@ -121,6 +117,7 @@ export function createScene() {
                 console.log('delete this building', currentBuildingId);
                 if(houses.includes(currentBuildingId)) {
                     funds -= 1
+                    maxPop -= 5
                     population -= 1
                     deads += 1
                 }
@@ -139,7 +136,11 @@ export function createScene() {
 
                 if(houses.includes(newBuildingId)) {
                     funds -= 1;
-                    population += 1
+                    maxPop += 5
+                    if(population <= maxPop) {
+                        population += 1
+                    }
+
                 }
 
                 if(farms.includes(newBuildingId)) {
@@ -157,46 +158,71 @@ export function createScene() {
 
         }
         // --- FIN BOUCLE SUR LA VILLE ----
-        console.log(population)
-        console.log(food)
+        console.log('population', population)
+        console.log('food', food)
 
         if(population > 0 && (food < population)) {
             console.log('famine')
-            while(food < population) {
-                population -= 1;
-                deads += 1;
+            delay += 1
+            if(delay > 10) {
+                while(food < population) {
+                    population -= 1;
+                    deads += 1;
+                }
             }
+
         }
 
-        if(population > 0 && (food > population)) {
-            console.log('famine')
-            while(food > population) {
+        if(population > 0 && (food === population)) {
+            console.log('city growing')
+            delay = 0
+            while(food > population && population <= maxPop) {
                 population += 1;
             }
         }
 
+        if(population > 0 && (food > population)) {
+            console.log('city growing')
+            while(food > population && population <= maxPop) {
+                population += 1;
+                funds += 1;
+                food -= 1;
+            }
+        }
 
-        displayDelay.textContent = delay.toString()
+        if(funds < 0) {
+            debt += 1
+        }
+
+        if(time > 10 && delay === 0 && population === 0 && food <= 0) {
+            window.game.gameOver('idle')
+        }
+
+        if(debt > 5000) {
+            window.game.gameOver('debt', {'debt': deads}, 'debt')
+        }
+
+        if(deads > 10) {
+            window.game.gameOver('death', {'deads': deads}, 'deads')
+        }
+
+        if(deads > 0 && population <= 0) {
+            window.game.gameOver()
+        }
+
+
+        displayDelay.textContent = delay.toString() + ' delai'
+
         displayPop.textContent = population.toString()
         displayFood.textContent = food.toString()
+
         displayFunds.textContent = funds.toString()
+        displayDebt.textContent =  debt.toString() + ' $$'
+
         displayDead.textContent = deads.toString()
 
-    }
 
-    // function updatePlayer(mixer, model) {
-    //
-    //     if (mixer) {
-    //         console.log('updated mixer')
-    //         mixer.update(clock.getDelta());
-    //         scene.add(model);
-    //     } else {
-    //         scene.add(model);
-    //     }
-    //
-    //     requestAnimationFrame(update)
-    //
-    // }
+    }
 
     function addPlayerToScene(x=0, y=0, z=0) {
         const avatarPath = './resources/dragon.glb'
@@ -281,7 +307,7 @@ export function createScene() {
             // if(selectedObject.material.length !== undefined) {
                
             // }
-            // console.log('selected object scene onMouseD ==>', selectedObject.material)
+            console.log('selected object scene onMouseD ==>', selectedObject.material)
             // console.log('selected object scene is an array ? ==>', selectedObject.material.length)
             // selectedObject.material.emissive.setHex(0xff0000);
         
@@ -342,6 +368,7 @@ export function createScene() {
         onKeyBoardUp,
         setUpLights,
         addPlayerToScene,
-        delay
+        delay,
+        deads
     }
 }

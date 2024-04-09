@@ -9,6 +9,11 @@
     --darkblue:  #000235;
     --lightgreen: #009999;
 
+    --danger: #9c2939;
+    --warning: #ffc107;
+    --info: #17a2b8;
+    --success: #28a745;
+
     --toolbar-btn-color: var(--cta);
     --panel-btn-color: var(--cta);
     --panel-bg-color: var(--primary-05);
@@ -136,8 +141,7 @@ html, body {
  }
 
 /* Panel layout to select object as house etc.. */
-
-.game-window .panel-layout, .game-window .pause-overlay {
+.game-window .panel-layout, .game-window .pause-overlay, .game-window .over-overlay {
     width: 100%;
     height: 100%;
     position: absolute;
@@ -155,6 +159,20 @@ html, body {
     pointer-events: none;
     z-index: -99;
     transition: opacity 0.3s ease-in;
+}
+
+.over-overlay {
+    flex-direction: column;
+}
+
+.over-overlay .over-overlay__text {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #fafafa;
+    color: #000235;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .game-window .panel-layout .panel-close-btn {
@@ -191,18 +209,22 @@ html, body {
     color: #fff;
 }
 
-.game-window .panel-layout.active, .pause-overlay.active {
+.game-window .panel-layout.active, .pause-overlay.active, .over-overlay.active {
     opacity: 1;
     pointer-events: auto;
     z-index: 2;
 }
 
 .game-window .panel-layout .panel-inner {
-    max-width: 350px;
+    min-width: 350px;
+    min-height: 350px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #fff;
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-start;
+    align-items: flex-start;
+    justify-content: center;
     gap: 20px;
 }
 
@@ -263,17 +285,51 @@ html, body {
     font-weight: 700;
 }
 
-/* TEMPORARY */
-
-.surplus-box, .life-box, .need-box {
-    display: none;
+.toolbar-btn .speed-btn {
+    background-color: #000235;
+    color: white;
 }
 
-.surplus-box > div, .life-box > div, .need-box > div {
-    display: none;
+.toolbar-btn .speed-btn.slower {
+    background-color: #000;
+    color: var(--warning);
 }
 
-.surplus-box .surplus-icon, .life-box > .life-icon, .need-box .need-icon {
-    display: none;
+.toolbar-btn .speed-btn.speeder {
+    background-color: #fff;
+    color: var(--danger);
+    animation: glowing 0.3s ease-in infinite;
 }
 
+/* Tools */
+/*.panel-btn#House-Red {*/
+/*    transition: all 0.4s ;*/
+/*    background-color: #fafafa;*/
+/*    color: var(--danger)*/
+/*}*/
+
+/*.panel-btn#House-Red:hover {*/
+
+/*    background-color: var(--danger);*/
+/*    animation: glowing 3s ease-in infinite;*/
+
+/*}*/
+
+
+
+
+
+@keyframes glowing {
+    0% {
+        background-color: var(--danger);
+        box-shadow: 0 0 3px var(--danger);
+    }
+    50% {
+        background-color: #7e1725;
+        box-shadow: 0 0 10px #7e1725;
+    }
+    100% {
+        background-color: #6c1521;
+        box-shadow: 0 0 3px #6c1521;
+    }
+}

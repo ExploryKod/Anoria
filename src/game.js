@@ -6,10 +6,15 @@ export function createGame() {
     let activeToolId = '';
     let time = 0;
     let isPause;
+    let isOver;
+    let infos = {};
 
     const displayTime = document.querySelector('.info-panel .display-time')
+    const displaySpeed = document.querySelector('.info-panel .display-speed span')
+    const overOverlay = document.querySelector('#over-overlay');
+    const overOverlayMessage = document.querySelector('#over-overlay .over-overlay__text');
     displayTime.textContent = time.toString() + ' jours';
-
+    displaySpeed.textContent = '0 mois'
     const scene = createScene();
     const city = createCity(16);
     scene.initialize(city);
@@ -29,7 +34,7 @@ export function createGame() {
             tile.buildingId = undefined;
             scene.update(city);
         } else if(activeToolId === "select-object") {
-            changeMeshMaterial(selectedObject, textures['roads'])
+            console.log('Je sélectionne ', selectedObject.userData)
         } else if(!tile.buildingId) {
             // place building at that location
             tile.buildingId = activeToolId;
@@ -48,7 +53,6 @@ export function createGame() {
     const game = {
 
         update(time) {
-            // console.log('game is updated')
             displayTime.textContent = time + ' jours'
             city.update();
             scene.update(city, time);
@@ -66,6 +70,45 @@ export function createGame() {
             displayTime.textContent = 'play'
         },
 
+        gameOver(reason='death', data = {}, key="") {
+            overOverlayMessage.innerHTML = ""
+            const placeholder = "Des";
+            switch(reason) {
+                case 'death' :
+                    overOverlayMessage.innerHTML = `<p> ${data['deads'] ? data['deads'] : placeholder} personnes sont mortes du fait de votre incompétence!</p><p>Vous êtes viré et ruiné !</p>`
+                    break
+                case 'money' :
+                    overOverlayMessage.innerHTML = `<p>Trop de dettes!</p><p>Vous êtes viré et ruiné !</p>`
+                    break
+                case 'idle' :
+                    overOverlayMessage.innerHTML = `<p>Vous avez cru prendre des vacances au soleil ? Vous n'avez pas améner le moindre habitant ! </p><p>Vous êtes viré !</p>`
+                    break
+            }
+            overOverlay.classList.add('active')
+
+            isOver = true;
+        },
+
+        replay() {
+            isOver = false;
+            overOverlay.classList.remove('active')
+            window.location.href = '/'
+        },
+
+        setInfo(key, info) {
+            if(!infos.key) {
+                infos.assign(...infos, {key: info})
+            } else {
+                console.warn('key already exist in info object')
+            }
+        },
+
+        getInfo(key) {
+            if(infos[key]) {
+                return infos[key]
+            }
+        },
+
         setActiveToolId(toolId) {
             activeToolId = toolId;
         },
@@ -73,8 +116,10 @@ export function createGame() {
 
     setInterval(() => {
         if(!isPause) {
-            time += 1;
-            game.update(time);
+            if(!isOver) {
+                time += 1;
+                game.update(time);
+            }
         }
     }, 1000);
 
