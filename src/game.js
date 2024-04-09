@@ -4,6 +4,12 @@ import { createCity } from './city.js';
 
 export function createGame() {
     let activeToolId = '';
+    let time = 0;
+    let isPause;
+
+    const displayTime = document.querySelector('.info-panel .display-time')
+    displayTime.textContent = time.toString() + ' jours';
+
     const scene = createScene();
     const city = createCity(16);
     scene.initialize(city);
@@ -40,20 +46,38 @@ export function createGame() {
     document.addEventListener('keyup', scene.onKeyBoardUp.bind(scene), false);
     
     const game = {
-      
-        update() { 
+
+        update(time) {
             // console.log('game is updated')
+            displayTime.textContent = time + ' jours'
             city.update();
-            scene.update(city);
+            scene.update(city, time);
         },
+
+        pause() {
+           isPause = true;
+            console.log('--pause--')
+           displayTime.textContent = 'pause'
+        },
+
+        play() {
+            console.log('--play--')
+            isPause = false;
+            displayTime.textContent = 'play'
+        },
+
         setActiveToolId(toolId) {
             activeToolId = toolId;
-        }
+        },
     }; 
 
     setInterval(() => {
-         game.update();
-    }, 5000);
+        if(!isPause) {
+            time += 1;
+            game.update(time);
+        }
+    }, 1000);
+
 
     scene.start();
     return game;

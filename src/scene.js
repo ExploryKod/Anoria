@@ -14,6 +14,14 @@ export function createScene() {
     const displayPop = document.querySelector('.info-panel .display-pop')
     const displayNeed = document.querySelector('.info-panel .display-need')
     const displayLife = document.querySelector('.info-panel .display-life')
+    const displayFood = document.querySelector('.info-panel .display-food')
+    const displayDead = document.querySelector('.info-panel .display-dead')
+    const displayDelay = document.querySelector('.info-panel .display-delay')
+    const displaySurplus = document.querySelector('.info-panel .display-surplus')
+
+    // Accounts
+    const displayFunds = document.querySelector('.info-panel .display-funds')
+
 
     const scene = new THREE.Scene();
     // scene.background = new THREE.Color(0x79845);
@@ -35,7 +43,7 @@ export function createScene() {
     renderer.shadowMap.enabled = true;
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    // const controls = new OrbitControls(camera.camera, renderer.domElement);
+    const controls = new OrbitControls(camera.camera, renderer.domElement);
     gameWindow.appendChild(renderer.domElement);
 
     // Selections d'un objet
@@ -50,10 +58,19 @@ export function createScene() {
     let loadingPromises = [];
     let population  = 0;
     let need = 0;
-    let farm = 0;
+    let food = 0;
     let life = 0;
-    let conso = 0;
-    console.log('initial population', population)
+    let deads = 0;
+    let turn = 0;
+    let delay = 0;
+
+    let sales = true;
+
+    let surplus = 0;
+    let funds = 0;
+
+    const houses = ['House-Red', 'House-Purple', 'House-Blue']
+    const farms = ['Farm-Wheat', 'Farm-Carrot']
 
     function initialize(city) { 
         scene.clear();
@@ -79,38 +96,38 @@ export function createScene() {
         }
 
         displayPop.textContent = population.toString()
-        displayNeed.textContent = need.toString()
-        displayLife.textContent = life.toString()
+        // displayNeed.textContent = need.toString()
+        // displayLife.textContent = life.toString()
+        displayFood.textContent = food.toString()
+        displayDead.textContent = deads.toString()
+        displayFunds.textContent = funds.toString()
+        displayDelay.textContent = delay.toString()
+        // displaySurplus.textContent = surplus.toString()
         // addPlayerToScene(4, 0, 4)
 
     }
 
-    function update(city) {
-        console.log('population ', population)
-        need += population * 1.5
-        farm += 1
-        conso = farm - need
-        console.log('conso', conso)
-        life -= conso
-        displayPop.textContent = population.toString()
-        displayNeed.textContent = need.toString()
-        if(life >= 0) {
-            displayLife.textContent = life.toString()
-        } else {
-            displayLife.textContent = 'MORT'
-        }
-
-        console.log('life', life)
-
+    function update(city, time=0) {
+        // --- BOUCLE SUR LA VILLE ----
         for(let x = 0; x < city.size; x++) {
             for(let y = 0; y < city.size; y++) {
                 // console.log(`the city at y ${y}- x ${x} : >>`, city)
               const currentBuildingId = buildings[x][y]?.userData?.id;
               const newBuildingId = city.tiles[x][y].buildingId;
-                console.log('NEW BUILDING ID', newBuildingId);
 
             //  Remove a building from the scene if a player remove a building
             if(!newBuildingId && currentBuildingId) {
+
+                console.log('delete this building', currentBuildingId);
+                if(houses.includes(currentBuildingId)) {
+                    funds -= 1
+                    population -= 1
+                    deads += 1
+                }
+                if(farms.includes(currentBuildingId)) {
+                    funds -= 1;
+                    food -= 1
+                }
                 scene.remove(buildings[x][y]);
                 buildings[x][y] = undefined;
             }
@@ -120,27 +137,50 @@ export function createScene() {
                 scene.remove(buildings[x][y]);
                 buildings[x][y] = createAsset(newBuildingId, x, y);
 
-                if(newBuildingId === 'House-Red') {
-                    life = 20
+                if(houses.includes(newBuildingId)) {
+                    funds -= 1;
                     population += 1
                 }
 
-                if(newBuildingId === 'Farm-Wheat') {
-                    farm += 1
+                if(farms.includes(newBuildingId)) {
+                    funds -= 1
+                    food += 1
                 }
 
                 if(newBuildingId === 'player-hero') {
                     // addPlayerToScene(x,0,y)
                 } else {
-
                     scene.add(buildings[x][y]);
                 }
-
-
                 }
             }
 
         }
+        // --- FIN BOUCLE SUR LA VILLE ----
+        console.log(population)
+        console.log(food)
+
+        if(population > 0 && (food < population)) {
+            console.log('famine')
+            while(food < population) {
+                population -= 1;
+                deads += 1;
+            }
+        }
+
+        if(population > 0 && (food > population)) {
+            console.log('famine')
+            while(food > population) {
+                population += 1;
+            }
+        }
+
+
+        displayDelay.textContent = delay.toString()
+        displayPop.textContent = population.toString()
+        displayFood.textContent = food.toString()
+        displayFunds.textContent = funds.toString()
+        displayDead.textContent = deads.toString()
 
     }
 
@@ -222,8 +262,6 @@ export function createScene() {
         renderer.setAnimationLoop(null);
     }
 
-    function playerGoingLeft(event) {}
-
     function onMouseDown(event){
         camera.onMouseDown(event);
         // Raycasting need y and x axis as + on the terrain (plan) (y-1,y1,x1,x-1)
@@ -303,6 +341,7 @@ export function createScene() {
         onKeyBoardDown,
         onKeyBoardUp,
         setUpLights,
-        addPlayerToScene
+        addPlayerToScene,
+        delay
     }
 }

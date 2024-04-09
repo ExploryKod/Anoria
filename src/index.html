@@ -3,38 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/tooltip.css">
     <title>City Builder with three js and live server</title>
 </head>
 <body>
 <div id="root-window" class="root-window">
   <!-- Part 5 (Raycasting) -->
     <div id="game-window" class="game-window">
-      <div id="toolbar" class="toolbar">
-        <button type="button" id="bulldoze-btn" data-toolid="bulldoze" class="toolbar-btn selected">Détruire</button>
-        <button type="button" id="select-btn" data-toolid="select-object" class="toolbar-btn">Select</button>
-        <button type="button" id="residential-btn" class="toolbar-btn" data-group="residential">Maisons</button>
-        <button type="button" id="farm-btn" class="toolbar-btn" data-group="farms">Farms</button>
-        <button type="button" id="roads-btn" data-toolid="roads" class="toolbar-btn">Routes</button>
-        <button type="button" id="player-btn" data-toolid="player-hero" class="toolbar-btn">Player</button>
 
-          <div class="info-panel toolbar-btn">
-              <p>Population:</p>
-              <span class="display-pop"></span>
-          </div>
-            <br>
-          <div class="info-panel toolbar-btn">
-              <p>Faim:</p>
-              <span class="display-need"></span>
-          </div>
-          <div class="info-panel toolbar-btn">
-              <p>Life:</p>
-              <span class="display-life"></span>
-          </div>
+        <div id="pause-overlay" class="pause-overlay">
+            <button type="button" id="play-btn" data-action="play" class="toolbar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play">
+                    <polygon points="6 3 20 12 6 21 6 3"/>
+                </svg>
+            </button>
+        </div>
 
+        <div id="toolbar" class="toolbar">
+
+          <button type="button" id="pause-btn" data-action="pause" class="toolbar-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause">
+                  <rect x="14" y="4" width="4" height="16" rx="1"/>
+                  <rect x="6" y="4" width="4" height="16" rx="1"/>
+              </svg>
+          </button>
+
+        <button type="button" id="bulldoze-btn" data-toolid="bulldoze" class="toolbar-btn selected">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eraser">
+                <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/>
+                <path d="M22 21H7"/><path d="m5 11 9 9"/>
+            </svg>
+        </button>
+        <button type="button" id="select-btn" data-toolid="select-object" class="toolbar-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-mouse-pointer">
+                <path d="M21 11V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/>
+                <path d="m12 12 4 10 1.7-4.3L22 16Z"/>
+            </svg>
+        </button>
+        <button type="button" id="residential-btn" class="toolbar-btn" data-group="residential">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+        </button>
+        <button type="button" id="farm-btn" class="toolbar-btn" data-group="farms">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wheat">
+                <path d="M2 22 16 8"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
+                <path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
+                <path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
+                <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/>
+                <path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
+                <path d="M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
+                <path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
+            </svg>
+        </button>
+        <button type="button" id="roads-btn" data-toolid="roads" class="toolbar-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-route">
+                <circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/>
+                <circle cx="18" cy="5" r="3"/>
+            </svg>
+        </button>
+        <button type="button" id="player-btn" data-toolid="player-hero" class="toolbar-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-person-standing"><circle cx="12" cy="5" r="1"/>
+                <path d="m9 20 3-6 3 6"/><path d="m6 8 6 2 6-2"/>
+                <path d="M12 10v4"/>
+            </svg>
+        </button>
       </div>
-      <div id="panel-layout" class="panel-layout"></div>
+
+
+        <div class="info-panel">
+
+            <div class="info-box clock-box">
+              <span class="clock-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-4"><circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </span>
+                <div class="display-time"></div>
+            </div>
+
+            <div class="info-box pop-box">
+                 <span class="info-box pop-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </span>
+                <div class="display-pop"></div>
+            </div>
+
+            <div class="info-box dead-box">
+                 <span class="dead-icon">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-skull"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/>
+                         <path d="M8 20v2h8v-2"/>
+                        <path d="m12.5 17-.5-1-.5 1h1z"/>
+                        <path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/>
+                    </svg>
+                </span>
+                <div class="display-dead"></div>
+            </div>
+
+            <div class="need-box">
+               <span class="need-icon">
+<!--                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hand-helping"><path d="M11 12h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 14"/>-->
+<!--                        <path d="m7 18 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/>-->
+<!--                        <path d="m2 13 6 6"/>-->
+<!--                    </svg>-->
+                </span>
+                <div class="display-need"></div>
+            </div>
+
+             <div class="info-box food-box">
+                 <span class="food-icon">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-apple">
+                    <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/>
+                    <path d="M10 2c1 .5 2 2 2 5"/>
+                   </svg>
+                </span>
+                 <div class="display-food"></div>
+             </div>
+
+            <div class="life-box">
+              <span class="life-icon">
+<!--                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart">-->
+<!--                       <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>-->
+<!--                   </svg>-->
+              </span>
+              <div class="display-life"></div>
+            </div>
+
+            <div class="info-box budget-box">
+                <span class="budget-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-euro">
+                          <path d="M4 10h12"/><path d="M4 14h9"/>
+                          <path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/>
+                        </svg>
+                  </span>
+                <div class="display-funds"></div>
+            </div>
+
+            <div class="surplus-box">
+<!--                <span class="surplus-icon">-->
+<!--                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-dollar-sign"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/>-->
+<!--                   </svg>-->
+<!--                  </span>-->
+                <div class="display-surplus"></div>
+            </div>
+
+            <div class="info-box delay-box">
+                <span class="delay-icon">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alarm-clock"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/><path d="M6.38 18.7 4 21"/><path d="M17.64 18.67 20 21"/>
+                     </svg>
+                  </span>
+                <div class="display-delay"></div>
+            </div>
+
+        </div>
+
+
+        <div id="panel-layout" class="panel-layout">
+          <div class="panel-close-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-x">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="m15 9-6 6"/>
+                  <path d="m9 9 6 6"/>
+              </svg>
+          </div>
+          <div id="panel-inner" class="panel-inner"></div>
+      </div>
+
     </div>
 </div>
 <script type="module" src="./game.js"></script>
@@ -43,6 +183,7 @@
     import { buttonData, toolIds } from './buildings.js';
 
     const panelLayout = document.getElementById('panel-layout')
+    const panelLayoutInner = document.getElementById('panel-inner')
     let selectedControl = document.getElementById('bulldoze-btn');
     const toolBarButtons = document.querySelectorAll('.toolbar-btn');
     const roadButton = document.getElementById('roads-btn');
@@ -51,8 +192,21 @@
     const playerButton = document.getElementById('player-btn');
     const housesButton = document.getElementById('residential-btn');
     const farmsButton = document.getElementById('farm-btn');
-    const panelButtons = document.querySelector('.panel-btn');
+    const panelLayoutCloseBtn = document.querySelector('.panel-layout .panel-close-btn')
 
+    const pauseOverlay = document.querySelector('#pause-overlay');
+    const pauseButton = document.getElementById('pause-btn');
+    const playButton = document.getElementById('play-btn');
+
+    playButton.addEventListener('click', () => {
+        pauseOverlay.classList.remove('active')
+        window.game.play()
+    })
+
+    pauseButton.addEventListener('click', () => {
+        pauseOverlay.classList.add('active')
+        window.game.pause()
+    })
 
     bullDozeButton.addEventListener('click', (e) => {
         setActiveTool(e);
@@ -73,6 +227,8 @@
 
     farmsButton.addEventListener('click', toggleModal)
 
+    panelLayoutCloseBtn.addEventListener('click', closeModal)
+
     window.onload = () => {
        window.game = createGame();
     }
@@ -92,6 +248,22 @@
             }
 
         })
+    }
+
+    function closeModal() {
+        toolBarButtons.forEach(button => {
+            if (button.classList.contains('disabled')) {
+                button.classList.remove('disabled')
+            }
+        });
+        toolBarButtons.forEach(button => {
+            if(button.classList.contains('selected')) {
+                button.classList.remove('selected')
+            }
+        })
+        if(panelLayout.classList.contains('active')) {
+            panelLayout.classList.remove('active');
+        }
     }
 
     function toggleModal(e) {
@@ -126,22 +298,45 @@
     }
 
     function createHousesButtons(buttonData) {
-        panelLayout.innerHTML = '';
+        panelLayoutInner.innerHTML = ''
         const houseToolIDs = toolIds.houses || [];
+        const svg =  `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-home">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>`
         buttonData.filter(buttonInfo => houseToolIDs.includes(buttonInfo.tool)).forEach(buttonInfo => {
-            makeNewButton(buttonInfo)
+            makeNewButton(buttonInfo, svg)
         });
     }
 
     function createFarmsButtons(buttonData) {
-        panelLayout.innerHTML = ''
+        panelLayoutInner.innerHTML = ''
         const farmToolIDs = toolIds.farms || [];
+        console.log(farmToolIDs);
+        const svgCarrot = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-carrot">
+                        <path d="M2.27 21.7s9.87-3.5 12.73-6.36a4.5 4.5 0 0 0-6.36-6.37C5.77 11.84 2.27 21.7 2.27 21.7zM8.64 14l-2.05-2.04M15.34 15l-2.46-2.46"/><path d="M22 9s-1.33-2-3.5-2C16.86 7 15 9 15 9s1.33 2 3.5 2S22 9 22 9z"/>
+                        <path d="M15 2s-2 1.33-2 3.5S15 9 15 9s2-1.84 2-3.5C17 3.33 15 2 15 2z"/>
+                    </svg>`
+        const svgWheat = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wheat">
+                            <path d="M2 22 16 8"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
+                            <path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
+                            <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/>
+                            <path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
+                            <path d="M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
+                            <path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
+                        </svg>`
         buttonData.filter(buttonInfo => farmToolIDs.includes(buttonInfo.tool)).forEach(buttonInfo => {
-            makeNewButton(buttonInfo)
+            console.log('btn info', buttonInfo.tool);
+            if(buttonInfo.tool === 'Farm-Carrot') {
+                makeNewButton(buttonInfo, svgCarrot)
+            } else {
+                makeNewButton(buttonInfo, svgWheat)
+            }
+
         });
     }
 
-    function makeNewButton(buttonInfo) {
+    function makeNewButton(buttonInfo, svg="") {
         const button = document.createElement('button');
         button.type = 'button';
         button.id = buttonInfo.tool;
@@ -149,11 +344,11 @@
         button.classList.add('toolbar-btn');
         button.classList.add('panel-btn');
 
-        button.textContent = buttonInfo.text;
+        button.innerHTML = svg;
         button.addEventListener('click', (e) => {
             setActiveTool(e);
         });
-        panelLayout.appendChild(button);
+        panelLayoutInner.appendChild(button);
     }
 
     window.setActiveTool = (e) => {
@@ -167,8 +362,6 @@
         selectedControl.classList.add('selected');
         window.game.setActiveToolId(e.target.dataset.toolid);
     }
-
-
 </script>
 
 </body>
