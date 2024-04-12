@@ -19,9 +19,10 @@ const playerData = {
 let mixer;
 const toolIds = {
     zones: ['grass', 'roads'],
-    houses: ['House-Blue', 'House-Red', 'House-Purple'],
+    houses: ['House-Blue', 'House-Red', 'House-Purple', 'House-2Story'],
     tombs:  ['Tombstone-1', 'Tombstone-2', 'Tombstone-3'],
-    farms: ['Farm-Wheat', 'Farm-Carrot'],
+    farms: ['Farm-Wheat', 'Farm-Carrot', 'Farm-Cabbage'],
+    markets: ['Market-Stall', 'MarketStallRed'],
     nature : []
 }
 
@@ -29,6 +30,7 @@ let allAssetsNames = [
     {houses: []},
     {nature: []},
     {farm: []},
+    {markets: []},
     {other: []}
 ];
 let assetFullName;
@@ -43,6 +45,9 @@ const tombstonesNames = [];
 const farmsNames = [];
 const farmsModelsObj = {};
 
+const marketsNames = [];
+const marketsModelsObj = {};
+
 const playerModelObj = {};
 let playerAnimations;
 const playerNames = [];
@@ -51,10 +56,12 @@ const dragonModelObj = {};
 
 let buttonData = [];
 
+
 const wantedHouses = [
     'House-Blue',
     'House-Red',
-    'House-Purple'
+    'House-Purple',
+    'House-2Story'
 ]
 
 // Instantiate a loader
@@ -84,40 +91,70 @@ gltfloader.load(
 
         gltf.scene.traverse(function (child) {
             // console.log(child);
-            if (child instanceof THREE.Mesh) { 
+            if (child instanceof THREE.Mesh) {
+                // Market Stall Red.002_Material.005_0
                 assetFullName = child.userData.name
+
+                assetFullName = assetFullName.replace(/[._\s]/g, '_');
                 const firstNamePart = assetFullName.split('_')[0]
                 const secondNamePart = assetFullName.split('_')[1]
-                const toolName = `${firstNamePart}-${secondNamePart}`
+                const thirdNamePart = assetFullName.split('_')[2]
+
+                const toolName = `${firstNamePart}-${secondNamePart}#${thirdNamePart}`
 
                 allAssetsNames.map((asset, index) => {
-                    if(asset.houses && toolIds.houses.includes(toolName)) {
-                        if(wantedHouses.includes(toolName)) {
-                            buttonData.push({text: firstNamePart+ ' ' + secondNamePart, tool: toolName, group: firstNamePart})
+                    if (asset.houses && toolIds.houses.includes(toolName.split('#')[0])) {
+                        if (wantedHouses.includes(toolName)) {
+                            buttonData.push({
+                                text: firstNamePart + ' ' + secondNamePart,
+                                tool: toolName.split('#')[0],
+                                group: firstNamePart
+                            })
                         }
                         assetNames.push(`${firstNamePart}-${secondNamePart}`);
                         Object.assign(buildingModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
                         asset.houses.push({
-                            'fullName':child.userData.name,
-                            name : `${firstNamePart}-${secondNamePart}` ,
-                            'mesh': child})
-                    } else if(asset.nature && toolIds.nature.includes(toolName)) {
+                            'fullName': child.userData.name,
+                            name: `${firstNamePart}-${secondNamePart}`,
+                            'mesh': child
+                        })
+                    } else if (asset.nature && toolIds.nature.includes(toolName.split('#')[0])) {
                         asset.nature.push({
-                            'fullName':child.userData.name,
-                            name : `${firstNamePart}-${secondNamePart}` ,
-                            'mesh': child})
-                    } else if(asset.farm && toolIds.farms.includes(toolName)) {
+                            'fullName': child.userData.name,
+                            name: `${firstNamePart}-${secondNamePart}`,
+                            'mesh': child
+                        })
+                    } else if (asset.farm && toolIds.farms.includes(toolName.split('#')[0])) {
                         asset.farm.push({
-                            'fullName':child.userData.name,
-                            name : `${firstNamePart}-${secondNamePart}` ,
-                            'mesh': child})
-                        buttonData.push({text: firstNamePart+ ' ' + secondNamePart, tool: toolName, group: firstNamePart})
+                            'fullName': child.userData.name,
+                            name: `${firstNamePart}-${secondNamePart}`,
+                            'mesh': child
+                        })
+                        buttonData.push({
+                            text: firstNamePart + ' ' + secondNamePart,
+                            tool: toolName.split('#')[0],
+                            group: firstNamePart
+                        })
                         farmsNames.push(`${firstNamePart}-${secondNamePart}`);
                         Object.assign(farmsModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
 
-                    }else if(asset.other) {
+                    } else if(asset.markets && toolIds.markets.includes(toolName)) {
+                        asset.markets.push({
+                            'fullName': child.userData.name,
+                            name: `${firstNamePart}-${secondNamePart}'#'${thirdNamePart}`,
+                            'mesh': child
+                        })
+                        console.log('toolname', toolName.split('#')[0])
+                        buttonData.push({
+                            text: firstNamePart + ' ' + secondNamePart + ' ' + thirdNamePart,
+                            tool: toolName.split('#')[0],
+                            group: firstNamePart
+                        })
+                        Object.assign(marketsModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
+
+                    } else if(asset.other) {
                         if(firstNamePart === 'Tombstone') {
-                            buttonData.push({text: firstNamePart+ ' ' + secondNamePart, tool: toolName, group: firstNamePart})
+                            buttonData.push({text: firstNamePart+ ' ' + secondNamePart, tool: toolName.split('#')[0], group: firstNamePart})
                             tombstonesNames.push(`${firstNamePart}-${secondNamePart}`);
                             Object.assign(tombstonesModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
                         }
@@ -247,8 +284,8 @@ playerLoader.load(
 //     }
 // );
 
-// console.log('all assets names', allAssetsNames);
-
+console.log('all assets names', allAssetsNames);
+console.log('button datas in building', buttonData);
 // console.log('player > >> ', playerModelObj)
 
 export {
@@ -257,6 +294,7 @@ export {
     allAssetsNames,
     assetFullName,
     playerModelObj,
+    marketsModelsObj,
     miscellaneous,
     assetNames,
     buildingModelsObj,

@@ -35,16 +35,6 @@
 
         <section id="toolbar" class="toolbar">
 
-        <button type="button" id="speed-btn" data-action="speed" class="toolbar-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-timer-reset"><path d="M10 2h4"/><path d="M12 14v-4"/><path d="M4 13a8 8 0 0 1 8-7 8 8 0 1 1-5.3 14L4 17.6"/><path d="M9 17H4v5"/>
-            </svg>
-        </button>
-
-<!--        <button type="button" id="slow-btn" data-action="slow" class="toolbar-btn">-->
-<!--            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-snail"><path d="M2 13a6 6 0 1 0 12 0 4 4 0 1 0-8 0 2 2 0 0 0 4 0"/><circle cx="10" cy="13" r="8"/><path d="M2 21h12c4.4 0 8-3.6 8-8V7a2 2 0 1 0-4 0v6"/><path d="M18 3 19.1 5.2"/><path d="M22 3 20.9 5.2"/>-->
-<!--            </svg>-->
-<!--        </button>-->
-
           <button type="button" id="pause-btn" data-action="pause" class="toolbar-btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause">
                   <rect x="14" y="4" width="4" height="16" rx="1"/>
@@ -68,6 +58,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home">
                 <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                 <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+        </button>
+        <button type="button" id="market-btn" class="toolbar-btn" data-group="markets">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-store"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7"/>
             </svg>
         </button>
         <button type="button" id="farm-btn" class="toolbar-btn" data-group="farms">
@@ -103,40 +97,42 @@
 
       </section>
 
-
-        <div class="info-panel">
-
-            <div class="info-box speed-box">
-              <span class="speed-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-4"><circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
-                </svg>
-              </span>
-                <div class="display-speed">
-                    <span></span>
-                </div>
+        <section class="info-panel-wrapper">
+            <div class="delay-ui-wrapper">
+                <div class="delay-ui"></div>
             </div>
 
-            <div class="info-box clock-box">
-              <span class="clock-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-4"><circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
-                </svg>
-              </span>
-                <div class="display-time"></div>
-            </div>
+            <div class="info-panel">
+                <section class="info-box">
+                    <article class="clock-box">
+                  <span class="clock-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-4"><circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  </span>
+                        <div class="display-time"></div>
+                    </article>
+                    <article class="delay-box">
+                    <span class="delay-icon">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alarm-clock"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/><path d="M6.38 18.7 4 21"/><path d="M17.64 18.67 20 21"/>
+                         </svg>
+                      </span>
+                        <div class="display-delay"></div>
+                    </article>
+                </section>
 
-            <div class="info-box pop-box">
+                <section class="info-box">
+                    <article class="pop-box">
                  <span class="info-box pop-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
                         <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                     </svg>
                 </span>
-                <div class="display-pop"></div>
-            </div>
+                        <div class="display-pop"></div>
+                    </article>
 
-            <div class="info-box dead-box">
+                    <article class="dead-box">
                  <span class="dead-icon">
                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-skull"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/>
                          <path d="M8 20v2h8v-2"/>
@@ -144,45 +140,45 @@
                         <path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/>
                     </svg>
                 </span>
-                <div class="display-dead"></div>
-            </div>
+                        <div class="display-dead"></div>
+                    </article>
+                </section>
 
-             <div class="info-box food-box">
+
+                <article class="info-box food-box">
                  <span class="food-icon">
                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-apple">
                     <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/>
                     <path d="M10 2c1 .5 2 2 2 5"/>
                    </svg>
                 </span>
-                 <div class="display-food"></div>
-             </div>
+                    <div class="display-food"></div>
+                </article>
 
-            <div class="info-box budget-box">
+                <section class="info-box">
+                    <article class="budget-box">
                 <span class="budget-icon">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-euro">
                           <path d="M4 10h12"/><path d="M4 14h9"/>
                           <path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/>
                         </svg>
                   </span>
-                <div class="display-funds"></div>
-            </div>
-            <div class="info-box delay-box">
-                <span class="delay-icon">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alarm-clock"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/><path d="M6.38 18.7 4 21"/><path d="M17.64 18.67 20 21"/>
-                     </svg>
-                  </span>
-                <div class="display-delay"></div>
-            </div>
+                        <div class="display-funds"></div>
+                    </article>
 
-            <article class="info-box debt-box">
+                    <article class="debt-box">
                 <span class="debt-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-landmark"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>
                     </svg>
                 </span>
-                <div class="display-debt"></div>
-            </article>
+                        <div class="display-debt"></div>
+                    </article>
+                </section>
 
-        </div>
+
+            </div>
+        </section>
+
 
 
         <div id="panel-layout" class="panel-layout">
@@ -206,16 +202,17 @@
     const panelLayout = document.getElementById('panel-layout')
     const panelLayoutInner = document.getElementById('panel-inner')
     let selectedControl = document.getElementById('bulldoze-btn');
-    const slowButton = document.getElementById('slow-btn');
-    const speedButton = document.getElementById('speed-btn');
 
     const toolBarButtons = document.querySelectorAll('.toolbar-btn');
+
     const roadButton = document.getElementById('roads-btn');
     const bullDozeButton = document.getElementById('bulldoze-btn');
     const selectButton = document.getElementById('select-btn');
     const playerButton = document.getElementById('player-btn');
     const housesButton = document.getElementById('residential-btn');
     const farmsButton = document.getElementById('farm-btn');
+    const marketButton = document.getElementById('market-btn');
+
     const panelLayoutCloseBtn = document.querySelector('.panel-layout .panel-close-btn')
 
     const pauseOverlay = document.querySelector('#pause-overlay');
@@ -224,11 +221,6 @@
     const playButton = document.getElementById('play-btn');
     const replayButton = document.getElementById('play-again-btn');
 
-    // speedButton.addEventListener('click' , () => {
-    //     console.log('click speed btn')
-    //     speedButton.classList.toggle('slower')
-    //     window.game.setSpeed();
-    // })
 
     playButton.addEventListener('click', () => {
         pauseOverlay.classList.remove('active')
@@ -259,9 +251,12 @@
     roadButton.addEventListener('click', (e) => {
         setActiveTool(e);
     })
+
     housesButton.addEventListener('click', toggleModal)
 
     farmsButton.addEventListener('click', toggleModal)
+
+    marketButton.addEventListener('click', toggleModal)
 
     panelLayoutCloseBtn.addEventListener('click', closeModal)
 
@@ -345,6 +340,16 @@
               e.target.classList.toggle('selected')
              createFarmsButtons(buttonData);
              break;
+           case 'markets':
+               getButtonsUnactive()
+               getButtonsDisabled()
+               if(!panelLayout.classList.contains('active')) {
+                   panelLayout.classList.add('active');
+               }
+               e.target.classList.toggle('selected')
+               createMarketsStallsButtons(buttonData)
+               break;
+
           default:
               e.target.classList.toggle('selected')
               panelLayout.classList.remove('active');
@@ -361,6 +366,19 @@
         </svg>`
         buttonData.filter(buttonInfo => houseToolIDs.includes(buttonInfo.tool)).forEach(buttonInfo => {
             makeNewButton(buttonInfo, svg)
+        });
+    }
+
+    function createMarketsStallsButtons(buttonData) {
+        panelLayoutInner.innerHTML = ''
+        const marketsToolIDs = toolIds.markets || [];
+        const svgCloth =  `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shirt">
+                    <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>
+                    </svg>`
+        const svgFurniture = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-armchair"><path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H7v-2a2 2 0 0 0-4 0Z"/><path d="M5 18v2"/><path d="M19 18v2"/>
+                              </svg>`
+        buttonData.filter(buttonInfo => marketsToolIDs.includes(buttonInfo.tool)).forEach(buttonInfo => {
+            makeNewButton(buttonInfo, svgCloth)
         });
     }
 
@@ -398,7 +416,6 @@
         button.dataset.toolid = buttonInfo.tool;
         button.classList.add('toolbar-btn');
         button.classList.add('panel-btn');
-        button.classList.add('bubbly-button');
 
         button.innerHTML = svg;
 

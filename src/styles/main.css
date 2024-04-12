@@ -28,6 +28,9 @@
     --text-xl-size: 20px;
     --font-list-size: 18px;
 
+    /* height des container */
+    --top-container-h: 10vh;
+    --progress-bar-h: 2vh;
 }
 
 *,
@@ -90,7 +93,7 @@ html, body {
     bottom: 0;
     left: 0;
     background-color: var(--toolbar-bg-color);
-    padding: 10vh 10px 20px 10px;
+    padding: calc(var(--top-container-h) + var(--progress-bar-h) + 10px) 10px 20px 10px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -253,21 +256,45 @@ html, body {
   opacity: 1;
 }
 
-/* Information panel */
-.info-panel {
+.info-panel-wrapper {
+    z-index: 998;
     position: absolute;
     top: 0;
     left: 0;
+    right: 0;
     background-color: var(--toolbar-bg-color);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.delay-ui-wrapper {
+    height: var(--progress-bar-h);
+    background-color: var(--cta);
+    width: auto;
+    display: flex;
+}
+.delay-ui {
+    flex-grow: 0;
+    color: var(--lightgreen);
+    background: var(--lightgreen);
+    height: 100%;
+    width: auto;
+    transition: all 0.5s ease-in;
+}
+
+
+/* Information panel */
+.info-panel {
     margin: 0;
     padding: 10px 20px;
-    max-height: 10vh;
+    height: calc(var(--top-container-h) - var(--progress-bar-h));
     width: 100%;
     display: flex;
     justify-content: center;
     gap: 20px;
-    transition: transform, 0.3s ease;
 }
+
 
 .info-panel > .info-box {
     border-radius: 10px;

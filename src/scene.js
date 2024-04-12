@@ -15,6 +15,7 @@ export function createScene() {
     const displayFood = document.querySelector('.info-panel .display-food')
     const displayDead = document.querySelector('.info-panel .display-dead')
     const displayDelay = document.querySelector('.info-panel .display-delay')
+    const displayDelayUI = document.querySelector('.delay-ui')
 
 
     // Accounts
@@ -61,12 +62,17 @@ export function createScene() {
     let population  = 0;
     let food = 0;
     let deads = 0;
+
     let debt = 0;
-    let delay = 0;
     let funds = 0;
+    let markets = 0;
+
+    let delay = 0;
 
     const houses = ['House-Red', 'House-Purple', 'House-Blue']
-    const farms = ['Farm-Wheat', 'Farm-Carrot']
+    const bigHouses = ['House-2Story']
+    const farms = ['Farm-Wheat', 'Farm-Carrot', 'Farm-Cabbage']
+    const commerce = ['Market-Stall']
 
     function initialize(city) { 
         scene.clear();
@@ -105,6 +111,7 @@ export function createScene() {
 
     function update(city, time=0) {
         // --- BOUCLE SUR LA VILLE ----
+
         for(let x = 0; x < city.size; x++) {
             for(let y = 0; y < city.size; y++) {
                 // console.log(`the city at y ${y}- x ${x} : >>`, city)
@@ -148,6 +155,20 @@ export function createScene() {
                     food += 1
                 }
 
+                if(bigHouses.includes(newBuildingId)) {
+                    funds -= 2;
+                    maxPop += 10
+
+                    if(population <= maxPop) {
+                        population += 2
+                    }
+                }
+
+                if(commerce.includes(newBuildingId)) {
+                    funds -= 2;
+                    markets += 1;
+                }
+
                 if(newBuildingId === 'player-hero') {
                     // addPlayerToScene(x,0,y)
                 } else {
@@ -164,14 +185,20 @@ export function createScene() {
         if(population > 0 && (food < population)) {
             console.log('famine')
             delay += 1
+
             if(delay > 10) {
                 while(food < population) {
                     population -= 1;
                     deads += 1;
                 }
             }
-
         }
+
+        if(population > 0 && food <= population && markets > 0) {
+            funds += markets
+        }
+
+
 
         if(population > 0 && (food === population)) {
             console.log('city growing')
@@ -202,14 +229,24 @@ export function createScene() {
             window.game.gameOver('debt', {'debt': deads}, 'debt')
         }
 
+        if(debt > 0 && funds > 0) {
+            funds -= 1
+            debt -= 1
+        }
+
         if(deads > 10) {
             window.game.gameOver('death', {'deads': deads}, 'deads')
         }
 
         if(deads > 0 && population <= 0) {
-            window.game.gameOver()
+            window.game.gameOver('death')
         }
 
+        if(delay > 0 && delay < 80) {
+            displayDelayUI.textContent += '****'
+        } else {
+            displayDelayUI.textContent += ''
+        }
 
         displayDelay.textContent = delay.toString() + ' delai'
 

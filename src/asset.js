@@ -6,6 +6,7 @@ import {
     buildingModelsObj,
     tombstonesModelsObj,
     farmsModelsObj,
+    marketsModelsObj,
     dragonModelObj,
     assetFullName,
     allAssetsNames,
@@ -106,6 +107,10 @@ toolIds.farms.forEach((toolId) => {
     assets[toolId] = (x,y, z=0) => createBuilding(x,y,z, 1, toolId, farmsModelsObj);
 })
 
+toolIds.markets.forEach((toolId) => {
+    console.log(toolId)
+    assets[toolId] = (x, y, z=0) => createBuilding(x, y, z, 1, toolId, marketsModelsObj)
+})
 
 export function createAsset(assetId, x, y) {
 

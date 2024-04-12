@@ -1,4 +1,3 @@
-import { changeMeshMaterial, changeMeshColor, textures, changeBuildingSides } from "./asset.js";
 import { createScene } from './scene.js';
 import { createCity } from './city.js'; 
 
@@ -10,11 +9,10 @@ export function createGame() {
     let infos = {};
 
     const displayTime = document.querySelector('.info-panel .display-time')
-    const displaySpeed = document.querySelector('.info-panel .display-speed span')
     const overOverlay = document.querySelector('#over-overlay');
     const overOverlayMessage = document.querySelector('#over-overlay .over-overlay__text');
     displayTime.textContent = time.toString() + ' jours';
-    displaySpeed.textContent = '0 mois'
+
     const scene = createScene();
     const city = createCity(16);
     scene.initialize(city);
