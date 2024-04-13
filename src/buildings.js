@@ -22,7 +22,7 @@ const toolIds = {
     houses: ['House-Blue', 'House-Red', 'House-Purple', 'House-2Story'],
     tombs:  ['Tombstone-1', 'Tombstone-2', 'Tombstone-3'],
     farms: ['Farm-Wheat', 'Farm-Carrot', 'Farm-Cabbage'],
-    markets: ['Market-Stall', 'MarketStallRed'],
+    markets: ['Market-Stall'],
     nature : []
 }
 
@@ -98,16 +98,14 @@ gltfloader.load(
                 assetFullName = assetFullName.replace(/[._\s]/g, '_');
                 const firstNamePart = assetFullName.split('_')[0]
                 const secondNamePart = assetFullName.split('_')[1]
-                const thirdNamePart = assetFullName.split('_')[2]
-
-                const toolName = `${firstNamePart}-${secondNamePart}#${thirdNamePart}`
+                const toolName = `${firstNamePart}-${secondNamePart}`
 
                 allAssetsNames.map((asset, index) => {
-                    if (asset.houses && toolIds.houses.includes(toolName.split('#')[0])) {
+                    if (asset.houses && toolIds.houses.includes(toolName)) {
                         if (wantedHouses.includes(toolName)) {
                             buttonData.push({
                                 text: firstNamePart + ' ' + secondNamePart,
-                                tool: toolName.split('#')[0],
+                                tool: toolName,
                                 group: firstNamePart
                             })
                         }
@@ -118,13 +116,13 @@ gltfloader.load(
                             name: `${firstNamePart}-${secondNamePart}`,
                             'mesh': child
                         })
-                    } else if (asset.nature && toolIds.nature.includes(toolName.split('#')[0])) {
+                    } else if (asset.nature && toolIds.nature.includes(toolName)) {
                         asset.nature.push({
                             'fullName': child.userData.name,
                             name: `${firstNamePart}-${secondNamePart}`,
                             'mesh': child
                         })
-                    } else if (asset.farm && toolIds.farms.includes(toolName.split('#')[0])) {
+                    } else if (asset.farm && toolIds.farms.includes(toolName)) {
                         asset.farm.push({
                             'fullName': child.userData.name,
                             name: `${firstNamePart}-${secondNamePart}`,
@@ -132,7 +130,7 @@ gltfloader.load(
                         })
                         buttonData.push({
                             text: firstNamePart + ' ' + secondNamePart,
-                            tool: toolName.split('#')[0],
+                            tool: toolName,
                             group: firstNamePart
                         })
                         farmsNames.push(`${firstNamePart}-${secondNamePart}`);
@@ -141,20 +139,19 @@ gltfloader.load(
                     } else if(asset.markets && toolIds.markets.includes(toolName)) {
                         asset.markets.push({
                             'fullName': child.userData.name,
-                            name: `${firstNamePart}-${secondNamePart}'#'${thirdNamePart}`,
+                            name: `${firstNamePart}-${secondNamePart}`,
                             'mesh': child
                         })
-                        console.log('toolname', toolName.split('#')[0])
                         buttonData.push({
-                            text: firstNamePart + ' ' + secondNamePart + ' ' + thirdNamePart,
-                            tool: toolName.split('#')[0],
+                            text: firstNamePart + ' ' + secondNamePart,
+                            tool: toolName,
                             group: firstNamePart
                         })
                         Object.assign(marketsModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
 
                     } else if(asset.other) {
                         if(firstNamePart === 'Tombstone') {
-                            buttonData.push({text: firstNamePart+ ' ' + secondNamePart, tool: toolName.split('#')[0], group: firstNamePart})
+                            buttonData.push({text: firstNamePart+ ' ' + secondNamePart, tool: toolName, group: firstNamePart})
                             tombstonesNames.push(`${firstNamePart}-${secondNamePart}`);
                             Object.assign(tombstonesModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
                         }

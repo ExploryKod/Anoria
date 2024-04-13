@@ -117,6 +117,14 @@ export function createScene() {
                 // console.log(`the city at y ${y}- x ${x} : >>`, city)
               const currentBuildingId = buildings[x][y]?.userData?.id;
               const newBuildingId = city.tiles[x][y].buildingId;
+              if(x-1 > 0 && y+1 <= city.size && x+1 > city.size && y-1 > 0) {
+                  const neighbors1 = city.tiles[x-1][y+1].buildingId
+                  const neighbors2 = city.tiles[x-2][y-1].buildingId
+                  const neighbors3 = city.tiles[x-1][y-2].buildingId
+                  const neighbors4 = city.tiles[x+1][y+1].buildingId
+
+              }
+
 
             //  Remove a building from the scene if a player remove a building
             if(!newBuildingId && currentBuildingId) {
@@ -184,7 +192,7 @@ export function createScene() {
 
         if(population > 0 && (food < population)) {
             console.log('famine')
-            delay += 1
+            // delay += 1
 
             if(delay > 10) {
                 while(food < population) {
@@ -221,9 +229,9 @@ export function createScene() {
             debt += 1
         }
 
-        if(time > 10 && delay === 0 && population === 0 && food <= 0) {
-            window.game.gameOver('idle')
-        }
+        // if(time > 10 && delay === 0 && population === 0 && food <= 0) {
+        //     window.game.gameOver('idle')
+        // }
 
         if(debt > 5000) {
             window.game.gameOver('debt', {'debt': deads}, 'debt')

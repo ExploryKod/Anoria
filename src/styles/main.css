@@ -14,10 +14,18 @@
     --info: #17a2b8;
     --success: #28a745;
 
+    --red-300: #721f2b;
+
+
     --toolbar-btn-color: var(--cta);
     --panel-btn-color: var(--cta);
     --panel-bg-color: var(--primary-05);
     --toolbar-bg-color: var(--primary);
+
+    --house-red-color:var(--red-300);
+    --house-purple-color: #a90aa9;
+    --house-blue-color: #191EA6FF;
+    --house-big-color: #ffc107;
 
     /* Taille des textes */
     --pre-title-size: 30px;
@@ -67,12 +75,13 @@ body {
     flex-direction: column;
     justify-content: space-between;
     min-height: 100vh !important;
-    overflow-x: hidden;
+    overflow-x: auto;
     background-color: white;
     color: black;
 }
 
 html, body {
+    width: 100vw;
     height: 100%;
 }
 
@@ -145,12 +154,11 @@ html, body {
 
 /* Panel layout to select object as house etc.. */
 .game-window .panel-layout, .game-window .pause-overlay, .game-window .over-overlay {
-    width: 100%;
+    width: 10px;
     height: 100%;
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
     background-color: var(--panel-bg-color);
     margin: 0 auto;
     padding: 20px 30px;
@@ -160,7 +168,6 @@ html, body {
     align-items: center;
     opacity: 0;
     pointer-events: none;
-    z-index: -99;
     transition: opacity 0.3s ease-in;
 }
 
@@ -185,7 +192,7 @@ html, body {
     background-color: #fff;
     color: #000235;
     position: absolute;
-    top: 10vh;
+    top: 20vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -213,36 +220,113 @@ html, body {
 }
 
 .game-window .panel-layout.active, .pause-overlay.active, .over-overlay.active {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     opacity: 1;
     pointer-events: auto;
     z-index: 2;
 }
 
 .game-window .panel-layout .panel-inner {
-    min-width: 350px;
-    min-height: 350px;
-    padding: 20px;
+    min-width: 250px;
+    min-height: auto;
+    max-width: 75%;
+    padding: 40px;
     border-radius: 10px;
     background-color: #fff;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: repeat( 3, 1fr);
+    grid-template-rows: repeat( auto-fill, 1fr);
+    align-items: center;
     justify-content: center;
     gap: 20px;
 }
 
+.panel-btn:first-child:nth-last-child(2),
+.panel-btn:first-child:nth-last-child(2) ~ .panel-btn {
+
+}
+
 .panel-layout .panel-btn {
+    width: 100%;
+    height: 100%;
     padding: 10px 20px;
-    border: 3px solid var(--panel-btn-color);
     border-radius: 10px;
-    background-color: var(--panel-btn-color);
-    color: #fff;
+    background-color: #fafafa;
+    border: none;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    color: var(--panel-btn-color);
     text-align: center;
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
     white-space: nowrap;
+}
+
+.panel-layout .panel-btn svg {
+    width: 75%;
+    height: 75%;
+}
+
+.panel-layout .panel-btn:hover {
+    box-shadow: none;
+    color: #FAFAFA;
+    background-color: var(--panel-btn-color);
+}
+
+    /* PANEL MODAL SPECIFIC BUTTONS */
+
+.panel-layout .panel-inner #House-Red {
+    background-color: #fafafa;
+    color: var(--house-red-color);
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+.panel-layout .panel-inner #House-Red:hover {
+    box-shadow: none;
+    background: var(--house-red-color);
+    color: #fafafa;
+}
+
+.panel-layout .panel-inner #House-Purple {
+    background-color: #fafafa;
+    color: var(--house-purple-color);
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+.panel-layout .panel-inner #House-Purple:hover {
+    box-shadow: none;
+    background: var(--house-purple-color);
+    color: #fafafa;
+}
+
+.panel-layout .panel-inner #House-Blue {
+    background-color: #fafafa;
+    color: var(--house-blue-color);
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+.panel-layout .panel-inner #House-Blue:hover {
+    box-shadow: none;
+    background: var(--house-blue-color);
+    color: #fafafa;
+}
+
+.panel-layout .panel-inner #House-2Story {
+    background-color: #fafafa;
+    color: var(--house-big-color);
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+.panel-layout .panel-inner #House-2Story:hover {
+    box-shadow: none;
+    background: var(--house-big-color);
+    color: #fafafa;
 }
 
 /* general states */
@@ -256,6 +340,8 @@ html, body {
   opacity: 1;
 }
 
+/* INFO PANEL */
+
 .info-panel-wrapper {
     z-index: 998;
     position: absolute;
@@ -268,6 +354,7 @@ html, body {
     gap: 5px;
 }
 
+/* Barre de progrés au dessus des informations */
 .delay-ui-wrapper {
     height: var(--progress-bar-h);
     background-color: var(--cta);
@@ -284,14 +371,15 @@ html, body {
 }
 
 
-/* Information panel */
+/* Information panel : layout des cards information */
 .info-panel {
     margin: 0;
     padding: 10px 20px;
     height: calc(var(--top-container-h) - var(--progress-bar-h));
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
     gap: 20px;
 }
 
@@ -312,40 +400,6 @@ html, body {
     font-weight: 700;
 }
 
-.toolbar-btn .speed-btn {
-    background-color: #000235;
-    color: white;
-}
-
-.toolbar-btn .speed-btn.slower {
-    background-color: #000;
-    color: var(--warning);
-}
-
-.toolbar-btn .speed-btn.speeder {
-    background-color: #fff;
-    color: var(--danger);
-    animation: glowing 0.3s ease-in infinite;
-}
-
-/* Tools */
-/*.panel-btn#House-Red {*/
-/*    transition: all 0.4s ;*/
-/*    background-color: #fafafa;*/
-/*    color: var(--danger)*/
-/*}*/
-
-/*.panel-btn#House-Red:hover {*/
-
-/*    background-color: var(--danger);*/
-/*    animation: glowing 3s ease-in infinite;*/
-
-/*}*/
-
-
-
-
-
 @keyframes glowing {
     0% {
         background-color: var(--danger);
@@ -359,4 +413,23 @@ html, body {
         background-color: #6c1521;
         box-shadow: 0 0 3px #6c1521;
     }
+}
+
+/* loader */
+.loader {
+    display: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background: var(--primary);
+    opacity: 0;
+    z-index: -199;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.loader.active {
+    opacity: 1;
+    z-index: 99;
 }

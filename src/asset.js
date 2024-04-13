@@ -83,12 +83,10 @@ const playerAnimationsData = {
     isAnimated: true
 }
 
-// Initialize assets as an empty object
 let assets = {
     'player-hero': (x, y, z=0) => createCitizen(x, y, z, 0.8, 'player-hero', playerModelObj, playerAnimationsData)
 };
 
-// Iterate over the dynamicData array
 toolIds.zones.forEach((toolId) => {
     // Populate the assets object with dynamic data
     assets[toolId] = (x, y) => createZone(x, y, toolId, toolId);
@@ -154,9 +152,14 @@ function createBuilding(x, y, z, size, meshName, objectsData) {
     object3D.position.set(placerPos.x, placerPos.z, placerPos.y);
     object3D.scale.set(size,size,size);
     object3D.rotation.set(THREE.MathUtils.degToRad(90), THREE.MathUtils.degToRad(180), THREE.MathUtils.degToRad(180));
-    object3D.userData = { id:  meshName, x, y, vicinities: [x-1, y-1]}
+    object3D.userData = {
+        id:  meshName, x, y,
+        vicinities: { xless : x-1, yless : y-1, xplus: x+1, yplus: y+1},
+        neighbors: [],
+        happiness: {food: 0, road: 0, happy: 0},
+        balance:{revenue:0, tax: 0, net:0},
+        citizen:{number:0, jobs:[]}};
     return object3D
-
 }
 
 export function changeBuildingSides(mesh) {
