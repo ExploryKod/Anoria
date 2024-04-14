@@ -26,7 +26,7 @@ export function createGame() {
         let { x, y } = selectedObject.userData;
         // location of the tile in the data model
         const tile = city.tiles[x][y];
-        console.log('actuel buildingId', tile)
+        console.log('Objet posé sur ce terrain: ', selectedObject.userData)
         if(activeToolId === 'bulldoze') {
             // remove building from that location
             tile.buildingId = undefined;
@@ -36,6 +36,7 @@ export function createGame() {
         } else if(!tile.buildingId) {
             // place building at that location
             tile.buildingId = activeToolId;
+            console.log('coordonnées et terrain de l\' objet posé: ', selectedObject.userData)
             scene.update(city);
         }
     }

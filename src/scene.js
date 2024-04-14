@@ -57,6 +57,24 @@ export function createScene() {
     let buildings = [];
     let loadingPromises = [];
 
+    let infoGamelay = {
+        population: 0,
+        maxPop: 0,
+        deads: 0,
+        foodAvailable: 0,
+        foodNeeded: 0,
+        salaries: 0,
+        salesTax: 0,
+        citizenTax: 0,
+        foodMarkets: 0,
+        goodsMarkets: 0,
+        goodsNeeded: 0,
+        goodsAvailable: 0,
+        foodSales: 0,
+        goodSales: 0,
+        debt: 0,
+        funds: 0,
+    }
     // Variables de gameplay
     let maxPop = 5;
     let population  = 0;
@@ -64,7 +82,10 @@ export function createScene() {
     let deads = 0;
 
     let debt = 0;
-    let funds = 0;
+    let funds = 300;
+    let salaries = 0;
+    let salesTax = 0.2;
+    let citizenTax = 0.2;
     let markets = 0;
 
     let delay = 0;
@@ -111,26 +132,40 @@ export function createScene() {
 
     function update(city, time=0) {
         // --- BOUCLE SUR LA VILLE ----
+        let infoBuildings = []
 
+        console.log('Etat des bâtiments : ', infoBuildings)
         for(let x = 0; x < city.size; x++) {
             for(let y = 0; y < city.size; y++) {
                 // console.log(`the city at y ${y}- x ${x} : >>`, city)
               const currentBuildingId = buildings[x][y]?.userData?.id;
               const newBuildingId = city.tiles[x][y].buildingId;
+              const buildingInfo =  city.tiles[x][y];
+              if(x-1 > 0 && y+1 <= city.size && x+1 > city.size && y-1 > 0) {
+                  const neighbors1 = city.tiles[x-1][y+1].buildingId
+                  const neighbors2 = city.tiles[x-2][y-1].buildingId
+                  const neighbors3 = city.tiles[x-1][y-2].buildingId
+                  const neighbors4 = city.tiles[x+1][y+1].buildingId
+              }
+                if(buildingInfo.buildingId) {
+                    infoBuildings.push(buildingInfo)
+                }
+
+
 
             //  Remove a building from the scene if a player remove a building
             if(!newBuildingId && currentBuildingId) {
 
                 console.log('delete this building', currentBuildingId);
                 if(houses.includes(currentBuildingId)) {
-                    funds -= 1
-                    maxPop -= 5
-                    population -= 1
-                    deads += 1
+                    infoGamelay.funds -= 1
+                    infoGamelay.maxPop -= 5
+                    infoGamelay.population -= 1
+                    infoGamelay.deads += 1
                 }
                 if(farms.includes(currentBuildingId)) {
-                    funds -= 1;
-                    food -= 1
+                    infoGamelay.funds -= 1;
+                    infoGamelay.foodAvailable -= 1
                 }
                 scene.remove(buildings[x][y]);
                 buildings[x][y] = undefined;
@@ -142,31 +177,31 @@ export function createScene() {
                 buildings[x][y] = createAsset(newBuildingId, x, y);
 
                 if(houses.includes(newBuildingId)) {
-                    funds -= 1;
-                    maxPop += 5
-                    if(population <= maxPop) {
-                        population += 1
+                    infoGamelay.funds -= 1;
+                    infoGamelay.maxPop += 5;
+                    if(infoGamelay.population <= infoGamelay.maxPop) {
+                        infoGamelay.population += 1
                     }
 
                 }
 
                 if(farms.includes(newBuildingId)) {
-                    funds -= 1
-                    food += 1
+                    infoGamelay.funds -= 1
+                    infoGamelay.foodAvailable += 1
                 }
 
                 if(bigHouses.includes(newBuildingId)) {
-                    funds -= 2;
-                    maxPop += 10
+                    infoGamelay.funds -= 2;
+                    infoGamelay.maxPop += 10
 
                     if(population <= maxPop) {
-                        population += 2
+                        infoGamelay.population += 2
                     }
                 }
 
                 if(commerce.includes(newBuildingId)) {
-                    funds -= 2;
-                    markets += 1;
+                    infoGamelay.funds -= 2;
+                    infoGamelay.markets += 1;
                 }
 
                 if(newBuildingId === 'player-hero') {
@@ -179,84 +214,84 @@ export function createScene() {
 
         }
         // --- FIN BOUCLE SUR LA VILLE ----
-        console.log('population', population)
-        console.log('food', food)
+        console.log('population', infoGamelay.population)
+        console.log('food', infoGamelay.foodNeeded)
 
-        if(population > 0 && (food < population)) {
+        if(infoGamelay.population > 0 && (infoGamelay.foodNeeded > infoGamelay.population)) {
             console.log('famine')
-            delay += 1
+            // delay += 1
 
             if(delay > 10) {
                 while(food < population) {
-                    population -= 1;
-                    deads += 1;
+                    infoGamelay.population -= 1;
+                    infoGamelay.deads += 1;
                 }
             }
         }
 
-        if(population > 0 && food <= population && markets > 0) {
-            funds += markets
+        if(infoGamelay.population > 0 && infoGamelay.foodNeeded <= population && infoGamelay.markets > 0) {
+            infoGamelay.funds += Math.floor(markets * salesTax)
         }
 
 
 
-        if(population > 0 && (food === population)) {
+        if(infoGamelay.population > 0 && (infoGamelay.foodNeeded === infoGamelay.population)) {
             console.log('city growing')
             delay = 0
-            while(food > population && population <= maxPop) {
-                population += 1;
+            while(infoGamelay.foodNeeded > infoGamelay.population && infoGamelay.population <= infoGamelay.maxPop) {
+                infoGamelay.population += 1;
             }
         }
 
-        if(population > 0 && (food > population)) {
+        if(population > 0 && (infoGamelay.foodNeeded > infoGamelay.population)) {
             console.log('city growing')
-            while(food > population && population <= maxPop) {
-                population += 1;
-                funds += 1;
-                food -= 1;
+            while(infoGamelay.foodNeeded > infoGamelay.population && infoGamelay.population <= infoGamelay.maxPop) {
+                infoGamelay.population += 1;
+                infoGamelay.funds += 1;
+                infoGamelay.foodNeeded -= 1;
             }
         }
 
-        if(funds < 0) {
-            debt += 1
+        if(infoGamelay.funds < 0) {
+            infoGamelay.debt += 1
         }
 
-        if(time > 10 && delay === 0 && population === 0 && food <= 0) {
-            window.game.gameOver('idle')
-        }
+        // if(time > 10 && delay === 0 && population === 0 && food <= 0) {
+        //     window.game.gameOver('idle')
+        // }
 
-        if(debt > 5000) {
+        if(infoGamelay.debt > 5000) {
             window.game.gameOver('debt', {'debt': deads}, 'debt')
         }
 
-        if(debt > 0 && funds > 0) {
-            funds -= 1
-            debt -= 1
+        // On rembourse une dette dés qu'on gagne de l'argent
+        if(infoGamelay.debt > 0 && infoGamelay.funds > 0) {
+            infoGamelay.funds -= 1
+            infoGamelay.debt -= 1
         }
 
-        if(deads > 10) {
+        // On perd si plus de 10 morts
+        if(infoGamelay.deads > 10) {
             window.game.gameOver('death', {'deads': deads}, 'deads')
         }
 
-        if(deads > 0 && population <= 0) {
-            window.game.gameOver('death')
-        }
-
+        // Gestion de la barre des délais
         if(delay > 0 && delay < 80) {
             displayDelayUI.textContent += '****'
         } else {
             displayDelayUI.textContent += ''
         }
 
+        //  Display results in UI
         displayDelay.textContent = delay.toString() + ' delai'
 
-        displayPop.textContent = population.toString()
-        displayFood.textContent = food.toString()
+        displayPop.textContent = infoGamelay.population.toString()
+        displayFood.textContent = infoGamelay.foodNeeded.toString()
 
-        displayFunds.textContent = funds.toString()
-        displayDebt.textContent =  debt.toString() + ' $$'
+        displayFunds.textContent = infoGamelay.funds.toString()
+        displayDebt.textContent =  infoGamelay.debt.toString() + ' $$'
 
-        displayDead.textContent = deads.toString()
+        displayDead.textContent = infoGamelay.deads.toString()
 
 
     }
