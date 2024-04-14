@@ -6,7 +6,7 @@ export default {
     root: './src',
 
     // Set the directory to serve static files from (relative to the root)
-    publicDir: './public',
+    publicDir: '../public',
 
     // Set the build output directory
     build: {
