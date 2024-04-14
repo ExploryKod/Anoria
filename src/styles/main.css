@@ -154,8 +154,8 @@ html, body {
 
 /* Panel layout to select object as house etc.. */
 .game-window .panel-layout, .game-window .pause-overlay, .game-window .over-overlay {
-    width: 10px;
-    height: 100%;
+    width: 0;
+    height: 0;
     position: absolute;
     top: 0;
     left: 0;
@@ -191,12 +191,26 @@ html, body {
     border-radius: 10px;
     background-color: #fff;
     color: #000235;
-    position: absolute;
-    top: 20vh;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
+}
+
+.panel-layout.active .panel-inner-wrapper {
+    width: 50%;
+    height: 50%;
+    background-color: #6c1521;
+    margin: 0 auto;
+    padding: 20px 30px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+    opacity: 1;
+    transition: opacity 7s ease-in;
 }
 
 .game-window .pause-overlay .play-btn {

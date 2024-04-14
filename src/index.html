@@ -82,20 +82,6 @@
                 <circle cx="18" cy="5" r="3"/>
             </svg>
         </button>
-        <button type="button" id="player-btn" data-toolid="player-hero" class="toolbar-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-person-standing"><circle cx="12" cy="5" r="1"/>
-                <path d="m9 20 3-6 3 6"/><path d="m6 8 6 2 6-2"/>
-                <path d="M12 10v4"/>
-            </svg>
-        </button>
-
-            <button type="button" id="" data-toolid="player-hero" class="bubbly-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-person-standing"><circle cx="12" cy="5" r="1"/>
-                    <path d="m9 20 3-6 3 6"/><path d="m6 8 6 2 6-2"/>
-                    <path d="M12 10v4"/>
-                </svg>
-            </button>
-
       </section>
 
         <section class="info-panel-wrapper">
@@ -181,14 +167,17 @@
 
 
         <div id="panel-layout" class="panel-layout">
-          <div class="panel-close-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-x">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="m15 9-6 6"/>
-                  <path d="m9 9 6 6"/>
-              </svg>
-          </div>
-          <div id="panel-inner" class="panel-inner"></div>
+
+            <div class="panel-inner-wrapper">
+                <div class="panel-close-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-x">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="m15 9-6 6"/>
+                        <path d="m9 9 6 6"/>
+                    </svg>
+                </div>
+                <div id="panel-inner" class="panel-inner"></div>
+            </div>
       </div>
 
     </div>
@@ -241,10 +230,6 @@
     })
 
     selectButton.addEventListener('click', (e) => {
-        setActiveTool(e);
-    })
-
-    playerButton.addEventListener('click', (e) => {
         setActiveTool(e);
     })
 

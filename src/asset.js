@@ -107,7 +107,7 @@ toolIds.farms.forEach((toolId) => {
 
 toolIds.markets.forEach((toolId) => {
     console.log(toolId)
-    assets[toolId] = (x, y, z=0) => createBuilding(x, y, z, 1, toolId, marketsModelsObj)
+    assets[toolId] = (x, y, z=0) => createBuilding(x, y, z, 0.5, toolId, marketsModelsObj)
 })
 
 export function createAsset(assetId, x, y) {
