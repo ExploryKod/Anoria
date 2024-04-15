@@ -4,6 +4,7 @@ import { createAsset } from './asset.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {fetchPlayer, freePromises, playerMesh} from "./fetchPlayer.js";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
+import {tombstonesModelsObj} from "./buildings.js";
 const SKY_URL = './resources/textures/skies/plain_sky.jpg';
 let mixer;
 const loader = new GLTFLoader();
@@ -147,15 +148,16 @@ export function createScene() {
               }
 
               if(currentBuildingId) {
-                  if(city.tiles[x-1][y+1].buildingId && city.tiles[x-2][y-1].buildingId && city.tiles[x-1][y-2].buildingId && city.tiles[x+1][y+1].buildingId) {
-                      const neighbors1 = city.tiles[x-1][y+1].buildingId
-                      const neighbors2 = city.tiles[x-2][y-1].buildingId
-                      const neighbors3 = city.tiles[x-1][y-2].buildingId
-                      const neighbors4 = city.tiles[x+1][y+1].buildingId
-                      console.log('NEIGHBORS', neighbors1, neighbors2, neighbors3, neighbors4)
-                      buildings[x][y].userData.neighbors = []
-                      buildings[x][y].userData.neighbors.push({one: neighbors1, two:neighbors2, three: neighbors3, four: neighbors4})
-                  }
+
+                      const neighbors1 = city.tiles[x-1][y+1]
+                      const neighbors2 = city.tiles[x-2][y-1]
+                      const neighbors3 = city.tiles[x-1][y-2]
+                      const neighbors4 = city.tiles[x+1][y+1]
+
+                      Object.assign(buildings[x][y].userData, {neighbors: [neighbors1, neighbors2, neighbors3, neighbors4]})
+                      // buildings[x][y].userData.neighbors.push({one: neighbors1, two:neighbors2, three: neighbors3, four: neighbors4})
+                     console.log('Building xy neighbors ', buildings[x][y].userData)
+
               }
 
 

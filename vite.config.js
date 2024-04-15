@@ -1,6 +1,6 @@
 export default {
     // Set the base directory for GitHub pages
-    base: '/citylive',
+    base: '/',
 
     // Set the project root directory (relative to the config file)
     root: './src',
