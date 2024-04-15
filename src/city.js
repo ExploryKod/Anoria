@@ -35,6 +35,7 @@ function createTile(x,y) {
         x, 
         y, 
         terrainId: 'grass',
+        neighbors: [],
         buildingId: undefined,
         tileLeft: x-1,
         tileRight: x+1,

@@ -120,7 +120,7 @@ export function createGame() {
                 game.update(time);
             }
         }
-    }, 1000);
+    }, 10000);
 
 
     scene.start();

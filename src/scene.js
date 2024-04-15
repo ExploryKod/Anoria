@@ -141,17 +141,40 @@ export function createScene() {
               const currentBuildingId = buildings[x][y]?.userData?.id;
               const newBuildingId = city.tiles[x][y].buildingId;
               const buildingInfo =  city.tiles[x][y];
-              if(x-1 > 0 && y+1 <= city.size && x+1 > city.size && y-1 > 0) {
-                  const neighbors1 = city.tiles[x-1][y+1].buildingId
-                  const neighbors2 = city.tiles[x-2][y-1].buildingId
-                  const neighbors3 = city.tiles[x-1][y-2].buildingId
-                  const neighbors4 = city.tiles[x+1][y+1].buildingId
+              if(currentBuildingId) {
+                  console.log('current building', buildings[x][y])
+                  console.log('current building id', currentBuildingId)
               }
+
+              if(currentBuildingId) {
+                  if(x < city.size && x > 1) {
+                      if(y < city.size && y > 1) {
+                          const neighbors1 = city.tiles[x-1][y+1].buildingId ?? 'grass'
+                          const neighbors2 = city.tiles[x-2][y-1].buildingId ?? 'grass'
+                          const neighbors3 = city.tiles[x-1][y-1].buildingId ?? 'grass'
+                          const neighbors4 = city.tiles[x+1][y+1].buildingId ?? 'grass'
+                          console.log('NEIGHBORS', neighbors1, neighbors2, neighbors3, neighbors4)
+                          buildings[x][y].userData.neighbors = []
+                          buildings[x][y].userData.neighbors.push({one: neighbors1, two:neighbors2, three: neighbors3, four: neighbors4})
+
+                      }
+
+                  }
+              }
+
+
+              // if(x-1 > 0 && y+1 <= city.size && x+1 > city.size && y-1 > 0) {
+              //
+              //     const neighbors1 = city.tiles[x-1][y+1].buildingId
+              //     const neighbors2 = city.tiles[x-2][y-1].buildingId
+              //     const neighbors3 = city.tiles[x-1][y-2].buildingId
+              //     const neighbors4 = city.tiles[x+1][y+1].buildingId
+              //     console.log('NEIGHBORS', neighbors1, neighbors2, neighbors3, neighbors4)
+              //     buildings[x][y].userData.neighbors.push({one: neighbors1, two:neighbors2, three: neighbors3, four: neighbors4})
+              // }
                 if(buildingInfo.buildingId) {
                     infoBuildings.push(buildingInfo)
                 }
-
-
 
             //  Remove a building from the scene if a player remove a building
             if(!newBuildingId && currentBuildingId) {
