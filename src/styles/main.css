@@ -449,6 +449,9 @@ html, body {
 }
 
 footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     background-color: #000235;
     color: #fff;
     min-height: 80px;
@@ -456,4 +459,16 @@ footer {
     bottom: 0;
     right: 0;
     left: 0;
+}
+
+footer a {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    margin: 5px;
+}
+
+footer a:hover {
+    text-decoration: none;
+    color: var(--lightgreen);
 }
