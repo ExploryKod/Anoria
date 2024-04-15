@@ -124,7 +124,7 @@ export function createScene() {
         displayDead.textContent = deads.toString()
         displayFunds.textContent = funds.toString()
         displayDelay.textContent = delay.toString() + ' délai'
-        displayDebt.textContent = debt.toString() + ' $$'
+        displayDebt.textContent = debt.toString() + ' $'
 
         // addPlayerToScene(4, 0, 4)
 
@@ -147,18 +147,14 @@ export function createScene() {
               }
 
               if(currentBuildingId) {
-                  if(x < city.size && x > 1) {
-                      if(y < city.size && y > 1) {
-                          const neighbors1 = city.tiles[x-1][y+1].buildingId ?? 'grass'
-                          const neighbors2 = city.tiles[x-2][y-1].buildingId ?? 'grass'
-                          const neighbors3 = city.tiles[x-1][y-1].buildingId ?? 'grass'
-                          const neighbors4 = city.tiles[x+1][y+1].buildingId ?? 'grass'
-                          console.log('NEIGHBORS', neighbors1, neighbors2, neighbors3, neighbors4)
-                          buildings[x][y].userData.neighbors = []
-                          buildings[x][y].userData.neighbors.push({one: neighbors1, two:neighbors2, three: neighbors3, four: neighbors4})
-
-                      }
-
+                  if(city.tiles[x-1][y+1].buildingId && city.tiles[x-2][y-1].buildingId && city.tiles[x-1][y-2].buildingId && city.tiles[x+1][y+1].buildingId) {
+                      const neighbors1 = city.tiles[x-1][y+1].buildingId
+                      const neighbors2 = city.tiles[x-2][y-1].buildingId
+                      const neighbors3 = city.tiles[x-1][y-2].buildingId
+                      const neighbors4 = city.tiles[x+1][y+1].buildingId
+                      console.log('NEIGHBORS', neighbors1, neighbors2, neighbors3, neighbors4)
+                      buildings[x][y].userData.neighbors = []
+                      buildings[x][y].userData.neighbors.push({one: neighbors1, two:neighbors2, three: neighbors3, four: neighbors4})
                   }
               }
 
@@ -312,7 +308,7 @@ export function createScene() {
         displayFood.textContent = infoGamelay.foodNeeded.toString()
 
         displayFunds.textContent = infoGamelay.funds.toString()
-        displayDebt.textContent =  infoGamelay.debt.toString() + ' $$'
+        displayDebt.textContent =  infoGamelay.debt.toString() + ' $'
 
         displayDead.textContent = infoGamelay.deads.toString()
 
