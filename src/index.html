@@ -28,6 +28,25 @@
             </button>
         </div>
 
+        <div id="info-building-overlay" class="info-building-overlay">
+            <div class="info-building__header">
+                <div>
+                    <h2>Informations</h2>
+                </div>
+                <div class="panel-close-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-x">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="m15 9-6 6"/>
+                        <path d="m9 9 6 6"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="info-building__body">
+
+            </div>
+
+        </div>
+
         <div id="over-overlay" class="over-overlay">
             <div class="over-overlay__text">
                 <h1>Vous avez été viré de votre poste</h1>
@@ -214,6 +233,17 @@
     const pauseButton = document.getElementById('pause-btn');
     const playButton = document.getElementById('play-btn');
     const replayButton = document.getElementById('play-again-btn');
+
+    const infoObjectCloseBtn = document.querySelector('.info-building-overlay .panel-close-btn');
+    const infoObjectOverlay = document.querySelector('.info-building-overlay');
+
+    infoObjectCloseBtn.addEventListener('click', () => {
+        if(infoObjectOverlay.classList.contains('active')) {
+            infoObjectOverlay.classList.remove('active')
+            window.game.play()
+        }
+    })
+
 
 
     playButton.addEventListener('click', () => {

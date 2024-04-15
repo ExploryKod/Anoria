@@ -200,7 +200,7 @@ canvas {
     justify-content: center;
 }
 
-.game-window .panel-layout .panel-close-btn {
+.game-window .panel-close-btn {
     width: 50px;
     height: 50px;
     border-radius: 10px;
@@ -322,7 +322,7 @@ canvas {
     background-color: var(--panel-btn-color);
 }
 
-    /* PANEL MODAL SPECIFIC BUTTONS */
+/* PANEL MODAL SPECIFIC BUTTONS */
 
 .panel-layout .panel-inner #House-Red {
     background-color: #fafafa;
@@ -504,6 +504,57 @@ footer a:hover {
 
 .no-game {
     display: none;
+}
+
+/* INFORMATION ABOUT THE BUILDING */
+
+.info-building-overlay {
+    padding: 10px;
+    z-index: -1;
+    width: 400px;
+    max-height: 400px;
+    position: absolute;
+    right: 100%;
+    top: 150px;
+    bottom: 0;
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px 0 0 10px;
+    transition: all 0.5s ease-in-out;
+}
+
+.info-building-overlay .info-building__header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-building-overlay .info-building__header > div:nth-of-type(1) {
+    height: 50px;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-building-overlay .info-building__header > div:nth-of-type(1) h2 {
+    color: #fff;
+    font-size: 20px;
+}
+
+.info-building-overlay.active {
+    background-color: var(--lightgreen);
+    z-index: 1000;
+    opacity: 1;
+    right: 0;
+}
+
+.info-building-overlay.active button {
+    pointer-events: auto;
 }
 
 @media screen and (max-width: 768px) {

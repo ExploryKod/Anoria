@@ -11,6 +11,11 @@ export function createGame() {
     const displayTime = document.querySelector('.info-panel .display-time')
     const overOverlay = document.querySelector('#over-overlay');
     const overOverlayMessage = document.querySelector('#over-overlay .over-overlay__text');
+
+    const infoObjectOverlay = document.querySelector('.info-building-overlay');
+    const infoObjectContent = document.querySelector('.info-building__body');
+    const infoObjectCloseBtn = document.querySelector('.info-building-overlay .panel-close-btn');
+
     displayTime.textContent = time.toString() + ' jours';
 
     const scene = createScene();
@@ -33,6 +38,13 @@ export function createGame() {
             scene.update(city);
         } else if(activeToolId === "select-object") {
             console.log('Je sélectionne ', selectedObject.userData)
+            infoObjectOverlay.classList.toggle('active');
+            if(infoObjectOverlay.classList.contains('active')) {
+                window.game.pause()
+            } else {
+                window.game.play()
+            }
+
         } else if(!tile.buildingId) {
             // place building at that location
             tile.buildingId = activeToolId;
