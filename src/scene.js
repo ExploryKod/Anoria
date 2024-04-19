@@ -147,7 +147,9 @@ export function createScene() {
                   console.log('current building id', currentBuildingId)
               }
 
-              if(currentBuildingId) {
+              const isInCityLimits = x+1 < city.size && y+1 < city.size && x-1 > 0 && y-1 > 0
+
+              if(currentBuildingId && isInCityLimits) {
 
                       const neighbors1 = city.tiles[x-1][y+1]
                       const neighbors2 = city.tiles[x-2][y-1]
@@ -233,7 +235,7 @@ export function createScene() {
         if(infoGameplay.foodAvailable > infoGameplay.population && infoGameplay.markets > 0) {
             const foodSales = infoGameplay.foodAvailable - infoGameplay.population;
             const result = foodSales * infoGameplay.salesTax
-            infoGameplay.funds += Math.round((result + Number.EPSILON) * 100) / 100;
+            infoGameplay.funds += result;
         }
 
         if(infoGameplay.population > 0 && (infoGameplay.foodNeeded > infoGameplay.population)) {
@@ -249,7 +251,7 @@ export function createScene() {
         }
 
         if(infoGameplay.population > 0 && infoGameplay.foodNeeded <= infoGameplay.population && infoGameplay.markets > 0) {
-            infoGameplay.funds += Math.floor(infoGameplay.markets * infoGameplay.salesTax)
+            infoGameplay.funds += infoGameplay.markets * infoGameplay.salesTax
         }
 
 
@@ -297,9 +299,10 @@ export function createScene() {
         displayPop.textContent = infoGameplay.population.toString()
         displayFood.textContent = infoGameplay.foodAvailable.toString()
         displayNeedFood.textContent = infoGameplay.foodNeeded.toString();
-
-        displayFunds.textContent = infoGameplay.funds.toString()
-        displayDebt.textContent =  infoGameplay.debt.toString() + ' $'
+        const fundsNum = Math.round((infoGameplay.funds + Number.EPSILON) * 100) / 100
+        const debtsNum = Math.round((infoGameplay.debt + Number.EPSILON) * 100) / 100
+        displayFunds.textContent =  fundsNum.toString()
+        displayDebt.textContent =  debtsNum.toString() + ' $'
 
         displayDead.textContent = infoGameplay.deads.toString()
 
