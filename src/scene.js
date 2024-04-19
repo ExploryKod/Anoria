@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { createCamera } from './camera.js';
 import { createAsset } from './asset.js';
+import { createGameplay} from "./gameplay.js";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {fetchPlayer, freePromises, playerMesh} from "./fetchPlayer.js";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
@@ -14,6 +15,7 @@ export function createScene() {
     const gameWindow = document.getElementById('game-window');
     const displayPop = document.querySelector('.info-panel .display-pop')
     const displayFood = document.querySelector('.info-panel .display-food')
+    const displayNeedFood = document.querySelector('.info-panel .display-starve')
     const displayDead = document.querySelector('.info-panel .display-dead')
     const displayDelay = document.querySelector('.info-panel .display-delay')
     const displayDelayUI = document.querySelector('.delay-ui')
@@ -36,6 +38,8 @@ export function createScene() {
         }
     );
 
+
+
     const camera = createCamera(gameWindow);
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(gameWindow.offsetWidth, gameWindow.offsetHeight);
@@ -45,6 +49,7 @@ export function createScene() {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     const controls = new OrbitControls(camera.camera, renderer.domElement);
     gameWindow.appendChild(renderer.domElement);
+
 
     // Selections d'un objet
     const raycaster = new THREE.Raycaster();
@@ -58,15 +63,16 @@ export function createScene() {
     let buildings = [];
     let loadingPromises = [];
 
-    let infoGamelay = {
+    let infoGameplay = {
         population: 0,
         maxPop: 0,
         deads: 0,
         foodAvailable: 0,
         foodNeeded: 0,
         salaries: 0,
-        salesTax: 0,
-        citizenTax: 0,
+        salesTax: 0.2,
+        citizenTax: 0.2,
+        markets: 0,
         foodMarkets: 0,
         goodsMarkets: 0,
         goodsNeeded: 0,
@@ -74,27 +80,18 @@ export function createScene() {
         foodSales: 0,
         goodSales: 0,
         debt: 0,
-        funds: 0,
+        funds: 200,
     }
     // Variables de gameplay
     let maxPop = 5;
-    let population  = 0;
-    let food = 0;
-    let deads = 0;
-
-    let debt = 0;
-    let funds = 300;
-    let salaries = 0;
-    let salesTax = 0.2;
-    let citizenTax = 0.2;
-    let markets = 0;
-
     let delay = 0;
 
     const houses = ['House-Red', 'House-Purple', 'House-Blue']
     const bigHouses = ['House-2Story']
     const farms = ['Farm-Wheat', 'Farm-Carrot', 'Farm-Cabbage']
     const commerce = ['Market-Stall']
+
+    const gameplay = createGameplay(infoGameplay);
 
     function initialize(city) { 
         scene.clear();
@@ -120,12 +117,15 @@ export function createScene() {
         }
 
         //  Initialize gameplay
-        displayPop.textContent = population.toString()
-        displayFood.textContent = food.toString()
-        displayDead.textContent = deads.toString()
-        displayFunds.textContent = funds.toString()
+        displayPop.textContent = infoGameplay.population.toString()
+
+        displayFood.textContent = infoGameplay.foodAvailable.toString()
+        displayNeedFood.textContent = infoGameplay.foodNeeded.toString();
+
+        displayDead.textContent = infoGameplay.deads.toString()
+        displayFunds.textContent = infoGameplay.funds.toString()
         displayDelay.textContent = delay.toString() + ' délai'
-        displayDebt.textContent = debt.toString() + ' $'
+        displayDebt.textContent = infoGameplay.debt.toString() + ' $'
 
         // addPlayerToScene(4, 0, 4)
 
@@ -160,16 +160,6 @@ export function createScene() {
 
               }
 
-
-              // if(x-1 > 0 && y+1 <= city.size && x+1 > city.size && y-1 > 0) {
-              //
-              //     const neighbors1 = city.tiles[x-1][y+1].buildingId
-              //     const neighbors2 = city.tiles[x-2][y-1].buildingId
-              //     const neighbors3 = city.tiles[x-1][y-2].buildingId
-              //     const neighbors4 = city.tiles[x+1][y+1].buildingId
-              //     console.log('NEIGHBORS', neighbors1, neighbors2, neighbors3, neighbors4)
-              //     buildings[x][y].userData.neighbors.push({one: neighbors1, two:neighbors2, three: neighbors3, four: neighbors4})
-              // }
                 if(buildingInfo.buildingId) {
                     infoBuildings.push(buildingInfo)
                 }
@@ -179,14 +169,14 @@ export function createScene() {
 
                 console.log('delete this building', currentBuildingId);
                 if(houses.includes(currentBuildingId)) {
-                    infoGamelay.funds -= 1
-                    infoGamelay.maxPop -= 5
-                    infoGamelay.population -= 1
-                    infoGamelay.deads += 1
+                    infoGameplay.funds -= 1
+                    infoGameplay.maxPop -= 5
+                    infoGameplay.population -= 1
+                    infoGameplay.deads += 1
                 }
                 if(farms.includes(currentBuildingId)) {
-                    infoGamelay.funds -= 1;
-                    infoGamelay.foodAvailable -= 1
+                    infoGameplay.funds -= 1;
+                    infoGameplay.foodAvailable -= 1
                 }
                 scene.remove(buildings[x][y]);
                 buildings[x][y] = undefined;
@@ -198,31 +188,31 @@ export function createScene() {
                 buildings[x][y] = createAsset(newBuildingId, x, y);
 
                 if(houses.includes(newBuildingId)) {
-                    infoGamelay.funds -= 1;
-                    infoGamelay.maxPop += 5;
-                    if(infoGamelay.population <= infoGamelay.maxPop) {
-                        infoGamelay.population += 1
+                    infoGameplay.funds -= 1;
+                    infoGameplay.maxPop += 5;
+                    if(infoGameplay.population <= infoGameplay.maxPop) {
+                        infoGameplay.population += 1
                     }
 
                 }
 
                 if(farms.includes(newBuildingId)) {
-                    infoGamelay.funds -= 1
-                    infoGamelay.foodAvailable += 1
+                    infoGameplay.funds -= 1
+                    infoGameplay.foodAvailable += 1
                 }
 
                 if(bigHouses.includes(newBuildingId)) {
-                    infoGamelay.funds -= 2;
-                    infoGamelay.maxPop += 10
+                    infoGameplay.funds -= 2;
+                    infoGameplay.maxPop += 10
 
-                    if(population <= maxPop) {
-                        infoGamelay.population += 2
+                    if(infoGameplay.population <= maxPop) {
+                        infoGameplay.population += 2
                     }
                 }
 
                 if(commerce.includes(newBuildingId)) {
-                    infoGamelay.funds -= 2;
-                    infoGamelay.markets += 1;
+                    infoGameplay.funds -= 2;
+                    infoGameplay.markets += 1;
                 }
 
                 if(newBuildingId === 'player-hero') {
@@ -235,66 +225,62 @@ export function createScene() {
 
         }
         // --- FIN BOUCLE SUR LA VILLE ----
-        console.log('population', infoGamelay.population)
-        console.log('food', infoGamelay.foodNeeded)
+        console.log('population', infoGameplay.population)
+        console.log('food', infoGameplay.foodNeeded)
 
-        if(infoGamelay.population > 0 && (infoGamelay.foodNeeded > infoGamelay.population)) {
+        infoGameplay.foodNeeded = infoGameplay.population - infoGameplay.foodAvailable
+
+        if(infoGameplay.foodAvailable > infoGameplay.population && infoGameplay.markets > 0) {
+            const foodSales = infoGameplay.foodAvailable - infoGameplay.population;
+            const result = foodSales * infoGameplay.salesTax
+            infoGameplay.funds += Math.round((result + Number.EPSILON) * 100) / 100;
+        }
+
+        if(infoGameplay.population > 0 && (infoGameplay.foodNeeded > infoGameplay.population)) {
             console.log('famine')
-            // delay += 1
+            delay += 1
 
             if(delay > 10) {
-                while(food < population) {
-                    infoGamelay.population -= 1;
-                    infoGamelay.deads += 1;
+                while(infoGameplay.foodAvailable < infoGameplay.population) {
+                    infoGameplay.population -= 1;
+                    infoGameplay.deads += 1;
                 }
             }
         }
 
-        if(infoGamelay.population > 0 && infoGamelay.foodNeeded <= population && infoGamelay.markets > 0) {
-            infoGamelay.funds += Math.floor(markets * salesTax)
+        if(infoGameplay.population > 0 && infoGameplay.foodNeeded <= infoGameplay.population && infoGameplay.markets > 0) {
+            infoGameplay.funds += Math.floor(infoGameplay.markets * infoGameplay.salesTax)
         }
 
 
 
-        if(infoGamelay.population > 0 && (infoGamelay.foodNeeded === infoGamelay.population)) {
+        if(infoGameplay.population > 0 && (infoGameplay.foodNeeded === infoGameplay.population)) {
             console.log('city growing')
             delay = 0
-            while(infoGamelay.foodNeeded > infoGamelay.population && infoGamelay.population <= infoGamelay.maxPop) {
-                infoGamelay.population += 1;
+            while(infoGameplay.foodNeeded > infoGameplay.population && infoGameplay.population <= infoGameplay.maxPop) {
+                infoGameplay.population += 1;
             }
         }
 
-        if(population > 0 && (infoGamelay.foodNeeded > infoGamelay.population)) {
+        if(infoGameplay.population > 0 && (infoGameplay.foodNeeded > infoGameplay.population)) {
             console.log('city growing')
-            while(infoGamelay.foodNeeded > infoGamelay.population && infoGamelay.population <= infoGamelay.maxPop) {
-                infoGamelay.population += 1;
-                infoGamelay.funds += 1;
-                infoGamelay.foodNeeded -= 1;
+            while(infoGameplay.foodNeeded > infoGameplay.population && infoGameplay.population <= infoGameplay.maxPop) {
+                infoGameplay.population += 1;
+                infoGameplay.funds += 1;
+                infoGameplay.foodNeeded -= 1;
             }
         }
 
-        if(infoGamelay.funds < 0) {
-            infoGamelay.debt += 1
-        }
-
-        // if(time > 10 && delay === 0 && population === 0 && food <= 0) {
-        //     window.game.gameOver('idle')
-        // }
-
-        if(infoGamelay.debt > 5000) {
-            window.game.gameOver('debt', {'debt': deads}, 'debt')
+        if(infoGameplay.funds < 0) {
+            infoGameplay.debt += 1
         }
 
         // On rembourse une dette dés qu'on gagne de l'argent
-        if(infoGamelay.debt > 0 && infoGamelay.funds > 0) {
-            infoGamelay.funds -= 1
-            infoGamelay.debt -= 1
+        if(infoGameplay.debt > 0 && infoGameplay.funds > 0) {
+            infoGameplay.funds -= 1
+            infoGameplay.debt -= 1
         }
 
-        // On perd si plus de 10 morts
-        if(infoGamelay.deads > 10) {
-            window.game.gameOver('death', {'deads': deads}, 'deads')
-        }
 
         // Gestion de la barre des délais
         if(delay > 0 && delay < 80) {
@@ -303,17 +289,19 @@ export function createScene() {
             displayDelayUI.textContent += ''
         }
 
+        gameplay.makeGameOver()
+
         //  Display results in UI
         displayDelay.textContent = delay.toString() + ' delai'
 
-        displayPop.textContent = infoGamelay.population.toString()
-        displayFood.textContent = infoGamelay.foodNeeded.toString()
+        displayPop.textContent = infoGameplay.population.toString()
+        displayFood.textContent = infoGameplay.foodAvailable.toString()
+        displayNeedFood.textContent = infoGameplay.foodNeeded.toString();
 
-        displayFunds.textContent = infoGamelay.funds.toString()
-        displayDebt.textContent =  infoGamelay.debt.toString() + ' $'
+        displayFunds.textContent = infoGameplay.funds.toString()
+        displayDebt.textContent =  infoGameplay.debt.toString() + ' $'
 
-        displayDead.textContent = infoGamelay.deads.toString()
-
+        displayDead.textContent = infoGameplay.deads.toString()
 
     }
 
@@ -462,6 +450,6 @@ export function createScene() {
         setUpLights,
         addPlayerToScene,
         delay,
-        deads
+        infoGameplay
     }
 }
