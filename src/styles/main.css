@@ -518,13 +518,13 @@ footer a:hover {
     top: 150px;
     bottom: 0;
     opacity: 0;
-    pointer-events: none;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
     border-radius: 10px 0 0 10px;
     transition: all 0.5s ease-in-out;
+    pointer-events: none;
 }
 
 .info-building-overlay .info-building__header {
@@ -546,7 +546,17 @@ footer a:hover {
     font-size: 20px;
 }
 
+/* It contain the dynamic text content about the building */
+.info-building-overlay .info-building__body {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .info-building-overlay.active {
+    pointer-events: auto;
     background-color: var(--lightgreen);
     z-index: 1000;
     opacity: 1;
@@ -555,6 +565,19 @@ footer a:hover {
 
 .info-building-overlay.active button {
     pointer-events: auto;
+}
+
+
+/* info building text */
+
+.info-building-item {
+    font-size: var(--text-xs-size);
+    font-weight: bold;
+    color: var(--grey)
+}
+
+.anoria-text {
+    text-align: left;
 }
 
 @media screen and (max-width: 768px) {

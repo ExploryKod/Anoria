@@ -37,20 +37,44 @@ export function createGame() {
             tile.buildingId = undefined;
             scene.update(city);
         } else if(activeToolId === "select-object") {
-            console.log('Je sélectionne ', selectedObject.userData)
+            console.log(`Je sélectionne ${selectedObject.userData.id} à ${x} ${y} >> `, selectedObject.userData)
             infoObjectOverlay.classList.toggle('active');
+            makeInfoBuildingText("", true)
+
+            const neighbors = [
+                {geo: 'Voisin Nord', buildingName: selectedObject.userData.neighborN},
+                {geo: 'Voisin Ouest', buildingName: selectedObject.userData.neighborW},
+                {geo: 'Voisin Sud', buildingName: selectedObject.userData.neighborS},
+                {geo: 'Voisin Est', buildingName: selectedObject.userData.neighborE},
+            ]
+            neighbors.filter(neighbor => neighbor.buildingName !== undefined).map(neighbor => {
+                makeInfoBuildingText(`${neighbor.geo} : ${neighbor.buildingName}`, false)
+            })
+
+
             if(infoObjectOverlay.classList.contains('active')) {
                 window.game.pause()
             } else {
                 window.game.play()
             }
-
+            scene.update(city)
         } else if(!tile.buildingId) {
             // place building at that location
             tile.buildingId = activeToolId;
             console.log('coordonnées et terrain de l\' objet posé: ', selectedObject.userData)
             scene.update(city);
         }
+    }
+
+    function makeInfoBuildingText(textContent, isHTMLReset=true) {
+        if(isHTMLReset) {
+            infoObjectContent.innerHTML = ""
+        }
+        const buildingText = document.createElement('p');
+        buildingText.classList.add('anoria-text');
+        buildingText.classList.add('info-building-item');
+        buildingText.textContent = textContent
+        infoObjectContent.appendChild(buildingText);
     }
     //    on onMouse we bind the scene object itself to the handler function onObjectSelected to work with the scene object
     // these event listeners are added to the document object, not the scene object itself - they are call by HTML document so we need to bind the scene object 
@@ -60,6 +84,13 @@ export function createGame() {
     document.addEventListener('mousemove', scene.onMouseMove.bind(scene), false);
     document.addEventListener('keydown', scene.onKeyBoardDown.bind(scene), false);
     document.addEventListener('keyup', scene.onKeyBoardUp.bind(scene), false);
+
+    infoObjectCloseBtn.addEventListener('click', () => {
+        if(infoObjectOverlay.classList.contains('active')) {
+            infoObjectOverlay.classList.remove('active')
+            window.game.play()
+        }
+    })
     
     const game = {
 
@@ -132,7 +163,7 @@ export function createGame() {
                 game.update(time);
             }
         }
-    }, 10000);
+    }, 6000);
 
 
     scene.start();

@@ -151,14 +151,43 @@ export function createScene() {
 
               if(currentBuildingId && isInCityLimits) {
 
-                      const neighbors1 = city.tiles[x-1][y+1]
-                      const neighbors2 = city.tiles[x-2][y-1]
-                      const neighbors3 = city.tiles[x-1][y-2]
-                      const neighbors4 = city.tiles[x+1][y+1]
+                // South
+                const neighborSouth = city.tiles[x][y+1]; // Neighbor directly to the north
+                Object.assign(buildings[x][y].userData, {neighborS: neighborSouth.buildingId })
+                // North-East
+                const neighborNorthEast = city.tiles[x+1][y+1]; // Neighbor diagonally to the north-east
+                  Object.assign(buildings[x][y].userData, {neighborNE: neighborNorthEast.buildingId })
+                // East
+                const neighborEast = city.tiles[x+1][y]; // Neighbor directly to the east
+                  Object.assign(buildings[x][y].userData, {neighborE: neighborEast.buildingId })
+                // South-East
+                const neighborSouthEast = city.tiles[x+1][y-1]; // Neighbor diagonally to the south-east
+                  Object.assign(buildings[x][y].userData, {neighborSE: neighborSouthEast.buildingId })
+                // North
+                const neighborNorth = city.tiles[x][y-1]; // Neighbor directly to the south
+                  Object.assign(buildings[x][y].userData, {neighborN: neighborNorth.buildingId })
+                // South-West
+                const neighborSouthWest = city.tiles[x-1][y-1]; // Neighbor diagonally to the south-west
+                  Object.assign(buildings[x][y].userData, {neighborSW: neighborSouthWest.buildingId })
+                // West
+                const neighborWest = city.tiles[x-1][y]; // Neighbor directly to the west
+                  Object.assign(buildings[x][y].userData, {neighborW: neighborWest.buildingId })
+                // North-West
+                const neighborNorthWest = city.tiles[x-1][y+1]; // Neighbor diagonally to the north-west
+                  Object.assign(buildings[x][y].userData, {neighborNW: neighborNorthWest.buildingId })
 
-                      Object.assign(buildings[x][y].userData, {neighbors: [neighbors1, neighbors2, neighbors3, neighbors4]})
-                      // buildings[x][y].userData.neighbors.push({one: neighbors1, two:neighbors2, three: neighbors3, four: neighbors4})
-                     console.log('Building xy neighbors ', buildings[x][y].userData)
+                      Object.assign(buildings[x][y].userData,
+                          {neighbors: [
+                          neighborNorth,
+                          neighborNorthWest,
+                          neighborNorthEast,
+                          neighborEast,
+                          neighborSouthEast,
+                          neighborSouthWest,
+                          neighborSouth,
+                          neighborWest]})
+
+                      console.log(`Building neighbors of ${currentBuildingId} x: ${x} y: ${y} ==> `, buildings[x][y].userData.neighbors)
 
               }
 
