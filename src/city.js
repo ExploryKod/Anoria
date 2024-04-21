@@ -1,3 +1,4 @@
+import { createScene } from './scene.js'
 export function createCity(size) {
     const tiles = [];
     const neighbors = [];
@@ -31,27 +32,30 @@ export function createCity(size) {
 }
 
 function createTile(x,y) {
+
+    const simpleHouses = [
+        'House-Red',
+        'House-Blue'
+    ]
+
     return { 
         x, 
         y, 
         terrainId: 'grass',
         neighbors: [],
         buildingId: undefined,
-        tileLeft: x-1,
-        tileRight: x+1,
-        tileTop: y+1,
-        tileBottom: y-1,
+        buildingData: {},
+        food: 0,
         player: "",
         update(){
-          //  const x = Math.random();
-          //
-          //  if(x) {
-          //  if(this.buildingId === 'House-Red') {
-          //       this.buildingId = 'House-Purple';
-          //   } else if(this.buildingId === 'House-Blue') {
-          //       this.buildingId = 'House-Red';
-          //   }
-          // }
+
+           if(this.buildingData.hasOwnProperty('neighborS')) {
+               if(this.buildingData['neighborS'].buildingId === 'Market-Stall'
+                   && simpleHouses.includes(this.buildingId)) {
+                  this.buildingId = 'House-2Story'
+               }
+            }
+
         }
     };
 }
@@ -64,22 +68,4 @@ function getTile(x, y, tiles, size) {
     } else {
         return tiles[x][y];
     }
-}
-function getVicinityTile(x, y, tiles, size) {
-    const neighbors = [];
-
-    if (x > 0) {
-        neighbors.push(getTile(x - 1, y, tiles, size));
-    }
-    if (x < size - 1) {
-        neighbors.push(getTile(x + 1, y, tiles, size));
-    }
-    if (y > 0) {
-        neighbors.push(getTile(x, y - 1, tiles, size));
-    }
-    if (y < size - 1) {
-        neighbors.push(getTile(x, y + 1, tiles, size));
-    }
-    console.log('Vicinity tiles ', neighbors)
-    return neighbors;
 }

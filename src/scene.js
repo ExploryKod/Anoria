@@ -104,6 +104,7 @@ export function createScene() {
             for(let y = 0; y < city.size; y++) {
                 // Grass
                 const terrainId = city.tiles[x][y].terrainId;
+                const buildingId = 'grass'
                 const mesh = createAsset(terrainId, x, y);
                 mesh.name = terrainId;
                 scene.add(mesh);
@@ -139,20 +140,21 @@ export function createScene() {
         for(let x = 0; x < city.size; x++) {
             for(let y = 0; y < city.size; y++) {
                 // console.log(`the city at y ${y}- x ${x} : >>`, city)
-              const currentBuildingId = buildings[x][y]?.userData?.id;
+              let currentBuilding =  buildings[x][y];
+              let currentBuildingId = buildings[x][y]?.userData?.id;
               const newBuildingId = city.tiles[x][y].buildingId;
               const buildingInfo =  city.tiles[x][y];
+
               if(currentBuildingId) {
                   console.log('current building', buildings[x][y])
                   console.log('current building id', currentBuildingId)
               }
 
               const isInCityLimits = x+1 < city.size && y+1 < city.size && x-1 > 0 && y-1 > 0
-
               if(currentBuildingId && isInCityLimits) {
 
                 // South
-                const neighborSouth = city.tiles[x][y+1]; // Neighbor directly to the north
+                const neighborSouth = city.tiles[x][y+1]; // Neighbor directly to the south
                 Object.assign(buildings[x][y].userData, {neighborS: neighborSouth.buildingId })
                 // North-East
                 const neighborNorthEast = city.tiles[x+1][y+1]; // Neighbor diagonally to the north-east
@@ -188,7 +190,6 @@ export function createScene() {
                           neighborWest]})
 
                       console.log(`Building neighbors of ${currentBuildingId} x: ${x} y: ${y} ==> `, buildings[x][y].userData.neighbors)
-
               }
 
                 if(buildingInfo.buildingId) {
@@ -210,7 +211,7 @@ export function createScene() {
                     infoGameplay.foodAvailable -= 1
                 }
                 scene.remove(buildings[x][y]);
-                buildings[x][y] = undefined;
+                buildings[x][y] = undefined
             }
 
             // if data model has changed, update the mesh
@@ -221,6 +222,7 @@ export function createScene() {
                 if(houses.includes(newBuildingId)) {
                     infoGameplay.funds -= 1;
                     infoGameplay.maxPop += 5;
+
                     if(infoGameplay.population <= infoGameplay.maxPop) {
                         infoGameplay.population += 1
                     }
