@@ -1,5 +1,10 @@
 # Anoria
 
+<p align="center">
+  <img src="./anoria_view.png" width="100%" height="auto" />
+</p>
+
+
 ## Installation locale
 
 
