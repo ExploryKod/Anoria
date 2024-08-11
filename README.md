@@ -24,7 +24,7 @@ Il y a aussi une version en ligne : voir sur ce repo en haut à droite.
 
 ### Le Projet 
 
-Dans le cadre du cours de web 3D, il est demandé de faire un projet sur unity. Ce moteur n'étant pas fonctionnel sur mon ordinateur, je démontre mes compétences en web 3D via Three JS. 
+Je m'initie avec ce projet au en web 3D via Three JS. 
 
 Ce projet est un mini jeu de construction de ville inspiré des jeux qui ont bercés mon adolescence tel que César 3, Pharaon, Sim City 3000, Civilisation III ....
 
@@ -39,14 +39,13 @@ Ce que j'ai appris :
 - Travailler mes objets 3D
 - Usage de Blender pour quelques ajustements et le format fbx > glb
 
-
 J'utilise les librairies lowpoly gratuite de sketchFab. Une page de crédit est en cours d'inté.
 
 ### Gameplay 
 
 Le gameplay est volontairement minimaliste pour cette version bêta. Une tel jeu gagnerait à être plutôt intégrer sur un moteur de jeu s'il devait évoluer avec un gameplay complexe et de meilleurs performances graphiques.
 
-Ce que l'on peux faire à ce stade (Cela évoluera beaucoup d'ici jeudi):
+Ce que l'on peux faire à ce stade :
 - Placer des bâtiments 
 - Voir ce qu'ils ont comme impact sur la population, la nourriture et l'argent
 - Des pages gameover sont déclenchés si vous dépassez un certain niveau de dette ($$) ou s'il y a trop de morts.
