@@ -1,4 +1,9 @@
 {
     "rewrites": [
-      { "source": "/(.*)", "destination": "/" }]
+      { "source": "/(.*)", "destination": "/" },
+      {
+      "source": "/(credits.*)",
+      "destination": "https://anoria.vercel.app/credits.html"
+      }
+]
 }
