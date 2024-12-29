@@ -163,7 +163,7 @@ export function createGame() {
                 game.update(time);
             }
         }
-    }, 6000);
+    }, 3000);
 
 
     scene.start();

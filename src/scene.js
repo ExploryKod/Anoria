@@ -20,7 +20,9 @@ export function createScene() {
     const displayDelay = document.querySelector('.info-panel .display-delay')
     const displayDelayUI = document.querySelector('.delay-ui')
 
+    const bulldozeSelected = document.querySelector('.bulldoze-btn');
 
+  
     // Accounts
     const displayFunds = document.querySelector('.info-panel .display-funds')
     const displayDebt = document.querySelector('.info-panel .display-debt')
@@ -136,6 +138,7 @@ export function createScene() {
         let infoBuildings = []
 
         console.log('Etat des bâtiments : ', infoBuildings)
+
         for(let x = 0; x < city.size; x++) {
             for(let y = 0; y < city.size; y++) {
                 // console.log(`the city at y ${y}- x ${x} : >>`, city)
@@ -195,22 +198,29 @@ export function createScene() {
                     infoBuildings.push(buildingInfo)
                 }
 
+
+             
             //  Remove a building from the scene if a player remove a building
             if(!newBuildingId && currentBuildingId) {
 
-                console.log('delete this building', currentBuildingId);
-                if(houses.includes(currentBuildingId)) {
-                    infoGameplay.funds -= 1
-                    infoGameplay.maxPop -= 5
-                    infoGameplay.population -= 1
-                    infoGameplay.deads += 1
+                if(bulldozeSelected.classList.contains('selected') && currentBuildingId) { 
+                    console.log('bulldoze has been selected', bulldozeSelected)
+                    if(houses.includes(currentBuildingId)) {
+                        infoGameplay.funds -= 1
+                        infoGameplay.maxPop -= 5
+                     
+                        console.log(`A building was deleted so pop is ${infoGameplay.population}`)
+                        infoGameplay.population -= 1
+                    }
+                    if(farms.includes(currentBuildingId)) {
+                        infoGameplay.funds -= 1;
+                        infoGameplay.foodAvailable -= 1
+                    }
+                    scene.remove(buildings[x][y]);
+                    buildings[x][y] = undefined;
                 }
-                if(farms.includes(currentBuildingId)) {
-                    infoGameplay.funds -= 1;
-                    infoGameplay.foodAvailable -= 1
-                }
-                scene.remove(buildings[x][y]);
-                buildings[x][y] = undefined;
+
+          
             }
 
             // if data model has changed, update the mesh
@@ -257,57 +267,55 @@ export function createScene() {
         }
         // --- FIN BOUCLE SUR LA VILLE ----
         console.log('population', infoGameplay.population)
-        console.log('food', infoGameplay.foodNeeded)
-
+        console.log('deads', infoGameplay.deads)
+        console.log('food needed', infoGameplay.foodNeeded)
+        console.log('food available', infoGameplay.foodAvailable)
         infoGameplay.foodNeeded = infoGameplay.population - infoGameplay.foodAvailable
 
-        if(infoGameplay.foodAvailable > infoGameplay.population && infoGameplay.markets > 0) {
-            const foodSales = infoGameplay.foodAvailable - infoGameplay.population;
-            const result = foodSales * infoGameplay.salesTax
-            infoGameplay.funds += result;
-        }
-
-        if(infoGameplay.population > 0 && (infoGameplay.foodNeeded > infoGameplay.population)) {
-            console.log('famine')
+        if(infoGameplay.population > 0 && (infoGameplay.foodNeeded >= infoGameplay.population)) {
+            console.log('city growing and need food for equal population')
             delay += 1
 
-            if(delay > 10) {
-                while(infoGameplay.foodAvailable < infoGameplay.population) {
-                    infoGameplay.population -= 1;
+            if(delay > 1) {
+                while((infoGameplay.foodAvailable <= infoGameplay.population) && infoGameplay.population > 0) {
+                    
                     infoGameplay.deads += 1;
+                    infoGameplay.population -= 1;  
+
+                    for(let x = 0; x < city.size; x++) {
+                        for(let y = 0; y < city.size; y++) {
+                        console.log(`the city in need food at y ${y}- x ${x} : >>`, city)
+                        
+                            city.tiles.forEach(tile => 
+                                tile.filter((building) => houses.includes(building.buildingId)).forEach(building => {
+                                    console.log('the tile with building', building)
+                                    
+                                    building.buildingId = undefined
+                                   
+                                    console.log('building is removed', building)
+                                })
+                            
+                            )
+                        }
+                    }
                 }
-            }
-        }
-
-        if(infoGameplay.population > 0 && infoGameplay.foodNeeded <= infoGameplay.population && infoGameplay.markets > 0) {
-            infoGameplay.funds += infoGameplay.markets * infoGameplay.salesTax
-        }
-
-
-
-        if(infoGameplay.population > 0 && (infoGameplay.foodNeeded === infoGameplay.population)) {
-            console.log('city growing')
-            delay = 0
-            while(infoGameplay.foodNeeded > infoGameplay.population && infoGameplay.population <= infoGameplay.maxPop) {
-                infoGameplay.population += 1;
+                
             }
         }
 
         if(infoGameplay.population > 0 && (infoGameplay.foodNeeded > infoGameplay.population)) {
-            console.log('city growing')
-            while(infoGameplay.foodNeeded > infoGameplay.population && infoGameplay.population <= infoGameplay.maxPop) {
-                infoGameplay.population += 1;
-                infoGameplay.funds += 1;
-                infoGameplay.foodNeeded -= 1;
-            }
+            console.log('city growing and need food')
+         
         }
 
         if(infoGameplay.funds < 0) {
+            console.log('city growing debt')
             infoGameplay.debt += 1
         }
 
         // On rembourse une dette dés qu'on gagne de l'argent
         if(infoGameplay.debt > 0 && infoGameplay.funds > 0) {
+            console.log('city reimburse debt')
             infoGameplay.funds -= 1
             infoGameplay.debt -= 1
         }

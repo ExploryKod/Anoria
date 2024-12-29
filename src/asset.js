@@ -94,6 +94,7 @@ toolIds.zones.forEach((toolId) => {
 
 toolIds.houses.forEach((toolId) => {
     // Populate the assets object with dynamic data
+    console.log("assetjs -- object data in houses -- ", buildingModelsObj)
     assets[toolId] = (x, y, z=0) => createBuilding(x, y, z, 0.5, toolId, buildingModelsObj);
 });
 
