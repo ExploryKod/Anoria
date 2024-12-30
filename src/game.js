@@ -51,7 +51,13 @@ export function createGame() {
                 makeInfoBuildingText(`${neighbor.geo} : ${neighbor.buildingName}`, false)
             })
 
-
+            if(selectedObject.userData.id === 'House-Red') {
+                console.log('selected object is ', selectedObject.userData.id)
+                makeInfoBuildingText(`Habitants: ${selectedObject.userData?.citizen?.number}`, false)
+                makeInfoBuildingText(`Happiness: ${selectedObject.userData?.happiness?.happy}`, false)
+                makeInfoBuildingText(`Accès route: ${selectedObject.userData?.happiness?.road}`, false)
+            }
+           
             if(infoObjectOverlay.classList.contains('active')) {
                 window.game.pause()
             } else {

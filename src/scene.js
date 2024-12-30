@@ -191,7 +191,14 @@ export function createScene() {
                           neighborWest]})
 
                       console.log(`Building neighbors of ${currentBuildingId} x: ${x} y: ${y} ==> `, buildings[x][y].userData.neighbors)
-
+                  
+                    
+                     buildings[x][y].userData.neighbors.forEach(neighbor => {
+                        if(currentBuildingId.includes('House') && neighbor.buildingId === 'roads') {
+                            buildings[x][y].userData.happiness.road = 1
+                        }
+                      })
+                      
               }
 
                 if(buildingInfo.buildingId) {
@@ -223,12 +230,19 @@ export function createScene() {
           
             }
 
-            // if data model has changed, update the mesh
+            // if data model has changed as user add a new building, update the mesh 
             if(newBuildingId && (newBuildingId !== currentBuildingId)) {
+                //remove the initial building if needed
                 scene.remove(buildings[x][y]);
+                // Add the new building
                 buildings[x][y] = createAsset(newBuildingId, x, y);
-
+                console.log(`[scenejs update] Building ${newBuildingId} added to map`);
+                console.log(`current building caracteristics >>>`, buildings[x][y].userData)
+                console.log(`current building neighbors est >>>`, buildings[x][y].userData.neighborE)
+          
+                
                 if(houses.includes(newBuildingId)) {
+                    buildings[x][y].userData.citizen.number = 1
                     infoGameplay.funds -= 1;
                     infoGameplay.maxPop += 5;
                     if(infoGameplay.population <= infoGameplay.maxPop) {
@@ -271,55 +285,6 @@ export function createScene() {
         console.log('food needed', infoGameplay.foodNeeded)
         console.log('food available', infoGameplay.foodAvailable)
         infoGameplay.foodNeeded = infoGameplay.population - infoGameplay.foodAvailable
-
-        if(infoGameplay.population > 0 && (infoGameplay.foodNeeded >= infoGameplay.population)) {
-            console.log('city growing and need food for equal population')
-            delay += 1
-
-            if(delay > 1) {
-                while((infoGameplay.foodAvailable <= infoGameplay.population) && infoGameplay.population > 0) {
-                    
-                    infoGameplay.deads += 1;
-                    infoGameplay.population -= 1;  
-
-                    for(let x = 0; x < city.size; x++) {
-                        for(let y = 0; y < city.size; y++) {
-                        console.log(`the city in need food at y ${y}- x ${x} : >>`, city)
-                        
-                            city.tiles.forEach(tile => 
-                                tile.filter((building) => houses.includes(building.buildingId)).forEach(building => {
-                                    console.log('the tile with building', building)
-                                    
-                                    building.buildingId = undefined
-                                   
-                                    console.log('building is removed', building)
-                                })
-                            
-                            )
-                        }
-                    }
-                }
-                
-            }
-        }
-
-        if(infoGameplay.population > 0 && (infoGameplay.foodNeeded > infoGameplay.population)) {
-            console.log('city growing and need food')
-         
-        }
-
-        if(infoGameplay.funds < 0) {
-            console.log('city growing debt')
-            infoGameplay.debt += 1
-        }
-
-        // On rembourse une dette dés qu'on gagne de l'argent
-        if(infoGameplay.debt > 0 && infoGameplay.funds > 0) {
-            console.log('city reimburse debt')
-            infoGameplay.funds -= 1
-            infoGameplay.debt -= 1
-        }
-
 
         // Gestion de la barre des délais
         if(delay > 0 && delay < 80) {
