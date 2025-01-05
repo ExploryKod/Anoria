@@ -110,6 +110,14 @@
                 <circle cx="18" cy="5" r="3"/>
             </svg>
         </button>
+
+        <button type="button" id="others-btn" data-toolid="others" data-group="others" class="toolbar-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-warehouse">
+            <path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/>
+            <path d="M6 18h12"/><path d="M6 14h12"/><rect width="12" height="12" x="6" y="10"/></svg>
+        </button>
+
       </section>
 
         <section class="info-panel-wrapper">
@@ -123,6 +131,9 @@
                   <span class="clock-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-4"><circle cx="12" cy="12" r="10"/>
                         <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alarm-clock-off">
+                        <path d="M6.87 6.87a8 8 0 1 0 11.26 11.26"/><path d="M19.9 14.25a8 8 0 0 0-9.15-9.15"/><path d="m22 6-3-3"/><path d="M6.26 18.67 4 21"/><path d="m2 2 20 20"/><path d="M4 4 2 6"/>
                     </svg>
                   </span>
                         <div class="display-time"></div>
@@ -220,6 +231,11 @@
 
     </div>
 </div>
+<footer>
+    <a title="crédits" href="https://github.com/ExploryKod/Anoria/blob/main/src/credits.md" >Crédits</a>
+    <span>Projet de Amaury Franssen - 2024 &copy; Tout droit réservé </span>
+</footer>
+
 <script type="module" src="./game.js"></script>
 <script type="module">
     import { createGame } from './game.js';
@@ -239,6 +255,7 @@
     const housesButton = document.getElementById('residential-btn');
     const farmsButton = document.getElementById('farm-btn');
     const marketButton = document.getElementById('market-btn');
+    const othersButton = document.getElementById('others-btn');
 
     const panelLayoutCloseBtn = document.querySelector('.panel-layout .panel-close-btn')
 
@@ -257,8 +274,6 @@
             window.game.play()
         }
     })
-
-
 
     playButton.addEventListener('click', () => {
         pauseOverlay.classList.remove('active')
@@ -291,6 +306,8 @@
     farmsButton.addEventListener('click', toggleModal)
 
     marketButton.addEventListener('click', toggleModal)
+
+    othersButton.addEventListener('click', toggleModal)
 
     panelLayoutCloseBtn.addEventListener('click', closeModal)
 
@@ -390,6 +407,16 @@
                    createMarketsStallsButtons(buttonData)
                }
                break;
+            case 'others':
+                getButtonsUnactive()
+                getButtonsDisabled()
+                panelLayoutInner.classList.add('loading-objects')
+                if(!panelLayout.classList.contains('active')) {
+                    panelLayout.classList.add('active');
+                    e.target.classList.toggle('selected')
+                    createOthersButtons(buttonData)
+                }
+                break;
           default:
               e.target.classList.toggle('selected')
               panelLayout.classList.remove('active');
@@ -468,6 +495,32 @@
         });
     }
 
+    function createOthersButtons(buttonData) {
+        panelLayoutInner.innerHTML = ''
+        const tombToolIDs = toolIds.tombs || [];
+        console.log(tombToolIDs);
+
+        function makeTumbSVG(color) {
+            const svgTomb = `<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="m19 21v-11c0-3.86599-3.134-7-7-7-3.86599 0-7 3.13401-7 7v11m-2 0h18" stroke="${color}" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                </svg>`
+            return svgTomb
+        }
+
+        let buttonsDuplicate = [];
+        let tumbColors = [{"Tombstone-1": "#000", "Tombstone-2": "#7aee1a", "Tombstone-3": "#f3e90b"}]
+        buttonData.filter(buttonInfo => tombToolIDs.includes(buttonInfo.tool)).forEach((buttonInfo, index) => {
+            if (!buttonsDuplicate.includes(buttonInfo.tool)) {
+                buttonsDuplicate.push(buttonInfo.tool);
+                console.log(buttonInfo)
+                console.log('button index: ', index)
+                makeNewButton(buttonInfo, makeTumbSVG(tumbColors[0][buttonInfo.tool]));
+            }
+        });
+    }
+
+
+
     function makeNewButton(buttonInfo, svg="") {
         const button = document.createElement('button');
         button.type = 'button';
@@ -499,9 +552,6 @@
         window.game.setActiveToolId(e.target.dataset.toolid);
     }
 </script>
-<footer>
-    <a title="crédits" href="https://github.com/ExploryKod/Anoria/blob/main/src/credits.md" >Crédits</a>
-    <span>Projet de Amaury Franssen - 2024 &copy; Tout droit réservé </span>
-</footer>
+
 </body>
 </html>
