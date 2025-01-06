@@ -1,5 +1,20 @@
+import * as THREE from 'three';
+import { initAnoriaDb, createHouseStore, createGameStore } from './store.js';
 import { createScene } from './scene.js';
 import { createCity } from './city.js'; 
+import { makeDbItemId, makeInfoBuildingText } from './utils.js';
+import { handleColorOnSelectedObject } from './meshUtils.js';
+import {
+    displayTime,
+    overOverlay,
+    overOverlayMessage,
+    infoObjectOverlay,
+    infoObjectCloseBtn,
+    buildingsObjects,
+    infoPanelClock,
+    infoPanelClockIcon,
+    infoPanelNoClockIcon
+} from './ui.js';
 
 export function createGame() {
     let activeToolId = '';
@@ -8,25 +23,25 @@ export function createGame() {
     let isOver;
     let infos = {};
 
-    const displayTime = document.querySelector('.info-panel .display-time')
-    const overOverlay = document.querySelector('#over-overlay');
-    const overOverlayMessage = document.querySelector('#over-overlay .over-overlay__text');
-
-    const infoObjectOverlay = document.querySelector('.info-building-overlay');
-    const infoObjectContent = document.querySelector('.info-building__body');
-    const infoObjectCloseBtn = document.querySelector('.info-building-overlay .panel-close-btn');
-
     displayTime.textContent = time.toString() + ' jours';
 
-    const scene = createScene();
+    /* IndexDB initialization using store.js async functions */
+    initAnoriaDb()
+    const buildingStore = createHouseStore();
+    const gameStore = createGameStore();
+    /* Scene initialization */
+    const scene = createScene(buildingStore, gameStore);
+
+    /* City initialization */
     const city = createCity(16);
     scene.initialize(city);
 
     // handler function to extract coordinate of an object I click on (data from asset js and using scene js methods)
-    scene.onObjectSelected = (selectedObject) => {
+    scene.onObjectSelected = async (selectedObject) => {
         selectedObject.info = '';
-        selectedObject.name = activeToolId;
+        selectedObject.name = activeToolId !== 'select-object'? activeToolId : selectedObject.name;
         console.log('the selected Object: ', selectedObject);
+
 
         let { x, y } = selectedObject.userData;
         // location of the tile in the data model
@@ -41,17 +56,46 @@ export function createGame() {
             infoObjectOverlay.classList.toggle('active');
             makeInfoBuildingText("", true)
 
-            const neighbors = [
-                {geo: 'Voisin Nord', buildingName: selectedObject.userData.neighborN},
-                {geo: 'Voisin Ouest', buildingName: selectedObject.userData.neighborW},
-                {geo: 'Voisin Sud', buildingName: selectedObject.userData.neighborS},
-                {geo: 'Voisin Est', buildingName: selectedObject.userData.neighborE},
-            ]
-            neighbors.filter(neighbor => neighbor.buildingName !== undefined).map(neighbor => {
-                makeInfoBuildingText(`${neighbor.geo} : ${neighbor.buildingName}`, false)
-            })
+            const hexSelected = handleColorOnSelectedObject(selectedObject)
+            console.log("Hex ", hexSelected)
+
+            if(!buildingsObjects.includes(selectedObject.userData.id)) {
+                console.warn("no building here")
+            }
 
 
+            if(buildingsObjects.includes(selectedObject.userData.id)) {
+                console.log('******* SELECTING A BUILDING *********', selectedObject.userData.id)
+                let isRoad = false
+                const uniqueId = makeDbItemId(selectedObject.userData.id, selectedObject.userData.x, selectedObject.userData.y)
+                const buildingPop = await buildingStore.getHouseItem(uniqueId, 'pop')
+                const buildingFood = await buildingStore.getHouseItem(uniqueId, 'food')
+
+                /* Check if neighbor */
+                let neighbors = false;
+                if(selectedObject.userData.neighbors) {
+                    neighbors = selectedObject.userData.neighbors;
+                }
+
+                makeInfoBuildingText(`Nombre d'habitants: ${buildingPop}`, false)
+                makeInfoBuildingText(`Nourriture: ${buildingFood} kilos d'aliments`, false)
+
+                if(neighbors) {
+                    neighbors.filter(neighbor => neighbor.buildingName !== undefined).map(neighbor => {
+                        if(neighbor.buildingName === 'roads') {
+                            isRoad = true
+                            makeInfoBuildingText(`Routes : ${isRoad ? "oui" : "non"}`, false)
+                        } else {
+                            isRoad = false
+                            makeInfoBuildingText(`Routes : ${isRoad ? "oui" : "non"}`, false)
+
+                        }
+
+                    })
+                }
+          
+            }
+           
             if(infoObjectOverlay.classList.contains('active')) {
                 window.game.pause()
             } else {
@@ -61,21 +105,27 @@ export function createGame() {
         } else if(!tile.buildingId) {
             // place building at that location
             tile.buildingId = activeToolId;
-            console.log('coordonnées et terrain de l\' objet posé: ', selectedObject.userData)
+            console.log(`coordonnées et terrain de l\' objet posé ${tile.buildingId}: `, selectedObject.userData)
+            const price = 56
+            const houseID = tile.buildingId + '-' + selectedObject.userData.x + '-' + selectedObject.userData.y
+
+            const dbHouseData = {
+                name: houseID,
+                time: 0,
+                pop: 0,
+                food : 0,
+                road: 0,
+                stage : 0,
+                stageName: "",
+                x : selectedObject.userData.x,
+                y : selectedObject.userData.y,
+            }
+
+            buildingStore.addHouse(dbHouseData);
             scene.update(city);
         }
     }
 
-    function makeInfoBuildingText(textContent, isHTMLReset=true) {
-        if(isHTMLReset) {
-            infoObjectContent.innerHTML = ""
-        }
-        const buildingText = document.createElement('p');
-        buildingText.classList.add('anoria-text');
-        buildingText.classList.add('info-building-item');
-        buildingText.textContent = textContent
-        infoObjectContent.appendChild(buildingText);
-    }
     //    on onMouse we bind the scene object itself to the handler function onObjectSelected to work with the scene object
     // these event listeners are added to the document object, not the scene object itself - they are call by HTML document so we need to bind the scene object 
     // to the handler function
@@ -93,7 +143,7 @@ export function createGame() {
     })
     
     const game = {
-
+       
         update(time) {
             displayTime.textContent = time + ' jours'
             city.update();
@@ -102,13 +152,17 @@ export function createGame() {
 
         pause() {
            isPause = true;
-            console.log('--pause--')
-           displayTime.textContent = 'pause'
+            console.log('--pause--') 
+            infoPanelClockIcon.style.display = 'none'
+            infoPanelNoClockIcon.style.display = 'block'
+            displayTime.textContent = 'pause'
         },
 
         play() {
             console.log('--play--')
             isPause = false;
+            infoPanelClockIcon.style.display = 'block'
+            infoPanelNoClockIcon.style.display = 'none'
             displayTime.textContent = 'play'
         },
 
@@ -163,7 +217,7 @@ export function createGame() {
                 game.update(time);
             }
         }
-    }, 6000);
+    }, 10000);
 
 
     scene.start();

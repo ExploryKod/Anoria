@@ -62,7 +62,7 @@ export function createCamera(gameWindow) {
     }
 
     function onMouseDown(event){
-        // console.log('mouse down');
+
         if(event.button === LEFT_MOUSE_BUTTON){
             isLeftMouseDown = true;
         }
@@ -88,7 +88,7 @@ export function createCamera(gameWindow) {
     }
 
     function onMouseMove(event){
-        // console.log('mouse move');
+
         const deltaY = event.clientY - prevMouseY;
         const deltaX = event.clientX - prevMouseX;
 

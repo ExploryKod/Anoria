@@ -5,25 +5,36 @@ import { createGameplay} from "./gameplay.js";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {fetchPlayer, freePromises, playerMesh} from "./fetchPlayer.js";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
-import {tombstonesModelsObj} from "./buildings.js";
+import { coloredAbuildingOnHover, resetHoveredObject, applyHoverColor, resetObjectColor } from './meshUtils.js';
+import { updateBuildingNeighbors, makeDbItemId, getBuildingNeighbors,
+    zoneBordersBuildings, getBuildingsInZone, makeInfoBuildingText  }
+    from "./utils.js";
+import {
+    gameWindow,
+    displayPop,
+    displayFood,
+    displayNeedFood,
+    displayDead,
+    displayDelay,
+    displayDelayUI,
+    bulldozeSelected,
+    displayFunds,
+    displayDebt,
+    houses,
+    firstHouses,
+    bigHouses,
+    farms,
+    commerce,
+    infoObjectOverlay,
+    delayBox
+} from './ui.js';
+
 const SKY_URL = './resources/textures/skies/plain_sky.jpg';
 let mixer;
 const loader = new GLTFLoader();
 const clock = new THREE.Clock();
 
-export function createScene() {
-    const gameWindow = document.getElementById('game-window');
-    const displayPop = document.querySelector('.info-panel .display-pop')
-    const displayFood = document.querySelector('.info-panel .display-food')
-    const displayNeedFood = document.querySelector('.info-panel .display-starve')
-    const displayDead = document.querySelector('.info-panel .display-dead')
-    const displayDelay = document.querySelector('.info-panel .display-delay')
-    const displayDelayUI = document.querySelector('.delay-ui')
-
-
-    // Accounts
-    const displayFunds = document.querySelector('.info-panel .display-funds')
-    const displayDebt = document.querySelector('.info-panel .display-debt')
+export function createScene(buildingStore, gameStore) {
 
     const scene = new THREE.Scene();
     // scene.background = new THREE.Color(0x79845);
@@ -50,7 +61,6 @@ export function createScene() {
     const controls = new OrbitControls(camera.camera, renderer.domElement);
     gameWindow.appendChild(renderer.domElement);
 
-
     // Selections d'un objet
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
@@ -62,6 +72,7 @@ export function createScene() {
     let terrain = [];
     let buildings = [];
     let loadingPromises = [];
+    let zones = [];
 
     let infoGameplay = {
         population: 0,
@@ -86,19 +97,15 @@ export function createScene() {
     let maxPop = 5;
     let delay = 0;
 
-    const houses = ['House-Red', 'House-Purple', 'House-Blue']
-    const bigHouses = ['House-2Story']
-    const farms = ['Farm-Wheat', 'Farm-Carrot', 'Farm-Cabbage']
-    const commerce = ['Market-Stall']
-
     const gameplay = createGameplay(infoGameplay);
 
     function initialize(city) { 
         scene.clear();
         terrain = [];
         buildings = [];
+        zones = [];
         loadingPromises = [];
-       
+
         for(let x = 0; x < city.size; x++) {
             let column = [];
             for(let y = 0; y < city.size; y++) {
@@ -110,10 +117,10 @@ export function createScene() {
                 column.push(mesh);  
             }
             terrain.push(column);
-
+            
             // create empty array for buildings : an array of undefined values
             buildings.push([...Array(city.size)]);
-            setUpLights();
+            setUpLights(city.size);
         }
 
         //  Initialize gameplay
@@ -125,198 +132,197 @@ export function createScene() {
         displayDead.textContent = infoGameplay.deads.toString()
         displayFunds.textContent = infoGameplay.funds.toString()
         displayDelay.textContent = delay.toString() + ' délai'
-        displayDebt.textContent = infoGameplay.debt.toString() + ' $'
+        displayDebt.textContent = infoGameplay.debt.toString()
 
         // addPlayerToScene(4, 0, 4)
 
     }
 
-    function update(city, time=0) {
+    async function update(city, time=0) {
+
+        console.log('=================== TIME TURN ====================== ', time)
+
         // --- BOUCLE SUR LA VILLE ----
         let infoBuildings = []
 
-        console.log('Etat des bâtiments : ', infoBuildings)
+        const totalPop = await buildingStore.getGlobalPopulation()
+        console.log('totalpop', totalPop)
+
+        infoGameplay.population = totalPop
+
+
         for(let x = 0; x < city.size; x++) {
             for(let y = 0; y < city.size; y++) {
                 // console.log(`the city at y ${y}- x ${x} : >>`, city)
-              const currentBuildingId = buildings[x][y]?.userData?.id;
+              let currentBuildingId = buildings[x][y]?.userData?.id;
+              const currentBuilding = buildings[x][y];
               const newBuildingId = city.tiles[x][y].buildingId;
               const buildingInfo =  city.tiles[x][y];
-              if(currentBuildingId) {
-                  console.log('current building', buildings[x][y])
-                  console.log('current building id', currentBuildingId)
-              }
 
               const isInCityLimits = x+1 < city.size && y+1 < city.size && x-1 > 0 && y-1 > 0
-
+           
               if(currentBuildingId && isInCityLimits) {
+                console.log(`*************** CURRENT BUILDING ID ${currentBuildingId} *************************`)
+                const buildingData = {
+                    city,
+                    buildings,
+                    x,
+                    y,
+                    currentBuildingId,
+                    terrain
+                };
 
-                // South
-                const neighborSouth = city.tiles[x][y+1]; // Neighbor directly to the north
-                Object.assign(buildings[x][y].userData, {neighborS: neighborSouth.buildingId })
-                // North-East
-                const neighborNorthEast = city.tiles[x+1][y+1]; // Neighbor diagonally to the north-east
-                  Object.assign(buildings[x][y].userData, {neighborNE: neighborNorthEast.buildingId })
-                // East
-                const neighborEast = city.tiles[x+1][y]; // Neighbor directly to the east
-                  Object.assign(buildings[x][y].userData, {neighborE: neighborEast.buildingId })
-                // South-East
-                const neighborSouthEast = city.tiles[x+1][y-1]; // Neighbor diagonally to the south-east
-                  Object.assign(buildings[x][y].userData, {neighborSE: neighborSouthEast.buildingId })
-                // North
-                const neighborNorth = city.tiles[x][y-1]; // Neighbor directly to the south
-                  Object.assign(buildings[x][y].userData, {neighborN: neighborNorth.buildingId })
-                // South-West
-                const neighborSouthWest = city.tiles[x-1][y-1]; // Neighbor diagonally to the south-west
-                  Object.assign(buildings[x][y].userData, {neighborSW: neighborSouthWest.buildingId })
-                // West
-                const neighborWest = city.tiles[x-1][y]; // Neighbor directly to the west
-                  Object.assign(buildings[x][y].userData, {neighborW: neighborWest.buildingId })
-                // North-West
-                const neighborNorthWest = city.tiles[x-1][y+1]; // Neighbor diagonally to the north-west
-                  Object.assign(buildings[x][y].userData, {neighborNW: neighborNorthWest.buildingId })
-
-                      Object.assign(buildings[x][y].userData,
-                          {neighbors: [
-                          neighborNorth,
-                          neighborNorthWest,
-                          neighborNorthEast,
-                          neighborEast,
-                          neighborSouthEast,
-                          neighborSouthWest,
-                          neighborSouth,
-                          neighborWest]})
-
-                      console.log(`Building neighbors of ${currentBuildingId} x: ${x} y: ${y} ==> `, buildings[x][y].userData.neighbors)
-
-              }
+                updateBuildingNeighbors(buildingData, 1, time);
+                //updateBuildingNeighbors(buildingData, 2, time);
+                //updateBuildingNeighbors(buildingData, 3, time);
 
                 if(buildingInfo.buildingId) {
                     infoBuildings.push(buildingInfo)
                 }
 
-            //  Remove a building from the scene if a player remove a building
-            if(!newBuildingId && currentBuildingId) {
+                //  Remove a building from the scene if a player remove a building
+                if(!newBuildingId && currentBuildingId) {
+                    if(bulldozeSelected.classList.contains('selected') && currentBuildingId) { 
+                        const uniqueBuildingId = makeDbItemId(currentBuildingId, x, y);
+                        if(houses.includes(currentBuildingId)) {
+                            buildingStore.deleteOneHouse(uniqueBuildingId)
+                        }
+                        scene.remove(buildings[x][y]);
+                        buildings[x][y] = undefined;
+                    }
+                }
 
-                console.log('delete this building', currentBuildingId);
+
+                if(commerce.includes(currentBuildingId)) {
+                    console.log(`$$$$$$$$$$$$$$$$$$ Market only ${currentBuildingId} *************************`)
+                    const currentMarketID = makeDbItemId(currentBuildingId, x, y);
+                    const marketTime = { name: currentMarketID, increment: 1, field: 'time' };
+                    buildingStore.updateHouseField(marketTime, false)
+
+                    const area = 4
+                    const allFarmCarrotInZone = getBuildingsInZone(area, { city, x, y}, 'Farm-Carrot')
+                    console.log("$$$ Farm carrots in market zone [getBuidingsInZone] ? ", allFarmCarrotInZone)
+                    const marketFood = { name: currentMarketID, increment: 1, field: 'food' };
+                    buildingStore.updateHouseField(marketFood, false)
+                }
+
+                //  only update if current building is a house
                 if(houses.includes(currentBuildingId)) {
-                    infoGameplay.funds -= 1
-                    infoGameplay.maxPop -= 5
-                    infoGameplay.population -= 1
-                    infoGameplay.deads += 1
-                }
-                if(farms.includes(currentBuildingId)) {
-                    infoGameplay.funds -= 1;
-                    infoGameplay.foodAvailable -= 1
-                }
-                scene.remove(buildings[x][y]);
-                buildings[x][y] = undefined;
-            }
+                    console.log(`++++++++++++++ HOUSE ONLY ${currentBuildingId} +++++++++++++++++++++++++++++++++++++++++++++++++ `)
+                    const currentHouseID = makeDbItemId(currentBuildingId, x, y);
+                    console.log('+++ [before updatehousedata] current house is a house ', currentHouseID);
 
-            // if data model has changed, update the mesh
+
+                    if(time > 0) {
+                        const HouseTime = { name: currentHouseID, increment: 1, field: 'time' };
+                        buildingStore.updateHouseField(HouseTime, false)
+                    }
+
+                    const HousePop = { name: currentHouseID, increment: 1, field: 'pop' };
+                    buildingStore.updateHouseField(HousePop, {operator: '<=', limit: 2})
+                    .then(() => {
+                            console.log(`+++ Update for house ${currentHouseID} completed.`);
+                    })
+                    .catch((error) => {
+                            console.error(`+++ Error updating house ${currentHouseID}:`, error);
+                    });
+
+                    const houseTime = await buildingStore.getHouseItem(currentHouseID, 'time');
+                    const houseFood = await buildingStore.getHouseItem(currentHouseID, 'food');
+                    console.log('+++ current house time: ', houseTime)
+                    console.log('+++ current house food: ', houseFood)
+
+                    /* Immediate neighbors */
+                    const neighborFarmFound = getBuildingNeighbors(currentBuilding, ['Farm-Carrot', 'Farm-Wheat', 'Farm-Cabbage'])
+                    const neighborMarketFound = getBuildingNeighbors(currentBuilding, ['Market-Stall'])
+                    const neighborRoadFound = getBuildingNeighbors(currentBuilding, ['roads'])
+                    const AllNeighborsFromZone = zoneBordersBuildings(3, { city, x, y })
+                    console.log('all neighbors from zone at 3 : ', AllNeighborsFromZone)
+                    /* More distant neighbors from a 4 cases area zone */
+                    const area = 4
+                    const allneighborsWithinZone = getBuildingsInZone(area, { city, x, y})
+
+                    console.log(`+++ All neighbors at 3 cases from ${currentBuildingId} ==> `, AllNeighborsFromZone)
+
+                    console.log(`+++ ALL HOUSE NEIGHBOR WITHIN A ZONE of ${area} for ${currentHouseID} :`, allneighborsWithinZone)
+
+
+                    if(neighborRoadFound) {
+                        const HouseRoad = { name: currentHouseID, increment: 1, field: 'road' };
+                        buildingStore.updateHouseField(HouseRoad, {operator: '<=', limit: 4})
+                    }
+
+                    if(allneighborsWithinZone.includes('Market-Stall')) {
+                        console.log(`market found near ${currentHouseID}`)
+                        const HouseFood = { name: currentHouseID, increment: 1, field: 'food' };
+                        buildingStore.updateHouseField(HouseFood, false)
+                    }
+
+                    if(houseTime === 3 && houseFood <= 0) {
+                        console.log('[NO FOOD] and house time beyond 3 : ', houseTime, buildings[x][y])
+
+                        scene.remove(buildings[x][y]);
+                        const uniqueBuildingId = makeDbItemId(currentBuildingId, x, y);
+                        await buildingStore.deleteOneHouse(uniqueBuildingId)
+                        buildings[x][y] = createAsset('Tombstone-1', x, y);
+                        scene.add(buildings[x][y]);
+
+                    }
+
+                    if(houseTime > 3 && houseFood > 5 && firstHouses.includes(currentBuildingId)) {
+                        scene.remove(buildings[x][y]);
+                        const uniqueBuildingId = makeDbItemId(currentBuildingId, x, y);
+                        const newUniqueBuildingId = makeDbItemId('House-2Story', x, y);
+                        console.log('new unique building ', newUniqueBuildingId)
+                        await buildingStore.updateHouseName(uniqueBuildingId, newUniqueBuildingId);
+                        await buildingStore.deleteOneHouse(uniqueBuildingId);
+                        buildings[x][y] = createAsset('House-2Story', x, y);
+                        console.log('[2Story added] >> old and new', uniqueBuildingId, newUniqueBuildingId)
+
+                        scene.add(buildings[x][y]);
+
+                    }
+
+                }
+          
+              }
+
+                  // if data model has changed as user add a new building, update the mesh 
             if(newBuildingId && (newBuildingId !== currentBuildingId)) {
-                scene.remove(buildings[x][y]);
-                buildings[x][y] = createAsset(newBuildingId, x, y);
-
-                if(houses.includes(newBuildingId)) {
-                    infoGameplay.funds -= 1;
-                    infoGameplay.maxPop += 5;
-                    if(infoGameplay.population <= infoGameplay.maxPop) {
-                        infoGameplay.population += 1
-                    }
-
+                //remove the initial building if needed
+                const currentBuildingIdDb = makeDbItemId(currentBuildingId, x, y);
+                let isExistingBuilding;
+                if(currentBuildingIdDb) {
+                    isExistingBuilding = buildingStore.getHouse(currentBuildingIdDb);
                 }
 
-                if(farms.includes(newBuildingId)) {
-                    infoGameplay.funds -= 1
-                    infoGameplay.foodAvailable += 1
-                }
-
-                if(bigHouses.includes(newBuildingId)) {
-                    infoGameplay.funds -= 2;
-                    infoGameplay.maxPop += 10
-
-                    if(infoGameplay.population <= maxPop) {
-                        infoGameplay.population += 2
-                    }
-                }
-
-                if(commerce.includes(newBuildingId)) {
-                    infoGameplay.funds -= 2;
-                    infoGameplay.markets += 1;
-                }
-
-                if(newBuildingId === 'player-hero') {
-                    // addPlayerToScene(x,0,y)
-                } else {
+                console.log(`Building is existing`, isExistingBuilding)
+                if(!isExistingBuilding) {
+                    scene.remove(buildings[x][y]);
+                    buildings[x][y] = createAsset(newBuildingId, x, y);
                     scene.add(buildings[x][y]);
                 }
+
+                // Add the new building
+                console.log(`[scenejs update] Building ${newBuildingId} added to map`);
+
+                console.log(`current building caracteristics >>>`, buildings[x][y].userData)
+                console.log(`current building neighbors est >>>`, buildings[x][y].userData.neighborE)
+  
                 }
+
+              // -- FIN DE LA SOUS-BOUCLE Y ----
             }
 
         }
-        // --- FIN BOUCLE SUR LA VILLE ----
-        console.log('population', infoGameplay.population)
-        console.log('food', infoGameplay.foodNeeded)
-
-        infoGameplay.foodNeeded = infoGameplay.population - infoGameplay.foodAvailable
-
-        if(infoGameplay.foodAvailable > infoGameplay.population && infoGameplay.markets > 0) {
-            const foodSales = infoGameplay.foodAvailable - infoGameplay.population;
-            const result = foodSales * infoGameplay.salesTax
-            infoGameplay.funds += result;
-        }
-
-        if(infoGameplay.population > 0 && (infoGameplay.foodNeeded > infoGameplay.population)) {
-            console.log('famine')
-            delay += 1
-
-            if(delay > 10) {
-                while(infoGameplay.foodAvailable < infoGameplay.population) {
-                    infoGameplay.population -= 1;
-                    infoGameplay.deads += 1;
-                }
-            }
-        }
-
-        if(infoGameplay.population > 0 && infoGameplay.foodNeeded <= infoGameplay.population && infoGameplay.markets > 0) {
-            infoGameplay.funds += infoGameplay.markets * infoGameplay.salesTax
-        }
-
-
-
-        if(infoGameplay.population > 0 && (infoGameplay.foodNeeded === infoGameplay.population)) {
-            console.log('city growing')
-            delay = 0
-            while(infoGameplay.foodNeeded > infoGameplay.population && infoGameplay.population <= infoGameplay.maxPop) {
-                infoGameplay.population += 1;
-            }
-        }
-
-        if(infoGameplay.population > 0 && (infoGameplay.foodNeeded > infoGameplay.population)) {
-            console.log('city growing')
-            while(infoGameplay.foodNeeded > infoGameplay.population && infoGameplay.population <= infoGameplay.maxPop) {
-                infoGameplay.population += 1;
-                infoGameplay.funds += 1;
-                infoGameplay.foodNeeded -= 1;
-            }
-        }
-
-        if(infoGameplay.funds < 0) {
-            infoGameplay.debt += 1
-        }
-
-        // On rembourse une dette dés qu'on gagne de l'argent
-        if(infoGameplay.debt > 0 && infoGameplay.funds > 0) {
-            infoGameplay.funds -= 1
-            infoGameplay.debt -= 1
-        }
-
+        // --- FIN BOUCLE SUR LA VILLE X ET Y----
 
         // Gestion de la barre des délais
         if(delay > 0 && delay < 80) {
+            delayBox.style.opacity = 1
             displayDelayUI.textContent += '****'
         } else {
+            delayBox.style.opacity = 0.5
             displayDelayUI.textContent += ''
         }
 
@@ -334,6 +340,8 @@ export function createScene() {
         displayDebt.textContent =  debtsNum.toString() + ' $'
 
         displayDead.textContent = infoGameplay.deads.toString()
+
+        console.log('=================== END TURN ====================== ', time)
 
     }
 
@@ -360,19 +368,32 @@ export function createScene() {
     }
    
 
-    function setUpLights() {
+    function setUpLights(citySize) {
+        console.log("City size:", citySize);
+
+        // Use the derived formula for light intensity
+        const b = Math.log10(0.1) / Math.log10(2); // Exponent
+        const a = 0.03 / Math.pow(16, b); // Coefficient
+        const c = 0.05 / Math.pow(16, b);
+
+        const AmbientLightIntensity = a * Math.pow(citySize, b);
+        const DirectionalLightIntensity = c * Math.pow(citySize, b);
+
+        console.log("Ambient light intensity:", AmbientLightIntensity);
+        console.log("Directional light intensity:", DirectionalLightIntensity);
         const lights = [
-            new THREE.AmbientLight(0xffffff, 0.03),
-            new THREE.DirectionalLight(0x999999, 0.05),
-            new THREE.DirectionalLight(0x999999, 0.05),
-            new THREE.DirectionalLight(0x999999, 0.05)
+            new THREE.AmbientLight(0xffffff, AmbientLightIntensity),
+            new THREE.DirectionalLight(0x999999, DirectionalLightIntensity),
+            new THREE.DirectionalLight(0x999999, DirectionalLightIntensity),
+            new THREE.DirectionalLight(0x999999, DirectionalLightIntensity),
         ];
 
+        // Set up directional lights
         lights[1].position.set(0, 1, 0);
         lights[2].position.set(0, 1, 0);
         lights[3].position.set(0, 1, 0);
 
-        // lights[1].castShadow = true;
+        // Configure shadows for the first directional light
         lights[1].shadow.camera.left = -10;
         lights[1].shadow.camera.right = 10;
         lights[1].shadow.camera.top = 0;
@@ -382,12 +403,15 @@ export function createScene() {
         lights[1].shadow.camera.near = 0.5;
         lights[1].shadow.camera.far = 50;
 
+        // Add lights to the scene
         scene.add(...lights);
 
+        // Add a hemisphere light
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.1);
         hemiLight.position.set(0, 50, 0);
         scene.add(hemiLight);
     }
+
 
     function draw() {
         renderer.render(scene, camera.camera);
@@ -414,6 +438,7 @@ export function createScene() {
         // if any intersection where found (if the array is not empty)
         if(intersections.length > 0) {
             // get the first object (the intersection) of the array of intersections
+            console.log('intersection', intersections);
             console.log('intersection', intersections[0]);
             // if(selectedObject) selectedObject.material.emissive.setHex(0);
             selectedObject = intersections[0].object;
@@ -434,9 +459,79 @@ export function createScene() {
         camera.onMouseUp(event);
     }
 
+    /*
     function onMouseMove(event){
         camera.onMouseMove(event);
     }
+    */
+
+let hoveredObject = null
+let hoveredObjectName = null
+const objectsNames = ['grass', 'roads', 'House-Red', 'House-Purple']
+function onMouseMove(event) {
+    camera.onMouseMove(event);
+
+    // Update the mouse coordinates for raycasting
+    mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+    mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+
+    // Perform raycasting
+    raycaster.setFromCamera(mouse, camera.camera);
+    const intersections = raycaster.intersectObjects(scene.children, false);
+
+    if(intersections.length) {
+        console.log("interections on mouse move ", intersections[0].object.name)
+        hoveredObjectName = intersections[0]?.object?.name || ""
+    }
+
+
+    
+    objectsNames.forEach(objectName => {
+        if(intersections[0]?.object?.name === objectName) {
+            if(objectName === 'House-Red') {
+                coloredAbuildingOnHover(intersections, 0xff0000, 0x000000)
+            } else {
+                handleHover(intersections, 0xff0000, objectName);
+            }
+
+            
+            
+        }
+    })
+
+}
+
+
+ function handleHover(intersections, hexColor, objectName="roads") {
+    if (intersections.length > 0) {
+        const intersectedObject = intersections[0].object;
+
+        // Check if the intersected object is the one we want to interact with
+        if (intersectedObject.name === objectName) {
+
+            // If the hovered object has changed
+            if (hoveredObject !== intersectedObject) {
+                console.log("[handleHover] hovered object", hoveredObject)
+                if (hoveredObject) {
+                    resetObjectColor(hoveredObject);
+                }
+
+                hoveredObject = intersectedObject;
+                applyHoverColor(hoveredObject, hexColor, objectName);
+            }
+        } else {
+            resetHoveredObject(hoveredObject);
+        }
+
+
+    } else {
+        resetHoveredObject(hoveredObject);
+    }
+}
+
+
+
+
 
     function onKeyBoardDown(event){
 
@@ -453,7 +548,7 @@ export function createScene() {
     
         if(intersections.length > 0) {
             // get the first object (the intersection) of the array of intersections
-            const selected = intersects[0].object;
+            const selected = intersections[0].object;
             if(selected) {
                 console.log('selected material scene: ===> ', selected.material)
             }

@@ -8,7 +8,7 @@ const fbxLoader = new FBXLoader();
 const plyLoader = new PLYLoader();
 const playerLoader = new GLTFLoader();
 
-const avatarPath = './resources/hero.glb'
+const avatarPath = './resources/monster.glb'
 const playerData = {
     url: avatarPath,
     size: 0.8
@@ -76,7 +76,7 @@ gltfloader.setDRACOLoader( dracoLoader );
 // Load a glTF resource if file with several assets
 gltfloader.load(
     // resource URL
-    './resources/lowpoly/village__town_assets.glb',
+    './resources/lowpoly/village_town_assets_v2.glb',
     // called when the resource is loaded
     function ( gltf ) {
 
@@ -163,9 +163,6 @@ gltfloader.load(
                         })
                     }
                 })
-
-                // console.log('ASSETS NAMES => ', assetNames)
-                // console.log('TOMBSTONE NAMES => ', tombstonesNames)
             }
         });
     },
@@ -189,22 +186,7 @@ playerLoader.load(
     function(gltf) {
         const model = gltf.scene;
         console.log('AVATAR ', model)
-        // model.traverse((child) => {
-        //     if (child.isMesh) {
-        //         child.castShadow = true;
-        //         child.receiveShadow = true;
-        //     }
-        // });
-        //
-        // if(playerAnimationsData.isAnimated) {
-        //     mixer = new THREE.AnimationMixer(model);
-        //     // Armature|mixamo.com|Layer0
-        //     let fileAnimations = gltf.animations;
-        //     console.log('ANIMATIONS PLAYER', fileAnimations)
-        //     let animate = THREE.AnimationClip.findByName(fileAnimations, playerAnimationsData.name);
-        //     let idle = mixer.clipAction(animate);
-        //     idle.play();
-        // }
+
         playerAnimations = gltf.animations;
         const firstNamePart = 'player'
         const secondNamePart = 'hero'
@@ -217,72 +199,9 @@ playerLoader.load(
     }
 );
 
-
-
-
-// Animals
-
-// gltfloader.load(
-//     // resource URL
-//     './resources/lowpoly/animals_pack_medium.glb',
-//     // called when the resource is loaded
-//     function ( gltf ) {
-//
-//         // scene.add( gltf.scene );
-//         console.log('pack gltf', gltf);
-//
-//         gltf.animations; // Array<THREE.AnimationClip>
-//         gltf.scene; // THREE.Group
-//         gltf.scenes; // Array<THREE.Group>
-//         gltf.cameras; // Array<THREE.Camera>
-//         gltf.asset; // Object
-//
-//         gltf.scene.traverse(function (child) {
-//             console.log(child);
-//             if (child instanceof THREE.Mesh) {
-//                 const animalFullName = child.userData.name
-//                 const firstNamePart = animalFullName.split('_')[0]
-//                 const secondNamePart = animalFullName.split('_')[1]
-//
-//                 console.log('ANIMAL NAMES => ', animalsNames)
-//
-//                 switch(firstNamePart) {
-//                     case 'Tiger.1':
-//                         animalsNames.push(`${firstNamePart}-${secondNamePart}`);
-//                         animalsModels.push(child)
-//                         Object.assign(buildingModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
-//                         break;
-//                     case 'Tombstone':
-//                         animalsNames.push(`${firstNamePart}-${secondNamePart}`);
-//                         animalsModels.push(child)
-//                         Object.assign(animalsModelsObj, {[`${firstNamePart}-${secondNamePart}`]: child})
-//                         break;
-//                     default:
-//                         console.log(miscellaneous)
-//                         miscellaneous.push(child)
-//                         break
-//                 }
-//             }
-//         });
-//
-//         console.log('buildings js - ANIMAL OBJECTS => ', animalsModelsObj)
-//     },
-//     // called while loading is progressing
-//     function ( xhr ) {
-//
-//         // console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-//
-//     },
-//     // called when loading has errors
-//     function ( error ) {
-//
-//         console.log( 'An error happened' );
-//
-//     }
-// );
-
-console.log('all assets names', allAssetsNames);
-console.log('button datas in building', buttonData);
+console.log('buildingjs - tool ids', toolIds)
+console.log('buildingjs - all assets names', allAssetsNames);
+console.log('buildingjs - button datas in building', buttonData);
 // console.log('player > >> ', playerModelObj)
 
 export {

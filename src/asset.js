@@ -36,7 +36,7 @@ export const textures = {
     'grass': loadTextures(`${root}resources/textures/grounds/grass_rough2.png`),
 }
 
-export function changeMeshMaterial(mesh, texture) {
+export function changeMeshMaterialTexture(mesh, texture) {
     mesh.traverse((obj) => {
         if (obj.material) {
             obj.material = new THREE.MeshLambertMaterial({
@@ -70,10 +70,6 @@ function getBuildingSides(textureId) {
     return new THREE.MeshLambertMaterial({ map: textures[textureId].clone() })
 }
 
-function getRoadsSides() {
-    return new THREE.MeshLambertMaterial({ color: 0x444444 })
-}
-
 function getGrassSides() {
     return new THREE.MeshLambertMaterial({ color: 0x004444 })
 }
@@ -88,12 +84,10 @@ let assets = {
 };
 
 toolIds.zones.forEach((toolId) => {
-    // Populate the assets object with dynamic data
-    assets[toolId] = (x, y) => createZone(x, y, toolId, toolId);
+    assets[toolId] = (x, y) => createZone(x, y, toolId);
 });
 
 toolIds.houses.forEach((toolId) => {
-    // Populate the assets object with dynamic data
     assets[toolId] = (x, y, z=0) => createBuilding(x, y, z, 0.5, toolId, buildingModelsObj);
 });
 
@@ -106,7 +100,6 @@ toolIds.farms.forEach((toolId) => {
 })
 
 toolIds.markets.forEach((toolId) => {
-    console.log(toolId)
     assets[toolId] = (x, y, z=0) => createBuilding(x, y, z, 0.5, toolId, marketsModelsObj)
 })
 
@@ -115,7 +108,7 @@ export function createAsset(assetId, x, y) {
    if(assetId in assets) {
        return assets[assetId](x, y);
    } else {
-       console.warn(`Asset ${assetId} does not exist`);
+       console.warn(`Asset ${assetId} does not exist, see assets: `, assets);
        return undefined
    }
 }
@@ -142,34 +135,45 @@ function createCitizen(x, y, z, size, meshName, playersModels, playerAnimationsD
     return { model: model3D, mixer: mixer }
 }
 
-function createBuilding(x, y, z, size, meshName, objectsData) {
-    console.log('ASSET NAME', assetFullName)
-
+function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false) {
     let placerPos = new THREE.Vector3(x, y, z);
     const object3D = objectsData[meshName].clone()
 
-    object3D.name = `${objectsData.name}-${x}-${y}`
+    if(changeColor) {
+        object3D.traverse((child) => {
+            if (child.isMesh) {
+                changeMeshColor(child, 0xff00ff)
+            }
+        })
+    }
+
+    object3D.name = `${meshName}`
     object3D.position.set(placerPos.x, placerPos.z, placerPos.y);
     object3D.scale.set(size,size,size);
     object3D.rotation.set(THREE.MathUtils.degToRad(90), THREE.MathUtils.degToRad(180), THREE.MathUtils.degToRad(180));
     object3D.userData = {
-        id:  meshName, x, y,
+        id:  meshName,
+        x,
+        y,
         vicinities: { xless : x-1, yless : y-1, xplus: x+1, yplus: y+1},
         neighbors: [],
         happiness: {food: 0, road: 0, happy: 0},
         balance:{revenue:0, tax: 0, net:0},
-        citizen:{number:0, jobs:[]}};
+        citizen:{number:0, jobs:[]},
+        time: 0,
+        isBuilding: true
+    };
     return object3D
 }
 
-export function changeBuildingSides(mesh) {
+export function changeBuildingSides(mesh, texture) {
     let roof;
     let sides;
     let buildingSidesArray = [];
     let materialSides = [];
 
     roof = getRoof()
-    sides =  getBuildingSides('roads')
+    sides =  getBuildingSides(texture)
     buildingSidesArray = [sides, sides,roof, roof,sides, sides]
     materialSides = buildingSidesArray
     mesh = new THREE.Mesh(geometry, materialSides)
@@ -179,47 +183,66 @@ export function changeBuildingSides(mesh) {
     return mesh;
 }
 
-function createZone(x, y, textureName = 'residential1', buildingId='residential') {
+function createZone(x, y, buildingId='') {
     let roof;
     let sides;
     let mesh;
     let buildingSidesArray;
     let materialSides;
     let material;
+    let oneMaterial;
+
+    const materials = {
+        'roads': new THREE.MeshLambertMaterial({ map: textures['roads'] }),
+        'grass': new THREE.MeshLambertMaterial({ map: textures['grass'] })
+    }
+
 
     switch(buildingId) {
         case 'roads':
-            roof = getRoof('roads')
-            sides = getRoadsSides()
-            material = new THREE.MeshLambertMaterial({ map: textures['roads'] });
+            material = materials['roads']
             mesh = new THREE.Mesh(geometry, material);
-            mesh.userData = { id: 'roads',x,y};
+            mesh.userData = { id: buildingId, x, y,  isBuilding: false, time: 0};
+            mesh.name = buildingId
             mesh.scale.set(1, 1, 1);
             mesh.position.set(x, -0.5, y);
+            //mesh.material.emissive.setHex(0xff0000)
             mesh.castShadow = true;
             mesh.receiveShadow = true;
+            console.log('[asset] Initial mesh road ', mesh);
             break;
         case 'grass':
             roof = getRoof('grass')
             sides =  getGrassSides()
             buildingSidesArray = [sides, sides,roof, roof,sides, sides]
             materialSides = buildingSidesArray
-            mesh = new THREE.Mesh(geometry, materialSides)
-            mesh.userData = { id:buildingId, x, y }
-            mesh.material.forEach(material =>  material.map?.repeat.set(1,1))
+            oneMaterial = materials['grass']
+            mesh = new THREE.Mesh(geometry, oneMaterial)
+            mesh.name = buildingId
+            mesh.userData = { id:buildingId, x, y,  isBuilding: false, time: 0}
+            if(Array.isArray(mesh.material)) {
+                mesh.material.forEach(material =>  material.map?.repeat.set(1,1))
+            } else {
+                mesh.material.map?.repeat.set(1,1)
+            }
+          
             mesh.scale.set(1, 1, 1);
             mesh.position.set(x, -0.5, y);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
             break;
         default:
-            roof = getRoof()
-            sides =  getBuildingSides(textureName) 
-            buildingSidesArray = [sides, sides,roof, roof,sides, sides]
-            materialSides = buildingSidesArray
-            mesh = new THREE.Mesh(geometry, materialSides)
-            mesh.userData = { id:buildingId, x, y }
-            mesh.material.forEach(material =>  material.map?.repeat.set(1,1))
-            mesh.scale.set(1, 1, 1);
-            mesh.position.set(x, 0.5, y);    
+            console.log(`default choice for ${buildingId}`)
+            // roof = getRoof()
+            // sides =  getBuildingSides(textureName)
+            // buildingSidesArray = [sides, sides,roof, roof,sides, sides]
+            // materialSides = buildingSidesArray
+            // mesh = new THREE.Mesh(geometry, materialSides)
+            // mesh.name = buildingId
+            // mesh.userData = { id:buildingId, x, y,  isBuilding: false }
+            // mesh.material.forEach(material =>  material.map?.repeat.set(1,1))
+            // mesh.scale.set(1, 1, 1);
+            // mesh.position.set(x, 0.5, y);
     }
 
     mesh.castShadow = true;
