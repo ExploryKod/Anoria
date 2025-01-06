@@ -431,45 +431,38 @@ export function resetHoveredObject(hoveredObject) {
     }
 }
 
-export function applyHoverColor(object, color) {
-    console.log("hover object applycolor : ", object);
-    const geometry = new THREE.BoxGeometry(1,1,1);
-    const mat = new THREE.MeshLambertMaterial({ color: color, map: textures['roads'] })
-    let x = object.position.x
-    let y = object.position.z
+ const materials = {
+        'roads': new THREE.MeshLambertMaterial({ map: textures['roads'], emissive: new THREE.Color(0.333, 0.333, 0.333) }),
+        'grass' : new THREE.MeshLambertMaterial({ map: textures['grass'], color: new THREE.Color(0.333, 0.333, 0.333) }),
+        'House-Red' : new THREE.MeshLambertMaterial({ color: new THREE.Color(0.999, 0.777, 0.333)})
+    }
 
-    object = new THREE.Mesh(geometry, mat)
-
-    object.userData = { id: "roads-hovered", x, y,  isBuilding: false, time: 0};
-    object.name = "roads-hovered"
-    object.scale.set(1, 1, 1);
-    object.position.set(x, -0.5, y);
-    object.material.emissive.setHex(0xff0000)
-    object.castShadow = true;
-    object.receiveShadow = true;
-    object.visible = false;
-
+export function applyHoverColor(object, color, texture="") {
+    console.log("[asset] [meshUtils] hover object applycolor : ", object, texture);
     
-
-    console.log("hover object applycolor new object : ", object);
+    if(!object.userData.isBuilding && !object.name === 'grass') {
+        object.material = materials[texture] || new THREE.MeshLambertMaterial
+        object.material = object.material.clone();
+        object.material.userData.id = object.name
+    } 
+   
     if (Array.isArray(object.material)) {
-        console.warn(`applyHoverColor on material array ${object.name}`, object)
-     
-
+        console.warn(`[asset] applyHoverColor on material array ${object.name}`, object)
+        
         object.material.forEach(material => {
             console.warn(`applyHoverColor on material: `, material)
             if (material.emissive) {
                 console.warn(`applyHoverColor on material emissive: `, material)
-               
                 material.emissive.setHex(color);
             } else {
                 console.warn(`${object.name} has no material emissive`, object)
             }
         });
     } else if (object.material.emissive) {
-        console.warn(`applyHoverColor on material alone ${object.name}`)
+        console.warn(`[asset] applyHoverColor on material alone ${object.name}`)
         object.material.emissive.setHex(0xff0000);
     }
+    console.log("[asset] hover object applycolor new object : ", object, texture);
 }
 
 export function resetObjectColor(object) {

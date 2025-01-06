@@ -190,9 +190,11 @@ function createZone(x, y, buildingId='') {
     let buildingSidesArray;
     let materialSides;
     let material;
+    let oneMaterial;
 
     const materials = {
-        'roads': new THREE.MeshLambertMaterial({ map: textures['roads'] })
+        'roads': new THREE.MeshLambertMaterial({ map: textures['roads'] }),
+        'grass': new THREE.MeshLambertMaterial({ map: textures['grass'] })
     }
 
 
@@ -207,16 +209,23 @@ function createZone(x, y, buildingId='') {
             //mesh.material.emissive.setHex(0xff0000)
             mesh.castShadow = true;
             mesh.receiveShadow = true;
+            console.log('[asset] Initial mesh road ', mesh);
             break;
         case 'grass':
             roof = getRoof('grass')
             sides =  getGrassSides()
             buildingSidesArray = [sides, sides,roof, roof,sides, sides]
             materialSides = buildingSidesArray
-            mesh = new THREE.Mesh(geometry, materialSides)
+            oneMaterial = materials['grass']
+            mesh = new THREE.Mesh(geometry, oneMaterial)
             mesh.name = buildingId
             mesh.userData = { id:buildingId, x, y,  isBuilding: false, time: 0}
-            mesh.material.forEach(material =>  material.map?.repeat.set(1,1))
+            if(Array.isArray(mesh.material)) {
+                mesh.material.forEach(material =>  material.map?.repeat.set(1,1))
+            } else {
+                mesh.material.map?.repeat.set(1,1)
+            }
+          
             mesh.scale.set(1, 1, 1);
             mesh.position.set(x, -0.5, y);
             mesh.castShadow = true;

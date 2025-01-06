@@ -217,7 +217,7 @@ export function createGame() {
                 game.update(time);
             }
         }
-    }, 3000);
+    }, 10000);
 
 
     scene.start();

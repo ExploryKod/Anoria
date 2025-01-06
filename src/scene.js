@@ -465,8 +465,9 @@ export function createScene(buildingStore, gameStore) {
     }
     */
 
-let hoveredObject = null;
-
+let hoveredObject = null
+let hoveredObjectName = null
+const objectsNames = ['grass', 'roads', 'House-Red', 'House-Purple']
 function onMouseMove(event) {
     camera.onMouseMove(event);
 
@@ -476,36 +477,47 @@ function onMouseMove(event) {
 
     // Perform raycasting
     raycaster.setFromCamera(mouse, camera.camera);
-    const intersections = raycaster.intersectObjects(scene.children, true);
+    const intersections = raycaster.intersectObjects(scene.children, false);
 
     if(intersections.length) {
         console.log("interections on mouse move ", intersections[0].object.name)
+        hoveredObjectName = intersections[0]?.object?.name || ""
     }
 
 
-    coloredAbuildingOnHover(intersections, 0xff0000, 0x000000)
+    
+    objectsNames.forEach(objectName => {
+        if(intersections[0]?.object?.name === objectName) {
+            if(objectName === 'House-Red') {
+                coloredAbuildingOnHover(intersections, 0xff0000, 0x000000)
+            } else {
+                handleHover(intersections, 0xff0000, objectName);
+            }
 
-    // Handle hover logic
-    handleHover(intersections, 0xff0000);
+            
+            
+        }
+    })
+
 }
 
 
- function handleHover(intersections, hexColor) {
+ function handleHover(intersections, hexColor, objectName="roads") {
     if (intersections.length > 0) {
         const intersectedObject = intersections[0].object;
 
         // Check if the intersected object is the one we want to interact with
-        if (intersectedObject.name === "roads") {
+        if (intersectedObject.name === objectName) {
 
             // If the hovered object has changed
             if (hoveredObject !== intersectedObject) {
-
+                console.log("[handleHover] hovered object", hoveredObject)
                 if (hoveredObject) {
                     resetObjectColor(hoveredObject);
                 }
 
                 hoveredObject = intersectedObject;
-                applyHoverColor(hoveredObject, hexColor);
+                applyHoverColor(hoveredObject, hexColor, objectName);
             }
         } else {
             resetHoveredObject(hoveredObject);
@@ -536,7 +548,7 @@ function onMouseMove(event) {
     
         if(intersections.length > 0) {
             // get the first object (the intersection) of the array of intersections
-            const selected = intersects[0].object;
+            const selected = intersections[0].object;
             if(selected) {
                 console.log('selected material scene: ===> ', selected.material)
             }
