@@ -337,13 +337,13 @@ export function createGameStore() {
      * @throws {Error} Throws an error if the game item already exists or if there is another issue.
      */
     async function addGameItems(data) {
-        const tx = db.transaction('houses', 'readwrite');
+        const tx = db.transaction('game', 'readwrite');
         try {
-            await tx.objectStore('houses').add(data);
-            console.log(`House ${data.name} added successfully.`);
+            await tx.objectStore('game').add(data);
+            console.log(`Game object ${data.name} added successfully.`);
         } catch (err) {
             if (err.name === 'ConstraintError') {
-                console.error(`House ${data.name} already exists.`);
+                console.error(`Game object ${data.name} already exists.`);
             } else {
                 throw err;
             }

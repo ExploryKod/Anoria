@@ -34,8 +34,8 @@ let mixer;
 const loader = new GLTFLoader();
 const clock = new THREE.Clock();
 
-export function createScene(buildingStore, gameStore) {
-
+export function createScene(buildingStore, gameStore, infoGameplay) {
+    console.log("::::::: infoGameplay ::::::", infoGameplay);
     const scene = new THREE.Scene();
     // scene.background = new THREE.Color(0x79845);
 
@@ -74,32 +74,12 @@ export function createScene(buildingStore, gameStore) {
     let loadingPromises = [];
     let zones = [];
 
-    let infoGameplay = {
-        population: 0,
-        maxPop: 0,
-        deads: 0,
-        foodAvailable: 0,
-        foodNeeded: 0,
-        salaries: 0,
-        salesTax: 0.2,
-        citizenTax: 0.2,
-        markets: 0,
-        foodMarkets: 0,
-        goodsMarkets: 0,
-        goodsNeeded: 0,
-        goodsAvailable: 0,
-        foodSales: 0,
-        goodSales: 0,
-        debt: 0,
-        funds: 200,
-    }
     // Variables de gameplay
     let maxPop = 5;
     let delay = 0;
-
     const gameplay = createGameplay(infoGameplay);
 
-    function initialize(city) { 
+    function initialize(city) {
         scene.clear();
         terrain = [];
         buildings = [];
@@ -124,6 +104,8 @@ export function createScene(buildingStore, gameStore) {
         }
 
         //  Initialize gameplay
+
+
         displayPop.textContent = infoGameplay.population.toString()
 
         displayFood.textContent = infoGameplay.foodAvailable.toString()
@@ -141,6 +123,29 @@ export function createScene(buildingStore, gameStore) {
     async function update(city, time=0) {
 
         console.log('=================== TIME TURN ====================== ', time)
+        const gamePlayVersion = 'gameplay_' + time
+        infoGameplay = {
+            name: gamePlayVersion,
+            population: 0,
+            maxPop: 0,
+            deads: 0,
+            foodAvailable: 0,
+            foodNeeded: 0,
+            salaries: 0,
+            salesTax: 0.2,
+            citizenTax: 0.2,
+            markets: 0,
+            foodMarkets: 0,
+            goodsMarkets: 0,
+            goodsNeeded: 0,
+            goodsAvailable: 0,
+            foodSales: 0,
+            goodSales: 0,
+            debt: 0,
+            funds: 200
+        }
+
+        await gameStore.addGameItems(infoGameplay)
 
         // --- BOUCLE SUR LA VILLE ----
         let infoBuildings = []

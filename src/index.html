@@ -16,7 +16,7 @@
 <body>
 <div class="no-game">
     <div>
-        <p>Nous sommes navré mais ce jeu n'est pas encore accessible sur cette taille d'écran</p>
+        <p>Nous sommes navré, mais ce jeu n'est pas encore accessible sur cette taille d'écran</p>
     </div>
 </div>
 <div id="root-window" class="root-window">
@@ -54,7 +54,7 @@
         <div id="over-overlay" class="over-overlay">
             <div class="over-overlay__text">
                 <h1>Vous avez été viré de votre poste</h1>
-                <p>En effet vous avez laissé vos citoyens mourir de faim ! Des poursuites ont été engagé contre vous par la cour internationale de justice.</p>
+                <p>En effet, vous avez laissé vos citoyens mourir de faim ! Des poursuites ont été engagé contre vous par la cour internationale de justice.</p>
                 <p> Certes, en tant que dictateur cela ne vous touche pas beaucoup mais sachez aussi : vous êtes ruiné !</p>
             </div>
             <button type="button" id="play-again-btn" data-action="play-again" class="toolbar-btn bubbly-button">
@@ -64,35 +64,55 @@
 
         <section id="toolbar" class="toolbar">
 
-          <button type="button" id="pause-btn" data-action="pause" class="toolbar-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause">
-                  <rect x="14" y="4" width="4" height="16" rx="1"/>
-                  <rect x="6" y="4" width="4" height="16" rx="1"/>
-              </svg>
-          </button>
+            <button type="button" id="pause-btn" data-action="pause" class="toolbar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause">
+                    <rect x="14" y="4" width="4" height="16" rx="1"/>
+                    <rect x="6" y="4" width="4" height="16" rx="1"/>
+                </svg>
+            </button>
 
-        <button type="button" id="bulldoze-btn" data-toolid="bulldoze" class="toolbar-btn bulldoze-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eraser">
-                <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/>
-                <path d="M22 21H7"/><path d="m5 11 9 9"/>
-            </svg>
-        </button>
-        <button type="button" id="select-btn" data-toolid="select-object" class="toolbar-btn selected">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-mouse-pointer">
-                <path d="M21 11V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/>
-                <path d="m12 12 4 10 1.7-4.3L22 16Z"/>
-            </svg>
-        </button>
-        <button type="button" id="residential-btn" class="toolbar-btn" data-group="residential">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home">
-                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-        </button>
-        <button type="button" id="market-btn" class="toolbar-btn" data-group="markets">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-store"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7"/>
-            </svg>
-        </button>
+        <div class="toolbar__container">
+
+            <button type="button" id="faster-btn" class="toolbar-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rabbit"><path d="M13 16a3 3 0 0 1 2.24 5"/><path d="M18 12h.01"/><path d="M18 21h-8a4 4 0 0 1-4-4 7 7 0 0 1 7-7h.2L9.6 6.4a1 1 0 1 1 2.8-2.8L15.8 7h.2c3.3 0 6 2.7 6 6v1a2 2 0 0 1-2 2h-1a3 3 0 0 0-3 3"/>
+                <path d="M20 8.54V4a2 2 0 1 0-4 0v3"/><path d="M7.612 12.524a3 3 0 1 0-1.6 4.3"/></svg>
+            </button>
+
+            <button type="button" id="slower-btn" class="toolbar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-snail"><path d="M2 13a6 6 0 1 0 12 0 4 4 0 1 0-8 0 2 2 0 0 0 4 0"/>
+                    <circle cx="10" cy="13" r="8"/><path d="M2 21h12c4.4 0 8-3.6 8-8V7a2 2 0 1 0-4 0v6"/><path d="M18 3 19.1 5.2"/><path d="M22 3 20.9 5.2"/></svg>
+            </button>
+        </div>
+
+        <div class="toolbar__container">
+            <button type="button" id="bulldoze-btn" data-toolid="bulldoze" class="toolbar-btn bulldoze-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eraser">
+                    <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/>
+                    <path d="M22 21H7"/><path d="m5 11 9 9"/>
+                </svg>
+            </button>
+            <button type="button" id="select-btn" data-toolid="select-object" class="toolbar-btn selected">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-mouse-pointer">
+                    <path d="M21 11V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/>
+                    <path d="m12 12 4 10 1.7-4.3L22 16Z"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="toolbar__container">
+            <button type="button" id="residential-btn" class="toolbar-btn" data-group="residential">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </button>
+            <button type="button" id="market-btn" class="toolbar-btn" data-group="markets">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-store"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="toolbar__container">
         <button type="button" id="farm-btn" class="toolbar-btn" data-group="farms">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wheat">
                 <path d="M2 22 16 8"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
@@ -104,6 +124,15 @@
                 <path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
             </svg>
         </button>
+        <button type="button" id="others-btn" data-toolid="others" data-group="others" class="toolbar-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-warehouse">
+                <path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/>
+                <path d="M6 18h12"/><path d="M6 14h12"/><rect width="12" height="12" x="6" y="10"/></svg>
+        </button>
+
+        </div>
+
         <button type="button" id="roads-btn" data-toolid="roads" class="toolbar-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-route">
                 <circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/>
@@ -111,12 +140,6 @@
             </svg>
         </button>
 
-        <button type="button" id="others-btn" data-toolid="others" data-group="others" class="toolbar-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-warehouse">
-            <path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/>
-            <path d="M6 18h12"/><path d="M6 14h12"/><rect width="12" height="12" x="6" y="10"/></svg>
-        </button>
 
       </section>
 
@@ -144,6 +167,9 @@
                          </svg>
                       </span>
                         <div class="display-delay"></div>
+                    </article>
+                    <article class="speed-box">
+                        <div class="display-speed"></div>
                     </article>
                 </section>
 
@@ -238,15 +264,19 @@
 
 <script type="module" src="./game.js"></script>
 <script type="module">
+    import { displaySpeed } from "./ui.js";
     import { createGame } from './game.js';
     import { buttonData, toolIds } from './buildings.js';
-
+    let speed;
     const panelLayout = document.getElementById('panel-layout')
     const panelLayoutInner = document.getElementById('panel-inner')
     let selectedControl = document.getElementById('bulldoze-btn');
     const loaderButton = document.getElementById('loader');
 
     const toolBarButtons = document.querySelectorAll('.toolbar-btn');
+
+    const fasterButton = document.getElementById('faster-btn');
+    const slowerButton = document.getElementById('slower-btn');
 
     const roadButton = document.getElementById('roads-btn');
     const bullDozeButton = document.getElementById('bulldoze-btn');
@@ -268,6 +298,8 @@
     const infoObjectCloseBtn = document.querySelector('.info-building-overlay .panel-close-btn');
     const infoObjectOverlay = document.querySelector('.info-building-overlay');
 
+    updateSpeedDisplay();
+
     infoObjectCloseBtn.addEventListener('click', () => {
         if(infoObjectOverlay.classList.contains('active')) {
             infoObjectOverlay.classList.remove('active')
@@ -288,6 +320,31 @@
     replayButton.addEventListener('click', () => {
         window.game.replay()
     })
+
+    function updateSpeedDisplay() {
+        const speed = parseInt(localStorage.getItem('speed'), 10) || 3000;
+        displaySpeed.textContent = `Vitesse du jeu: ${speed} ms`;
+    }
+
+    fasterButton.addEventListener('click', () => {
+        let speed = parseInt(localStorage.getItem('speed'), 10) || 3000;
+        if(speed <= 0) {
+            return
+        }
+
+        speed -= 500;
+        localStorage.setItem('speed', speed.toString());
+        window.game.startInterval()
+        updateSpeedDisplay();
+    });
+
+    slowerButton.addEventListener('click', () => {
+        let speed = parseInt(localStorage.getItem('speed'), 10) || 3000;
+        speed += 500;
+        localStorage.setItem('speed', speed.toString());
+        window.game.startInterval()
+        updateSpeedDisplay();
+    });
 
     bullDozeButton.addEventListener('click', (e) => {
         setActiveTool(e);
