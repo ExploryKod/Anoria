@@ -87,7 +87,6 @@ async function getGlobalPopulation() {
     }
 }
 
-
     /**
      * Adds a new house to the database.
      * 
@@ -326,6 +325,75 @@ async function getGlobalPopulation() {
 
 export function createGameStore() {
 
+    /**
+     * Retrieves all game items from the database.
+     *
+     * @async
+     * @returns {Promise<Array<Object>>} An array of game objects stored in the database.
+     */
+    async function listAllGameItems() {
+        const tx = db.transaction('game', 'readonly');
+        const gameStore = tx.objectStore('game');
+        return await gameStore.getAll();
+    }
+
+    /**
+     * Retrieves a game item by its name.
+     *
+     * @async
+     * @param {string} name - The name of the game item to retrieve.
+     * @returns {Promise<Object|null>} The game item object if found, or null otherwise.
+     */
+    async function getGameItem(name) {
+        const tx = db.transaction('game', 'readonly');
+        return await tx.objectStore('game').get(name) || null;
+    }
+
+    /**
+     * Retrieves a game item in the lastest row.
+     * @async
+     * @param {string} fieldName
+     * @returns {Promise<Object|null>} The game item object if found, or null otherwise.
+     */
+    async function getLatestGameItemByField(fieldName) {
+        const tx = db.transaction('game', 'readonly');
+        const store = tx.objectStore('game');
+
+        // Open a cursor in reverse order
+        const cursor = await store.openCursor(null, 'prev');
+        while (cursor) {
+            if (fieldName in cursor.value) {
+                return cursor.value[fieldName]; // Return the first row where the field exists
+            }
+            await cursor.continue(); // Move to the next (previous in reverse order) row
+        }
+
+        return null; // No matching rows found
+    }
+
+    /**
+     * Retrieves all game items in the latest row.
+     *
+     * @async
+     * @returns {Promise<Object[]>} An array of game items from the latest row.
+     */
+    async function getLatestGameItems() {
+        const tx = db.transaction('game', 'readonly');
+        const store = tx.objectStore('game');
+
+        const items = [];
+        let cursor = await store.openCursor(null, 'prev'); // Open cursor in reverse order
+
+        while (cursor) {
+            items.push(cursor.value); // Collect each item in the latest row
+            cursor = await cursor.continue(); // Move to the next (previous in reverse order) row
+        }
+
+        return items.length > 0 ? items : null; // Return all items or null if no items found
+    }
+
+
+
 
     /**
      * Adds a new house to the database.
@@ -350,8 +418,127 @@ export function createGameStore() {
         }
     }
 
+    /**
+     * Updates the latest game item with specified changes.
+     *
+     * @async
+     * @param {Object} updates - The updates to apply to the latest game item.
+     * @returns {Promise<void>} Resolves when the latest game item is successfully updated.
+     */
+    async function updateLatestGameItemFields(updates) {
+        const tx = db.transaction('game', 'readwrite');
+        const gameStore = tx.objectStore('game');
+
+        // Get the latest game item using a cursor in reverse order
+        const cursor = await gameStore.openCursor(null, 'prev');
+        if (cursor) {
+            const gameItem = cursor.value; // Fetch the latest row
+            Object.assign(gameItem, updates); // Apply updates
+            await gameStore.put(gameItem); // Save the updated item back to the store
+            console.log(`Latest game item updated successfully with changes:`, updates);
+        } else {
+            console.warn('No game items found to update.');
+        }
+    }
+
+
+    /**
+     * Updates a game item with specified changes.
+     *
+     * @async
+     * @param {string} name - The name of the game item to update.
+     * @param {Object} updates - The updates to apply to the game item.
+     * @returns {Promise<void>} Resolves when the game item is successfully updated.
+     */
+    async function updateGameItemFields(name, updates) {
+        const tx = db.transaction('game', 'readwrite');
+        const gameStore = tx.objectStore('game');
+
+        const gameItem = await gameStore.get(name);
+        if (gameItem) {
+            Object.assign(gameItem, updates);
+            await gameStore.put(gameItem);
+            console.log(`Game item ${name} updated successfully.`);
+        } else {
+            console.warn(`Game item ${name} not found.`);
+        }
+    }
+
+    /**
+     * Updates all game items with specified changes, but only updates keys that have changed.
+     *
+     * @async
+     * @param {Object} updates - The updates to apply to the game items.
+     * @returns {Promise<void>} Resolves when the updates are successfully applied.
+     */
+    async function updateAllGameItems(updates) {
+        const tx = db.transaction('game', 'readwrite');
+        const gameStore = tx.objectStore('game');
+        console.warn(`[STORE] Game object will update all games.`);
+        const allGameItems = await gameStore.getAll();
+
+        for (const gameItem of allGameItems) {
+            let hasChanges = false;
+            for (const key in updates) {
+                if (updates.hasOwnProperty(key) && gameItem[key] !== updates[key]) {
+                    gameItem[key] = updates[key];
+                    hasChanges = true;
+                }
+            }
+
+            if (hasChanges) {
+                await gameStore.put(gameItem);
+                console.warn(`[STORE] Game item ${gameItem.name} updated with changes:`, updates);
+            } else {
+                console.warn(`[STORE] No changes detected for game item ${gameItem.name}.`);
+            }
+        }
+
+        console.log("All applicable game items have been updated.");
+    }
+
+
+    /**
+     * Deletes a game item by its name.
+     *
+     * @async
+     * @param {string} name - The name of the game item to delete.
+     * @returns {Promise<void>} Resolves when the game item is successfully deleted.
+     */
+    async function deleteGameItem(name) {
+        const tx = db.transaction('game', 'readwrite');
+        await tx.objectStore('game').delete(name);
+        console.log(`Game item ${name} deleted successfully.`);
+    }
+
+    /**
+     * Clears all game items from the database.
+     *
+     * @async
+     * @returns {Promise<void>} Resolves when all game items are successfully cleared.
+     */
+    async function clearGameItems() {
+        const tx = db.transaction('game', 'readwrite');
+        await tx.objectStore('game').clear();
+        console.log(`All game items cleared.`);
+    }
+
+    // Event listener for unhandled rejections
+    window.addEventListener('unhandledrejection', (event) => {
+        console.error(`Unhandled error: ${event.reason.message}`);
+    });
+
     return {
-        addGameItems
+        addGameItems,
+        listAllGameItems,
+        getGameItem,
+        updateGameItemFields,
+        clearGameItems,
+        deleteGameItem,
+        updateAllGameItems,
+        getLatestGameItemByField,
+        getLatestGameItems,
+        updateLatestGameItemFields
     }
     
 }

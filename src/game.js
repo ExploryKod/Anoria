@@ -138,9 +138,9 @@ export function createGame() {
 
             const houseID = tile.buildingId + '-' + selectedObject.userData.x + '-' + selectedObject.userData.y
 
-            price = getAssetPrice(tile.buildingId, assetsPrices)
-
-
+            price = getAssetPrice(tile.buildingId, assetsPrices) || 0
+            const funds = await gameStore.getLatestGameItemByField('funds') || 0
+            let newFunds;
             const dbHouseData = {
                 name: houseID,
                 time: 0,
@@ -150,11 +150,17 @@ export function createGame() {
                 stage : 0,
                 stageName: "",
                 price : price ? price : 0,
+                maintenance: 0,
                 x : selectedObject.userData.x,
                 y : selectedObject.userData.y,
             }
+            if(funds > 0 && price > 0) {
+                newFunds = funds - price
+            }
 
+            await gameStore.updateLatestGameItemFields({ funds: newFunds });
             buildingStore.addHouse(dbHouseData);
+
             scene.update(city);
         }
     }
@@ -243,8 +249,8 @@ export function createGame() {
         },
 
         startInterval() {
-            const speed = parseInt(localStorage.getItem('speed')) || 4000; // Default to 3000ms if not set
-            if (intervalId) clearInterval(intervalId); // Clear any existing interval
+            const speed = parseInt(localStorage.getItem('speed')) || 4000;
+            if (intervalId) clearInterval(intervalId);
             intervalId = setInterval(() => {
                 if (!isPause && !isOver) {
                     time += 1;

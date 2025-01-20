@@ -79,7 +79,7 @@ export function createScene(buildingStore, gameStore, infoGameplay) {
     let delay = 0;
     const gameplay = createGameplay(infoGameplay);
 
-    function initialize(city) {
+    async function initialize(city) {
         scene.clear();
         terrain = [];
         buildings = [];
@@ -103,9 +103,6 @@ export function createScene(buildingStore, gameStore, infoGameplay) {
             setUpLights(city.size);
         }
 
-        //  Initialize gameplay
-
-
         displayPop.textContent = infoGameplay.population.toString()
 
         displayFood.textContent = infoGameplay.foodAvailable.toString()
@@ -124,33 +121,43 @@ export function createScene(buildingStore, gameStore, infoGameplay) {
 
         console.log('=================== TIME TURN ====================== ', time)
         const gamePlayVersion = 'gameplay_' + time
-        infoGameplay = {
-            name: gamePlayVersion,
-            population: 0,
-            maxPop: 0,
-            deads: 0,
-            foodAvailable: 0,
-            foodNeeded: 0,
-            salaries: 0,
-            salesTax: 0.2,
-            citizenTax: 0.2,
-            markets: 0,
-            foodMarkets: 0,
-            goodsMarkets: 0,
-            goodsNeeded: 0,
-            goodsAvailable: 0,
-            foodSales: 0,
-            goodSales: 0,
-            debt: 0,
-            funds: 200
+        const totalPop = await buildingStore.getGlobalPopulation();
+        const funds = await gameStore.getLatestGameItemByField('funds');
+
+        if(funds && totalPop) {
+            infoGameplay = {
+                name: time === 0 ? 'gameplay_init' : gamePlayVersion,
+                turn: time,
+                population: totalPop,
+                maxPop: 5000,
+                deads: 0,
+                foodAvailable: 0,
+                foodNeeded: 0,
+                salaries: 0,
+                salesTax: 0.2,
+                citizenTax: 0.2,
+                markets: 0,
+                foodMarkets: 0,
+                goodsMarkets: 0,
+                goodsNeeded: 0,
+                goodsAvailable: 0,
+                foodSales: 0,
+                goodSales: 0,
+                debt: 0,
+                funds: funds
+            }
         }
 
-        await gameStore.addGameItems(infoGameplay)
+        if (time > 0 && infoGameplay.name !== "gameplay_init") {
+            console.log("[SCENE] latest game items", infoGameplay || "no game items found");
+            await gameStore.clearGameItems();
+            await gameStore.addGameItems(infoGameplay);
+        }
 
         // --- BOUCLE SUR LA VILLE ----
         let infoBuildings = []
 
-        const totalPop = await buildingStore.getGlobalPopulation()
+
         console.log('totalpop', totalPop)
 
         infoGameplay.population = totalPop
