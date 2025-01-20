@@ -26,6 +26,37 @@ const toolIds = {
     nature : []
 }
 
+export const toolPrices = {
+    zones: [{'grass' : 0}, {'roads': 5}],
+    houses: [{'House-Blue': 10}],
+    tombs:  [{'Tombstone-1': 2}, {'Tombstone-2': 4}, {'Tombstone-3': 8}],
+    farms: [{'Farm-Wheat': 15}, {'Farm-Carrot': 20}, {'Farm-Cabbage': 20}],
+    markets: [{'Market-Stall': 10}],
+    nature : []
+}
+
+export const assetsPrices = Object.freeze({
+    // Zones
+    'grass': { price: 0, category: 'zones' },
+    'roads': { price: 5, category: 'zones' },
+
+    // Houses
+    'House-Blue': { price: 10, category: 'houses' },
+
+    // Tombs
+    'Tombstone-1': { price: 2, category: 'tombs' },
+    'Tombstone-2': { price: 4, category: 'tombs' },
+    'Tombstone-3': { price: 8, category: 'tombs' },
+
+    // Farms
+    'Farm-Wheat': { price: 15, category: 'farms' },
+    'Farm-Carrot': { price: 20, category: 'farms' },
+    'Farm-Cabbage': { price: 20, category: 'farms' },
+
+    // Markets
+    'Market-Stall': { price: 10, category: 'markets' }
+});
+
 let allAssetsNames = [
     {houses: []},
     {nature: []},

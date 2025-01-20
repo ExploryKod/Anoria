@@ -40,7 +40,6 @@
     /* height des container */
     --top-container-h: 10vh;
     --progress-bar-h: 2vh;
-    --left-bar-width: 120px;
 }
 
 *,
@@ -118,6 +117,8 @@ canvas {
     gap: 20px;
 }
 
+
+
 .toolbar .toolbar-btn {
     height: 50px;
     border: 3px solid var(--cta);
@@ -159,6 +160,30 @@ canvas {
 .toolbar-btn.selected:active {
     box-shadow: 0 0 10px var(--lightgreen);
  }
+
+
+/* two toolbar-btn container */
+.toolbar .toolbar__container {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.toolbar .toolbar__container .toolbar-btn {
+    max-width: 40%;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#faster-btn:active {
+    background:  var(--lightgreen);
+}
+
+#slower-btn:active {
+    background:  var(--lightgreen);
+}
 
 /* Panel layout to select object as house etc.. */
 .game-window .panel-layout, .game-window .pause-overlay, .game-window .over-overlay {
@@ -400,7 +425,7 @@ canvas {
     z-index: 998;
     position: absolute;
     top: 0;
-    left: var(--left-bar-width);
+    left: auto;
     right: 0;
     background-color: var(--toolbar-bg-color-05);
     display: flex;

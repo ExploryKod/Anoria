@@ -1,8 +1,9 @@
 import * as THREE from 'three';
+import {  assetsPrices } from './buildings.js';
 import { initAnoriaDb, createHouseStore, createGameStore } from './store.js';
 import { createScene } from './scene.js';
 import { createCity } from './city.js'; 
-import { makeDbItemId, makeInfoBuildingText } from './utils.js';
+import {getAssetPrice, makeDbItemId, makeInfoBuildingText} from './utils.js';
 import { handleColorOnSelectedObject } from './meshUtils.js';
 import {
     displayTime,
@@ -13,8 +14,13 @@ import {
     buildingsObjects,
     infoPanelClock,
     infoPanelClockIcon,
-    infoPanelNoClockIcon
+    infoPanelNoClockIcon,
+    displaySpeed
 } from './ui.js';
+
+
+/* IndexDB initialization using store.js async functions */
+initAnoriaDb()
 
 export function createGame() {
     let activeToolId = '';
@@ -22,18 +28,40 @@ export function createGame() {
     let isPause;
     let isOver;
     let infos = {};
-
+    let intervalId = null;
+    localStorage.setItem("speed", "4000");
     displayTime.textContent = time.toString() + ' jours';
 
-    /* IndexDB initialization using store.js async functions */
-    initAnoriaDb()
+    let infoGameplay = {
+        name: 'gameplay',
+        population: 0,
+        maxPop: 0,
+        deads: 0,
+        foodAvailable: 0,
+        foodNeeded: 0,
+        salaries: 0,
+        salesTax: 0.2,
+        citizenTax: 0.2,
+        markets: 0,
+        foodMarkets: 0,
+        goodsMarkets: 0,
+        goodsNeeded: 0,
+        goodsAvailable: 0,
+        foodSales: 0,
+        goodSales: 0,
+        debt: 0,
+        funds: 200,
+        speed: 3000,
+    }
+
     const buildingStore = createHouseStore();
     const gameStore = createGameStore();
     /* Scene initialization */
-    const scene = createScene(buildingStore, gameStore);
+    const scene = createScene(buildingStore, gameStore, infoGameplay);
 
     /* City initialization */
     const city = createCity(16);
+
     scene.initialize(city);
 
     // handler function to extract coordinate of an object I click on (data from asset js and using scene js methods)
@@ -106,9 +134,13 @@ export function createGame() {
             // place building at that location
             tile.buildingId = activeToolId;
             console.log(`coordonnées et terrain de l\' objet posé ${tile.buildingId}: `, selectedObject.userData)
-            const price = 56
+            let price = 0
+
             const houseID = tile.buildingId + '-' + selectedObject.userData.x + '-' + selectedObject.userData.y
 
+            price = getAssetPrice(tile.buildingId, assetsPrices) || 0
+            const funds = await gameStore.getLatestGameItemByField('funds') || 0
+            let newFunds;
             const dbHouseData = {
                 name: houseID,
                 time: 0,
@@ -117,11 +149,18 @@ export function createGame() {
                 road: 0,
                 stage : 0,
                 stageName: "",
+                price : price ? price : 0,
+                maintenance: 0,
                 x : selectedObject.userData.x,
                 y : selectedObject.userData.y,
             }
+            if(funds > 0 && price > 0) {
+                newFunds = funds - price
+            }
 
+            await gameStore.updateLatestGameItemFields({ funds: newFunds });
             buildingStore.addHouse(dbHouseData);
+
             scene.update(city);
         }
     }
@@ -141,9 +180,9 @@ export function createGame() {
             window.game.play()
         }
     })
-    
+
     const game = {
-       
+
         update(time) {
             displayTime.textContent = time + ' jours'
             city.update();
@@ -208,6 +247,17 @@ export function createGame() {
         setActiveToolId(toolId) {
             activeToolId = toolId;
         },
+
+        startInterval() {
+            const speed = parseInt(localStorage.getItem('speed')) || 4000;
+            if (intervalId) clearInterval(intervalId);
+            intervalId = setInterval(() => {
+                if (!isPause && !isOver) {
+                    time += 1;
+                    game.update(time);
+                }
+            }, speed);
+        }
     }; 
 
     setInterval(() => {
@@ -217,8 +267,7 @@ export function createGame() {
                 game.update(time);
             }
         }
-    }, 10000);
-
+    }, parseInt(localStorage.getItem('speed')));
 
     scene.start();
     return game;
