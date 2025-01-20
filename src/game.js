@@ -32,32 +32,10 @@ export function createGame() {
     localStorage.setItem("speed", "4000");
     displayTime.textContent = time.toString() + ' jours';
 
-    let infoGameplay = {
-        name: 'gameplay',
-        population: 0,
-        maxPop: 0,
-        deads: 0,
-        foodAvailable: 0,
-        foodNeeded: 0,
-        salaries: 0,
-        salesTax: 0.2,
-        citizenTax: 0.2,
-        markets: 0,
-        foodMarkets: 0,
-        goodsMarkets: 0,
-        goodsNeeded: 0,
-        goodsAvailable: 0,
-        foodSales: 0,
-        goodSales: 0,
-        debt: 0,
-        funds: 200,
-        speed: 3000,
-    }
-
     const buildingStore = createHouseStore();
     const gameStore = createGameStore();
     /* Scene initialization */
-    const scene = createScene(buildingStore, gameStore, infoGameplay);
+    const scene = createScene(buildingStore, gameStore);
 
     /* City initialization */
     const city = createCity(16);
@@ -139,10 +117,10 @@ export function createGame() {
             const houseID = tile.buildingId + '-' + selectedObject.userData.x + '-' + selectedObject.userData.y
 
             price = getAssetPrice(tile.buildingId, assetsPrices) || 0
-            const funds = await gameStore.getLatestGameItemByField('funds') || 0
-            let newFunds;
+            let funds = await gameStore.getLatestGameItemByField('funds') || 0
             const dbHouseData = {
                 name: houseID,
+                type: tile.buildingId,
                 time: 0,
                 pop: 0,
                 food : 0,
@@ -150,17 +128,13 @@ export function createGame() {
                 stage : 0,
                 stageName: "",
                 price : price ? price : 0,
+                cityFunds: funds,
                 maintenance: 0,
                 x : selectedObject.userData.x,
                 y : selectedObject.userData.y,
             }
-            if(funds > 0 && price > 0) {
-                newFunds = funds - price
-            }
 
-            await gameStore.updateLatestGameItemFields({ funds: newFunds });
             buildingStore.addHouse(dbHouseData);
-
             scene.update(city);
         }
     }

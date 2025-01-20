@@ -1,4 +1,4 @@
-import { openDB, deleteDB } from 'https://cdn.jsdelivr.net/npm/idb@8/+esm';
+import {deleteDB, openDB} from 'https://cdn.jsdelivr.net/npm/idb@8/+esm';
 
 
 let db;
@@ -15,7 +15,8 @@ export async function initAnoriaDb() {
     db = await openDB('anoriaDb', 1, {
         upgrade(upgradeDB) {
             if (!upgradeDB.objectStoreNames.contains('houses')) {
-                upgradeDB.createObjectStore('houses', { keyPath: 'name' });
+                const housesStore = upgradeDB.createObjectStore('houses', { keyPath: 'name' });
+                housesStore.createIndex('name_price', ['name', 'price']);
             }
             if (!upgradeDB.objectStoreNames.contains('game')) {
                 upgradeDB.createObjectStore('game', { keyPath: 'name' });
@@ -54,6 +55,61 @@ async function listAllHouses() {
 }
 
 /**
+ * Retrieves all houses sorted by name and price.
+ *
+ * @async
+ * @returns {Promise<Array>} List of houses sorted by name and price.
+ */
+async function getAllHousesSortedByNameAndPrice() {
+    const tx = db.transaction('houses', 'readonly');
+    const store = tx.objectStore('houses');
+    const index = store.index('name_price'); // Access the index
+
+    // Retrieve all houses sorted by name and price
+    const houses = await index.getAll();
+    // Map the result to return only the name and price fields
+    return houses.map(house => ({
+        name: house.name,
+        price: house.price
+    }));
+}
+
+    /**
+     * Retrieves and calculates the total price of each type of house.
+     *
+     * @async
+     * @returns {Promise<Object>} An object where the keys are house types and the values are the total expenses for that type.
+     */
+    async function getTotalBuildingExpensesByType() {
+        const tx = db.transaction('houses', 'readonly');
+        const store = tx.objectStore('houses');
+        const index = store.index('name_price'); // Access the index
+
+        // Retrieve all houses sorted by name and price
+        const houses = await index.getAll();
+
+        // Create an object to store the total expenses by house type
+        const expensesByType = {};
+
+        // Iterate over each house and accumulate expenses by type
+        houses.forEach(house => {
+            if (house && house.name && house.price) {
+                // Extract the house type from the name (e.g., "House-Red")
+                const houseType = house.name.split('-').slice(0, 2).join('-'); // "House-Red"
+
+                // Accumulate the price for the house type
+                if (!expensesByType[houseType]) {
+                    expensesByType[houseType] = 0;
+                }
+                expensesByType[houseType] += house.price;
+            }
+        });
+
+        return expensesByType;
+    }
+
+
+/**
  * Retrieves and calculates the total population of all houses in the city.
  * 
  * @async
@@ -86,6 +142,38 @@ async function getGlobalPopulation() {
         return 0; 
     }
 }
+
+    /**
+     * Retrieves and calculates the total prices of immobilisations of all buildings in the city.
+     *
+     * @async
+     * @returns {Promise<number>} The total immobilisation paiements of the city.
+     */
+    async function getGlobalBuildingPrices() {
+        try {
+            const houses = await listAllHouses();
+
+            if (!houses || houses.length === 0) {
+                console.warn("No houses found in the database.");
+                return 0; // Return 0 if no houses are found
+            }
+
+            const totalImmoExpenses = houses.reduce((total, house) => {
+
+                if (house && typeof house.price === 'number') {
+                    console.log(`[store] Adding price ${house.price} to total`)
+                    return total + house.price;
+                }
+                return total;
+            }, 0);
+
+            console.log(`[store] Total population of the city: ${totalImmoExpenses}`);
+            return totalImmoExpenses;
+        } catch (error) {
+            console.error("Error calculating global population:", error);
+            return 0;
+        }
+    }
 
     /**
      * Adds a new house to the database.
@@ -303,6 +391,54 @@ async function getGlobalPopulation() {
         console.log(`All houses cleared.`);
     }
 
+    /**
+     * Retrieves and calculates the total price and number of houses for each type of house, including a global expense.
+     *
+     * @async
+     * @returns {Promise<Object>} An object where the keys are house types, the values are the total expenses for that type,
+     *                             the number of houses for that type, and the global expense for all houses is included.
+     */
+    async function getEachBuildingsExpenses() {
+        const tx = db.transaction('houses', 'readonly');
+        const store = tx.objectStore('houses');
+        const index = store.index('name_price'); // Access the index
+
+        // Retrieve all houses sorted by name and price
+        const houses = await index.getAll();
+
+        // Create an object to store the total expenses and house count by house type
+        const expensesByType = {};
+        let globalExpense = 0; // Initialize global expense
+
+        // Iterate over each house and accumulate expenses and count by type
+        houses.forEach(house => {
+            if (house && house.name && house.price && house.type) {
+                // Use the house type directly (e.g., "House-Red", "House-Blue")
+                const houseType = house.type;
+
+                // Initialize the type if not already in the object
+                if (!expensesByType[houseType]) {
+                    expensesByType[houseType] = { price: 0, number: 0 };
+                }
+
+                // Accumulate the price for the house type
+                expensesByType[houseType].price += house.price;
+
+                // Directly increment the number of houses by 1 for each house
+                expensesByType[houseType].number += 1;
+
+                // Accumulate the global expense
+                globalExpense += house.price;
+            }
+        });
+
+        // Add the global expense as a key in the result
+        expensesByType.globalExpense = globalExpense;
+
+        return expensesByType;
+    }
+
+
     // Event listener for unhandled rejections
     window.addEventListener('unhandledrejection', (event) => {
         console.error(`Unhandled error: ${event.reason.message}`);
@@ -318,7 +454,11 @@ async function getGlobalPopulation() {
         deleteOneHouse,
         getGlobalPopulation,
         clearHouses,
-        updateHouseName
+        updateHouseName,
+        getGlobalBuildingPrices,
+        getAllHousesSortedByNameAndPrice,
+        getTotalBuildingExpensesByType,
+        getEachBuildingsExpenses
     };
 }
 
