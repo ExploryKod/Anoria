@@ -25,6 +25,34 @@ export async function initAnoriaDb() {
     });
 }
 
+export function getStores() {
+
+    async function listAllFromStores() {
+        try {
+            const tx = db.transaction(['houses', 'game'], 'readonly');
+            const housesStore = tx.objectStore('houses');
+            const gameStore = tx.objectStore('game');
+
+            const housesData = await housesStore.getAll();
+            const gameData = await gameStore.getAll();
+
+            return {
+                houses: housesData,
+                game: gameData,
+            };
+        } catch (error) {
+            console.error('Error fetching data from stores:', error);
+            return { houses: [], game: [] };
+        }
+    }
+
+    return {
+        listAllFromStores
+    }
+
+}
+
+
 /**
  * Creates and manages the IndexedDB store for the application.
  * Provides methods to interact with the database.
@@ -199,6 +227,65 @@ async function getGlobalPopulation() {
     }
 
     /**
+     * Adds a new house to the database and deducts its price from the game funds.
+     *
+     * @async
+     * @param {Object} data - The house data to add.
+     * @param {string} data.name - The unique name of the house (used as the key).
+     * @param {number} data.price - The price of the house to be deducted from the game funds.
+     * @returns {Promise<void>} Resolves when the house is successfully added and funds are deducted.
+     * @throws {Error} Throws an error if the house already exists, insufficient funds, or another issue.
+     */
+    async function addHouseAndPay(data) {
+        const tx = db.transaction(['houses', 'game'], 'readwrite'); // Transaction on both houses and game stores
+        try {
+            // Fetch the current game data (only one entry)
+            const gameStore = tx.objectStore('game');
+            const gameData = await gameStore.getAll();
+
+            console.log("[STORE - houseandpays] game store data", gameData);
+
+            const gameFunds = gameData[0]?.funds || 0;
+            const gameDebt = gameData[0]?.debt || 0;
+            const balance = gameFunds - gameDebt
+
+            console.log("[STORE - houseandpays] data price", data.price)
+            console.log("[STORE - houseandpays] dataname", data.name)
+            console.log("[STORE - houseandpays] gameFunds", gameFunds)
+            console.log("[STORE - houseandpays] gameFunds", gameDebt)
+            // Check if there are enough funds to build the house
+            if (gameFunds < data.price) {
+                console.warn(`Not enough funds to build house ${data.name}.`);
+                return;
+            }
+
+            // Check if there are enough funds to build the house
+            if (gameDebt > gameFunds) {
+                console.warn(`Not enough funds to build house ${data.name} : too much debt`);
+                return;
+            }
+
+            gameData[0].funds = gameFunds - data.price;
+            gameData[0].debt = gameDebt + data.price;
+
+            await gameStore.put(gameData[0]);
+
+            // Add the new house to the houses store
+            const housesStore = tx.objectStore('houses');
+            await housesStore.add(data);
+            console.log(`[ADDED STORE House ${data.name} added successfully. New game funds: ${gameData[0].funds} debts: ${gameData[0].debts}`);
+
+        } catch (err) {
+            if (err.name === 'ConstraintError') {
+                console.error(`House ${data.name} already exists.`);
+            } else {
+                throw err;
+            }
+        }
+    }
+
+
+    /**
      * Retrieves a house by its name.
      * 
      * @async
@@ -259,7 +346,7 @@ async function getGlobalPopulation() {
      * @param {string} newName - The new name to assign to the house.
      * @returns {Promise<void>} Resolves when the house name is successfully updated.
      */
-    async function updateHouseName(oldName, newName) {
+    async function updateHouseName(oldName, newName, keys = {}) {
         const tx = db.transaction('houses', 'readwrite');
         const houseStore = tx.objectStore('houses');
 
@@ -282,6 +369,13 @@ async function getGlobalPopulation() {
 
             // Update the name property in the object
             house.name = newName;
+            if(keys.hasOwnProperty('type') && house.type) {
+                house.type = keys.type;
+            }
+
+            if(keys.hasOwnProperty('price') && house.price) {
+                house.price = keys.price;
+            }
 
             // Add the updated object back into the store
             await houseStore.put(house); // No key parameter needed
@@ -458,7 +552,8 @@ async function getGlobalPopulation() {
         getGlobalBuildingPrices,
         getAllHousesSortedByNameAndPrice,
         getTotalBuildingExpensesByType,
-        getEachBuildingsExpenses
+        getEachBuildingsExpenses,
+        addHouseAndPay
     };
 }
 
@@ -682,3 +777,48 @@ export function createGameStore() {
     }
     
 }
+
+
+/**
+ * https://web.dev/articles/indexeddb
+ * import {openDB} from 'idb';
+ *
+ * async function searchItems (lower, upper) {
+ *   if (!lower === '' && upper === '') {
+ *     return;
+ *   }
+ *
+ *   let range;
+ *
+ *   if (lower !== '' && upper !== '') {
+ *     range = IDBKeyRange.bound(lower, upper);
+ *   } else if (lower === '') {
+ *     range = IDBKeyRange.upperBound(upper);
+ *   } else {
+ *     range = IDBKeyRange.lowerBound(lower);
+ *   }
+ *
+ *   const db = await openDB('test-db4', 1);
+ *   const tx = await db.transaction('foods', 'readonly');
+ *   const index = tx.store.index('price');
+ *
+ *   // Open a cursor on the designated object store:
+ *   let cursor = await index.openCursor(range);
+ *
+ *   if (!cursor) {
+ *     return;
+ *   }
+ *
+ *   // Iterate on the cursor, row by row:
+ *   while (cursor) {
+ *     // Show the data in the row at the current cursor position:
+ *     console.log(cursor.key, cursor.value);
+ *
+ *     // Advance the cursor to the next row:
+ *     cursor = await cursor.continue();
+ *   }
+ * }
+ *
+ * // Get items priced between one and four dollars:
+ * searchItems(1.00, 4.00);
+ */

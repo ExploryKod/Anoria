@@ -28,7 +28,7 @@ const toolIds = {
 
 export const toolPrices = {
     zones: [{'grass' : 0}, {'roads': 5}],
-    houses: [{'House-Blue': 10}, {'House-Red': 10}, {'House-Purple': 10}, {'House-2Story': 10}],
+    houses: [{'House-Blue': 10}, {'House-Red': 10}, {'House-Purple': 10}, {'House-2Story': 20}],
     tombs:  [{'Tombstone-1': 2}, {'Tombstone-2': 4}, {'Tombstone-3': 8}],
     farms: [{'Farm-Wheat': 15}, {'Farm-Carrot': 20}, {'Farm-Cabbage': 20}],
     markets: [{'Market-Stall': 10}],

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {  assetsPrices } from './buildings.js';
-import { initAnoriaDb, createHouseStore, createGameStore } from './store.js';
+import { initAnoriaDb, createHouseStore, createGameStore, getStores } from './store.js';
 import { createScene } from './scene.js';
 import { createCity } from './city.js'; 
 import {getAssetPrice, makeDbItemId, makeInfoBuildingText} from './utils.js';
@@ -34,8 +34,9 @@ export function createGame() {
 
     const buildingStore = createHouseStore();
     const gameStore = createGameStore();
+    const allStores = getStores()
     /* Scene initialization */
-    const scene = createScene(buildingStore, gameStore);
+    const scene = createScene(buildingStore, gameStore, allStores);
 
     /* City initialization */
     const city = createCity(16);
@@ -134,7 +135,8 @@ export function createGame() {
                 y : selectedObject.userData.y,
             }
 
-            buildingStore.addHouse(dbHouseData);
+            await buildingStore.addHouseAndPay(dbHouseData);
+            console.log("GAME - add house and pay complete")
             scene.update(city);
         }
     }

@@ -1,3 +1,4 @@
+import * as THREE from "three";
 
 
 function getBuildingZonesNeighbors(data, area=1) {
@@ -494,3 +495,27 @@ const newBuildings = updatePrices({
   'Farm-Carrot': 25
 });
 */
+
+export function getPositionOnScreen(renderer, camera, object3d) {
+    const vector = new THREE.Vector3();
+    object3d.getWorldPosition(vector).project(camera);
+    const domRect = renderer.domElement.getBoundingClientRect();
+
+    // On passe des coordonnées dans le repère normalisé (NDC) aux
+    // coordonnées de l'écran
+    vector.x = Math.round((vector.x + 1) / 2 * domRect.width) + domRect.left;
+    vector.y = Math.round((1 - vector.y) / 2 * domRect.height) + domRect.top;
+
+    return vector;
+}
+
+// var camera = new THREE.PerspectiveCamera(75, 1, 0.5, 1000);
+//
+// function updateViewportSize() {
+//     camera.aspect = window.innerWidth / window.innerHeight;
+//     camera.updateProjectionMatrix()
+//     renderer.setSize(window.innerWidth, window.innerHeight);
+// }
+//
+// window.addEventListener("resize", updateViewportSize);
+// updateViewportSize();
