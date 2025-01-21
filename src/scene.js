@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { createCamera } from './camera.js';
 import { createAsset } from './asset.js';
-import { createGameplay} from "./gameplay.js";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {fetchPlayer, freePromises, playerMesh} from "./fetchPlayer.js";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
@@ -28,14 +27,34 @@ import {
     infoObjectOverlay,
     delayBox
 } from './ui.js';
+import {assetsPrices} from "./buildings.js";
 
 const SKY_URL = './resources/textures/skies/plain_sky.jpg';
-let mixer;
-const loader = new GLTFLoader();
-const clock = new THREE.Clock();
 
-export function createScene(buildingStore, gameStore) {
-
+export function createScene(buildingStore, gameStore, allStores) {
+    // const randomSeed = Math.random()
+    // let infoGameplay = {
+    //     name: `init_${randomSeed}`,
+    //     turn: 0,
+    //     population: 0,
+    //     maxPop: 5000,
+    //     deads: 0,
+    //     foodAvailable: 0,
+    //     foodNeeded: 0,
+    //     salaries: 0,
+    //     salesTax: 0.2,
+    //     citizenTax: 0.2,
+    //     markets: 0,
+    //     foodMarkets: 0,
+    //     goodsMarkets: 0,
+    //     goodsNeeded: 0,
+    //     goodsAvailable: 0,
+    //     foodSales: 0,
+    //     goodSales: 0,
+    //     debt: 0,
+    //     funds: 300
+    // }
+    // console.log("::::::: infoGameplay ::::::", infoGameplay);
     const scene = new THREE.Scene();
     // scene.background = new THREE.Color(0x79845);
 
@@ -74,32 +93,12 @@ export function createScene(buildingStore, gameStore) {
     let loadingPromises = [];
     let zones = [];
 
-    let infoGameplay = {
-        population: 0,
-        maxPop: 0,
-        deads: 0,
-        foodAvailable: 0,
-        foodNeeded: 0,
-        salaries: 0,
-        salesTax: 0.2,
-        citizenTax: 0.2,
-        markets: 0,
-        foodMarkets: 0,
-        goodsMarkets: 0,
-        goodsNeeded: 0,
-        goodsAvailable: 0,
-        foodSales: 0,
-        goodSales: 0,
-        debt: 0,
-        funds: 200,
-    }
     // Variables de gameplay
     let maxPop = 5;
     let delay = 0;
+    // const gameplay = createGameplay();
 
-    const gameplay = createGameplay(infoGameplay);
-
-    function initialize(city) { 
+    async function initialize(city) {
         scene.clear();
         terrain = [];
         buildings = [];
@@ -123,33 +122,67 @@ export function createScene(buildingStore, gameStore) {
             setUpLights(city.size);
         }
 
-        //  Initialize gameplay
-        displayPop.textContent = infoGameplay.population.toString()
-
-        displayFood.textContent = infoGameplay.foodAvailable.toString()
-        displayNeedFood.textContent = infoGameplay.foodNeeded.toString();
-
-        displayDead.textContent = infoGameplay.deads.toString()
-        displayFunds.textContent = infoGameplay.funds.toString()
-        displayDelay.textContent = delay.toString() + ' délai'
-        displayDebt.textContent = infoGameplay.debt.toString()
-
-        // addPlayerToScene(4, 0, 4)
-
+        displayPop.textContent = '0'
+        displayFood.textContent = '0'
+        displayNeedFood.textContent = '0'
+        displayDead.textContent = '0'
+        displayFunds.textContent = '0'
+        displayDelay.textContent = '0'
+        displayDebt.textContent = '0'
     }
 
     async function update(city, time=0) {
 
         console.log('=================== TIME TURN ====================== ', time)
+        const gamePlayVersion = 'gameplay_' + time
+        const totalPop = await buildingStore.getGlobalPopulation();
+        let totalImmoExpenses = 0;
+        let funds = await gameStore.getLatestGameItemByField('funds') || 300;
+
+            let debts = await gameStore.getLatestGameItemByField('debt') || 0;
+            totalImmoExpenses = await buildingStore.getGlobalBuildingPrices() || 0
+            const allhousesPrices = await buildingStore.getEachBuildingsExpenses();
+            const stores = await allStores.listAllFromStores()
+            console.log(`[SCENE PRICE] debt on turn ${time} :`, debts)
+            console.log("[SCENE PRICE] total immo expenses is ", totalImmoExpenses)
+            console.log("[SCENE PRICE] all houses prices are", allhousesPrices)
+
+            console.log("[SCENE STORES] all stores are", stores)
+
+            const infoGameplay = {
+                name: time === 0 ? 'gameplay_init' : gamePlayVersion,
+                turn: time,
+                population: totalPop ? totalPop : 0,
+                maxPop: 5000,
+                deads: 0,
+                foodAvailable: 0,
+                foodNeeded: 0,
+                salaries: 0,
+                salesTax: 0.2,
+                citizenTax: 0.2,
+                markets: 0,
+                foodMarkets: 0,
+                goodsMarkets: 0,
+                goodsNeeded: 0,
+                goodsAvailable: 0,
+                foodSales: 0,
+                goodSales: 0,
+                lastImmoExpense: totalImmoExpenses ? totalImmoExpenses : 0,
+                debt: debts ? debts : 0,
+                funds: funds ? funds : 300
+            }
+
+            console.log("[SCENE] latest game items", infoGameplay || "no game items found");
+            await gameStore.clearGameItems();
+            await gameStore.addGameItems(infoGameplay);
+
+
+        // if (time > 0 && infoGameplay.name !== "gameplay_init") {
+        //
+        // }
 
         // --- BOUCLE SUR LA VILLE ----
         let infoBuildings = []
-
-        const totalPop = await buildingStore.getGlobalPopulation()
-        console.log('totalpop', totalPop)
-
-        infoGameplay.population = totalPop
-
 
         for(let x = 0; x < city.size; x++) {
             for(let y = 0; y < city.size; y++) {
@@ -258,23 +291,24 @@ export function createScene(buildingStore, gameStore) {
                         buildingStore.updateHouseField(HouseFood, false)
                     }
 
-                    if(houseTime === 3 && houseFood <= 0) {
-                        console.log('[NO FOOD] and house time beyond 3 : ', houseTime, buildings[x][y])
-
-                        scene.remove(buildings[x][y]);
-                        const uniqueBuildingId = makeDbItemId(currentBuildingId, x, y);
-                        await buildingStore.deleteOneHouse(uniqueBuildingId)
-                        buildings[x][y] = createAsset('Tombstone-1', x, y);
-                        scene.add(buildings[x][y]);
-
-                    }
+                    // if(houseTime === 3 && houseFood <= 0) {
+                    //     console.log('[NO FOOD] and house time beyond 3 : ', houseTime, buildings[x][y])
+                    //
+                    //     scene.remove(buildings[x][y]);
+                    //     const uniqueBuildingId = makeDbItemId(currentBuildingId, x, y);
+                    //     await buildingStore.deleteOneHouse(uniqueBuildingId)
+                    //     buildings[x][y] = createAsset('Tombstone-1', x, y);
+                    //     scene.add(buildings[x][y]);
+                    //
+                    // }
 
                     if(houseTime > 3 && houseFood > 5 && firstHouses.includes(currentBuildingId)) {
                         scene.remove(buildings[x][y]);
                         const uniqueBuildingId = makeDbItemId(currentBuildingId, x, y);
                         const newUniqueBuildingId = makeDbItemId('House-2Story', x, y);
                         console.log('new unique building ', newUniqueBuildingId)
-                        await buildingStore.updateHouseName(uniqueBuildingId, newUniqueBuildingId);
+                        const keys = { type : "House-2Story", price: assetsPrices["House-2Story"].price}
+                        await buildingStore.updateHouseName(uniqueBuildingId, newUniqueBuildingId, keys);
                         await buildingStore.deleteOneHouse(uniqueBuildingId);
                         buildings[x][y] = createAsset('House-2Story', x, y);
                         console.log('[2Story added] >> old and new', uniqueBuildingId, newUniqueBuildingId)
@@ -326,20 +360,42 @@ export function createScene(buildingStore, gameStore) {
             displayDelayUI.textContent += ''
         }
 
-        gameplay.makeGameOver()
-
         //  Display results in UI
         displayDelay.textContent = delay.toString() + ' delai'
+        const gameItems = await gameStore.listAllGameItems()
 
-        displayPop.textContent = infoGameplay.population.toString()
-        displayFood.textContent = infoGameplay.foodAvailable.toString()
-        displayNeedFood.textContent = infoGameplay.foodNeeded.toString();
-        const fundsNum = Math.round((infoGameplay.funds + Number.EPSILON) * 100) / 100
-        const debtsNum = Math.round((infoGameplay.debt + Number.EPSILON) * 100) / 100
-        displayFunds.textContent =  fundsNum.toString()
-        displayDebt.textContent =  debtsNum.toString() + ' $'
+        gameItems.filter(item => item).forEach((item) => {
+            console.log(`[SCENE] new item at ${time} `, item.funds)
+            const {
+                name,
+                turn,
+                population,
+                maxPop,
+                deads,
+                foodAvailable,
+                foodNeeded,
+                salaries,
+                salesTax,
+                citizenTax,
+                markets,
+                foodMarkets,
+                goodsMarkets,
+                goodsNeeded,
+                goodsAvailable,
+                foodSales,
+                goodSales,
+                lastImmoExpense,
+                debt,
+                funds
+            } = item;
 
-        displayDead.textContent = infoGameplay.deads.toString()
+            // Updating the appropriate HTML elements with the data from each item
+            displayPop.textContent = population.toString();
+            displayFood.textContent = foodAvailable.toString();
+            displayFunds.textContent = funds.toString();
+            displayDebt.textContent = debt.toString() + " $";
+            displayDead.textContent = deads.toString();
+        })
 
         console.log('=================== END TURN ====================== ', time)
 
@@ -459,15 +515,9 @@ export function createScene(buildingStore, gameStore) {
         camera.onMouseUp(event);
     }
 
-    /*
-    function onMouseMove(event){
-        camera.onMouseMove(event);
-    }
-    */
-
 let hoveredObject = null
 let hoveredObjectName = null
-const objectsNames = ['grass', 'roads', 'House-Red', 'House-Purple']
+const objectsNames = ['grass', 'roads', 'House-Red', 'House-Purple', 'House-Blue', 'Market-Stall']
 function onMouseMove(event) {
     camera.onMouseMove(event);
 
@@ -488,14 +538,11 @@ function onMouseMove(event) {
     
     objectsNames.forEach(objectName => {
         if(intersections[0]?.object?.name === objectName) {
-            if(objectName === 'House-Red') {
+            if(objectName === "Market-Stall") {
                 coloredAbuildingOnHover(intersections, 0xff0000, 0x000000)
             } else {
                 handleHover(intersections, 0xff0000, objectName);
             }
-
-            
-            
         }
     })
 
@@ -576,7 +623,6 @@ function onMouseMove(event) {
         onKeyBoardUp,
         setUpLights,
         addPlayerToScene,
-        delay,
-        infoGameplay
+        delay
     }
 }

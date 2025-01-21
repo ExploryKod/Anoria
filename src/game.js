@@ -1,8 +1,9 @@
 import * as THREE from 'three';
-import { initAnoriaDb, createHouseStore, createGameStore } from './store.js';
+import {  assetsPrices } from './buildings.js';
+import { initAnoriaDb, createHouseStore, createGameStore, getStores } from './store.js';
 import { createScene } from './scene.js';
 import { createCity } from './city.js'; 
-import { makeDbItemId, makeInfoBuildingText } from './utils.js';
+import {getAssetPrice, makeDbItemId, makeInfoBuildingText} from './utils.js';
 import { handleColorOnSelectedObject } from './meshUtils.js';
 import {
     displayTime,
@@ -13,8 +14,13 @@ import {
     buildingsObjects,
     infoPanelClock,
     infoPanelClockIcon,
-    infoPanelNoClockIcon
+    infoPanelNoClockIcon,
+    displaySpeed
 } from './ui.js';
+
+
+/* IndexDB initialization using store.js async functions */
+initAnoriaDb()
 
 export function createGame() {
     let activeToolId = '';
@@ -22,18 +28,19 @@ export function createGame() {
     let isPause;
     let isOver;
     let infos = {};
-
+    let intervalId = null;
+    localStorage.setItem("speed", "4000");
     displayTime.textContent = time.toString() + ' jours';
 
-    /* IndexDB initialization using store.js async functions */
-    initAnoriaDb()
     const buildingStore = createHouseStore();
     const gameStore = createGameStore();
+    const allStores = getStores()
     /* Scene initialization */
-    const scene = createScene(buildingStore, gameStore);
+    const scene = createScene(buildingStore, gameStore, allStores);
 
     /* City initialization */
     const city = createCity(16);
+
     scene.initialize(city);
 
     // handler function to extract coordinate of an object I click on (data from asset js and using scene js methods)
@@ -106,22 +113,30 @@ export function createGame() {
             // place building at that location
             tile.buildingId = activeToolId;
             console.log(`coordonnées et terrain de l\' objet posé ${tile.buildingId}: `, selectedObject.userData)
-            const price = 56
+            let price = 0
+
             const houseID = tile.buildingId + '-' + selectedObject.userData.x + '-' + selectedObject.userData.y
 
+            price = getAssetPrice(tile.buildingId, assetsPrices) || 0
+            let funds = await gameStore.getLatestGameItemByField('funds') || 0
             const dbHouseData = {
                 name: houseID,
+                type: tile.buildingId,
                 time: 0,
                 pop: 0,
                 food : 0,
                 road: 0,
                 stage : 0,
                 stageName: "",
+                price : price ? price : 0,
+                cityFunds: funds,
+                maintenance: 0,
                 x : selectedObject.userData.x,
                 y : selectedObject.userData.y,
             }
 
-            buildingStore.addHouse(dbHouseData);
+            await buildingStore.addHouseAndPay(dbHouseData);
+            console.log("GAME - add house and pay complete")
             scene.update(city);
         }
     }
@@ -141,9 +156,9 @@ export function createGame() {
             window.game.play()
         }
     })
-    
+
     const game = {
-       
+
         update(time) {
             displayTime.textContent = time + ' jours'
             city.update();
@@ -208,6 +223,17 @@ export function createGame() {
         setActiveToolId(toolId) {
             activeToolId = toolId;
         },
+
+        startInterval() {
+            const speed = parseInt(localStorage.getItem('speed')) || 4000;
+            if (intervalId) clearInterval(intervalId);
+            intervalId = setInterval(() => {
+                if (!isPause && !isOver) {
+                    time += 1;
+                    game.update(time);
+                }
+            }, speed);
+        }
     }; 
 
     setInterval(() => {
@@ -217,8 +243,7 @@ export function createGame() {
                 game.update(time);
             }
         }
-    }, 10000);
-
+    }, parseInt(localStorage.getItem('speed')));
 
     scene.start();
     return game;

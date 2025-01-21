@@ -1,5 +1,6 @@
 // game.js
 export const displayTime = document.querySelector('.info-panel .display-time');
+export const displaySpeed = document.querySelector('.info-panel .display-speed');
 export const overOverlay = document.querySelector('#over-overlay');
 export const overOverlayMessage = document.querySelector('#over-overlay .over-overlay__text');
 export const infoObjectOverlay = document.querySelector('.info-building-overlay');
