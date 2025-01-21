@@ -28,7 +28,7 @@ const toolIds = {
 
 export const toolPrices = {
     zones: [{'grass' : 0}, {'roads': 5}],
-    houses: [{'House-Blue': 10}],
+    houses: [{'House-Blue': 10}, {'House-Red': 10}, {'House-Purple': 10}, {'House-2Story': 20}],
     tombs:  [{'Tombstone-1': 2}, {'Tombstone-2': 4}, {'Tombstone-3': 8}],
     farms: [{'Farm-Wheat': 15}, {'Farm-Carrot': 20}, {'Farm-Cabbage': 20}],
     markets: [{'Market-Stall': 10}],
@@ -42,6 +42,9 @@ export const assetsPrices = Object.freeze({
 
     // Houses
     'House-Blue': { price: 10, category: 'houses' },
+    'House-Red': { price: 10, category: 'houses' },
+    'House-Purple': { price: 10, category: 'houses' },
+    'House-2Story': { price: 20, category: 'houses' },
 
     // Tombs
     'Tombstone-1': { price: 2, category: 'tombs' },
@@ -49,9 +52,9 @@ export const assetsPrices = Object.freeze({
     'Tombstone-3': { price: 8, category: 'tombs' },
 
     // Farms
-    'Farm-Wheat': { price: 15, category: 'farms' },
+    'Farm-Wheat': { price: 10, category: 'farms' },
     'Farm-Carrot': { price: 20, category: 'farms' },
-    'Farm-Cabbage': { price: 20, category: 'farms' },
+    'Farm-Cabbage': { price: 30, category: 'farms' },
 
     // Markets
     'Market-Stall': { price: 10, category: 'markets' }
