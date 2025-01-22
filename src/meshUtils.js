@@ -348,7 +348,7 @@ export function handleColorOnSelectedObject(selectedObject, hexValue=0xff0000) {
         return
     }
 
-    let { x, y } = selectedObject.userData;
+    let { x, y, id } = selectedObject.userData;
     let hsl;
     let rgb;
     let hex;
@@ -384,10 +384,11 @@ export function handleColorOnSelectedObject(selectedObject, hexValue=0xff0000) {
             if(isMaterialTypeFound(node.material, types)) {
                 console.log(`**** meshstandard material transparent red item for ${selectedObject} at ${x}-${y} coordinates`, node.material);
                 // y is z in position key of the node
+                console.log("[MESH] (f)handleColor node", node)
                 const nodeX = node.position.x
                 const nodeY = node.position.z
                 if(nodeX === x && nodeY === y) {
-                    node.material = node.material.clone(); 
+                    node.material = node.material.clone();
                     if(node.material.emissive) {
                         node.material.emissive.setRGB(0.8, 0.2, 0.2); // red
                         hex = node.emissive?.getHexString();

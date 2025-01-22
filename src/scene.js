@@ -230,13 +230,13 @@ export function createScene(buildingStore, gameStore, allStores) {
                     console.log(`$$$$$$$$$$$$$$$$$$ Market only ${currentBuildingId} *************************`)
                     const currentMarketID = makeDbItemId(currentBuildingId, x, y);
                     const marketTime = { name: currentMarketID, increment: 1, field: 'time' };
-                    buildingStore.updateHouseField(marketTime, false)
+                    buildingStore.incrementHouseField(marketTime, false)
 
                     const area = 4
                     const allFarmCarrotInZone = getBuildingsInZone(area, { city, x, y}, 'Farm-Carrot')
                     console.log("$$$ Farm carrots in market zone [getBuidingsInZone] ? ", allFarmCarrotInZone)
                     const marketFood = { name: currentMarketID, increment: 1, field: 'food' };
-                    buildingStore.updateHouseField(marketFood, false)
+                    buildingStore.incrementHouseField(marketFood, false)
                 }
 
                 //  only update if current building is a house
@@ -248,17 +248,11 @@ export function createScene(buildingStore, gameStore, allStores) {
 
                     if(time > 0) {
                         const HouseTime = { name: currentHouseID, increment: 1, field: 'time' };
-                        buildingStore.updateHouseField(HouseTime, false)
+                        await buildingStore.incrementHouseField(HouseTime, false)
                     }
 
                     const HousePop = { name: currentHouseID, increment: 1, field: 'pop' };
-                    buildingStore.updateHouseField(HousePop, {operator: '<=', limit: 2})
-                    .then(() => {
-                            console.log(`+++ Update for house ${currentHouseID} completed.`);
-                    })
-                    .catch((error) => {
-                            console.error(`+++ Error updating house ${currentHouseID}:`, error);
-                    });
+                    await buildingStore.incrementHouseField(HousePop, {operator: '<=', limit: 2})
 
                     const houseTime = await buildingStore.getHouseItem(currentHouseID, 'time');
                     const houseFood = await buildingStore.getHouseItem(currentHouseID, 'food');
@@ -271,24 +265,23 @@ export function createScene(buildingStore, gameStore, allStores) {
                     const neighborRoadFound = getBuildingNeighbors(currentBuilding, ['roads'])
                     const AllNeighborsFromZone = zoneBordersBuildings(3, { city, x, y })
                     console.log('all neighbors from zone at 3 : ', AllNeighborsFromZone)
-                    /* More distant neighbors from a 4 cases area zone */
-                    const area = 4
-                    const allneighborsWithinZone = getBuildingsInZone(area, { city, x, y})
+                    const allneighborsWithinZone = getBuildingsInZone(4, { city, x, y})
 
-                    console.log(`+++ All neighbors at 3 cases from ${currentBuildingId} ==> `, AllNeighborsFromZone)
+                    console.log(`+++ All neighbors at 4 cases from ${currentBuildingId} ==> `, AllNeighborsFromZone)
 
-                    console.log(`+++ ALL HOUSE NEIGHBOR WITHIN A ZONE of ${area} for ${currentHouseID} :`, allneighborsWithinZone)
+                    console.log(`+++ ALL HOUSE NEIGHBOR WITHIN A ZONE of 4 for ${currentHouseID} :`, allneighborsWithinZone)
 
 
                     if(neighborRoadFound) {
                         const HouseRoad = { name: currentHouseID, increment: 1, field: 'road' };
-                        buildingStore.updateHouseField(HouseRoad, {operator: '<=', limit: 4})
+                        await buildingStore.incrementHouseField(HouseRoad, {operator: '<=', limit: 4})
                     }
 
                     if(allneighborsWithinZone.includes('Market-Stall')) {
                         console.log(`market found near ${currentHouseID}`)
                         const HouseFood = { name: currentHouseID, increment: 1, field: 'food' };
-                        buildingStore.updateHouseField(HouseFood, false)
+                        await buildingStore.incrementHouseField(HouseFood, false)
+                        await buildingStore.updateHouseFields(currentHouseID, {neighbors: allneighborsWithinZone})
                     }
 
                     // if(houseTime === 3 && houseFood <= 0) {
@@ -481,6 +474,10 @@ export function createScene(buildingStore, gameStore, allStores) {
         renderer.setAnimationLoop(null);
     }
 
+    let hoveredObject = null
+    let hoveredObjectName = null
+    const objectsNames = ['grass', 'roads', 'House-Red', 'House-Purple', 'House-Blue', 'Market-Stall']
+
     function onMouseDown(event){
         camera.onMouseDown(event);
         // Raycasting need y and x axis as + on the terrain (plan) (y-1,y1,x1,x-1)
@@ -503,8 +500,8 @@ export function createScene(buildingStore, gameStore, allStores) {
             // }
             console.log('selected object scene onMouseD ==>', selectedObject.material)
             // console.log('selected object scene is an array ? ==>', selectedObject.material.length)
-            // selectedObject.material.emissive.setHex(0xff0000);
-        
+            //selectedObject.material.emissive.setHex(0xff0000);
+
             if(this.onObjectSelected) {
                 this.onObjectSelected(selectedObject);
             }
@@ -515,9 +512,6 @@ export function createScene(buildingStore, gameStore, allStores) {
         camera.onMouseUp(event);
     }
 
-let hoveredObject = null
-let hoveredObjectName = null
-const objectsNames = ['grass', 'roads', 'House-Red', 'House-Purple', 'House-Blue', 'Market-Stall']
 function onMouseMove(event) {
     camera.onMouseMove(event);
 
@@ -533,19 +527,6 @@ function onMouseMove(event) {
         console.log("interections on mouse move ", intersections[0].object.name)
         hoveredObjectName = intersections[0]?.object?.name || ""
     }
-
-
-    
-    objectsNames.forEach(objectName => {
-        if(intersections[0]?.object?.name === objectName) {
-            if(objectName === "Market-Stall") {
-                coloredAbuildingOnHover(intersections, 0xff0000, 0x000000)
-            } else {
-                handleHover(intersections, 0xff0000, objectName);
-            }
-        }
-    })
-
 }
 
 

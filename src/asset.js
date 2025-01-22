@@ -96,11 +96,16 @@ toolIds.tombs.forEach((toolId) => {
 })
 
 toolIds.farms.forEach((toolId) => {
-    assets[toolId] = (x,y, z=0) => createBuilding(x,y,z, 1, toolId, farmsModelsObj);
+    if(toolId.substring(0,4) === "Farm") {
+        assets[toolId] = (x,y, z=0) => createBuilding(x,y,z, 1, toolId, farmsModelsObj);
+    } else {
+        assets[toolId] = (x,y, z=0) => createBuilding(x,y,z, 0.3, toolId, farmsModelsObj);
+    }
+
 })
 
 toolIds.markets.forEach((toolId) => {
-    assets[toolId] = (x, y, z=0) => createBuilding(x, y, z, 0.5, toolId, marketsModelsObj)
+    assets[toolId] = (x, y, z=0) => createBuilding(x, y, z, 0.7, toolId, marketsModelsObj)
 })
 
 export function createAsset(assetId, x, y) {

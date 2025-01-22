@@ -317,22 +317,36 @@ async function getGlobalPopulation() {
     }
 
     /**
-     * Updates a house with specified changes.
-     * 
+     * Updates specific fields of a house, appending to arrays if specified.
+     *
      * @async
      * @param {string} name - The name of the house to update.
-     * @param {Object} updates - The updates to apply to the house.
+     * @param {Object} updates - The updates to apply to the house. Arrays can be appended if specified.
+     * @param {boolean} appendToArrays - Whether to append to arrays instead of overwriting them (default: false).
      * @returns {Promise<void>} Resolves when the house is successfully updated.
      */
-    async function updateHouseFields(name, updates) {
+    async function updateHouseFields(name, updates, appendToArrays = false) {
         const tx = db.transaction('houses', 'readwrite');
         const houseStore = tx.objectStore('houses');
 
+        // Fetch the existing house data
         const house = await houseStore.get(name);
         if (house) {
-            Object.assign(house, updates);
+            for (const key in updates) {
+                if (updates[key] !== undefined) {
+                    // Append to arrays if specified
+                    if (Array.isArray(house[key]) && Array.isArray(updates[key]) && appendToArrays) {
+                        house[key] = [...house[key], ...updates[key]];
+                    } else {
+                        // Overwrite the field
+                        house[key] = updates[key];
+                    }
+                }
+            }
+
+            // Save the updated house back to the store
             await houseStore.put(house);
-            console.log(`House ${name} updated successfully.`);
+            console.log(`House ${name} updated successfully with updates:`, updates);
         } else {
             console.warn(`House ${name} not found.`);
         }
@@ -380,7 +394,7 @@ async function getGlobalPopulation() {
             // Add the updated object back into the store
             await houseStore.put(house); // No key parameter needed
 
-            console.log(`House name updated from ${oldName} to ${newName}.`);
+            console.log(`House name and price updated from ${oldName} to ${newName}.`);
         } catch (error) {
             console.error(`Error updating house name from ${oldName} to ${newName}:`, error);
         }
@@ -399,7 +413,7 @@ async function getGlobalPopulation() {
      * @param {number} [condition.limit] - The value to compare the field against when applying the condition.
      * @returns {Promise<void>}
      */
-    async function updateHouseField(entries, condition = false) {
+    async function incrementHouseField(entries, condition = false) {
         const { name, increment, field } = entries;
         console.info(`Updating house ${name}, field: ${field}, increment: ${increment}`);
         
@@ -544,7 +558,7 @@ async function getGlobalPopulation() {
         getHouse,
         getHouseItem,
         updateHouseFields,
-        updateHouseField,
+        incrementHouseField,
         deleteOneHouse,
         getGlobalPopulation,
         clearHouses,

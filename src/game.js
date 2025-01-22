@@ -62,7 +62,7 @@ export function createGame() {
             console.log(`Je sélectionne ${selectedObject.userData.id} à ${x} ${y} >> `, selectedObject.userData)
             infoObjectOverlay.classList.toggle('active');
             makeInfoBuildingText("", true)
-
+            // color of building will become red
             const hexSelected = handleColorOnSelectedObject(selectedObject)
             console.log("Hex ", hexSelected)
 
@@ -84,6 +84,7 @@ export function createGame() {
                     neighbors = selectedObject.userData.neighbors;
                 }
 
+                makeInfoBuildingText(`Bâtiment: ${selectedObject.userData.id} x: ${selectedObject.userData.x} y: ${selectedObject.userData.y}`, false)
                 makeInfoBuildingText(`Nombre d'habitants: ${buildingPop}`, false)
                 makeInfoBuildingText(`Nourriture: ${buildingFood} kilos d'aliments`, false)
 
@@ -122,6 +123,7 @@ export function createGame() {
             const dbHouseData = {
                 name: houseID,
                 type: tile.buildingId,
+                neighbors : [],
                 time: 0,
                 pop: 0,
                 food : 0,

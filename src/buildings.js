@@ -21,7 +21,7 @@ const toolIds = {
     zones: ['grass', 'roads'],
     houses: ['House-Blue', 'House-Red', 'House-Purple', 'House-2Story'],
     tombs:  ['Tombstone-1', 'Tombstone-2', 'Tombstone-3'],
-    farms: ['Farm-Wheat', 'Farm-Carrot', 'Farm-Cabbage'],
+    farms: ['Farm-Wheat', 'Farm-Carrot', 'Farm-Cabbage', 'Windmill-001'],
     markets: ['Market-Stall'],
     nature : []
 }
@@ -128,12 +128,12 @@ gltfloader.load(
             if (child instanceof THREE.Mesh) {
                 // Market Stall Red.002_Material.005_0
                 assetFullName = child.userData.name
-
+                console.log("[BUILDING] asset full name", assetFullName)
                 assetFullName = assetFullName.replace(/[._\s]/g, '_');
                 const firstNamePart = assetFullName.split('_')[0]
                 const secondNamePart = assetFullName.split('_')[1]
                 const toolName = `${firstNamePart}-${secondNamePart}`
-
+                console.warn("[BUILDING] tool name", toolName)
                 allAssetsNames.map((asset, index) => {
                     if (asset.houses && toolIds.houses.includes(toolName)) {
                         if (wantedHouses.includes(toolName)) {
