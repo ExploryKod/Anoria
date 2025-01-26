@@ -6,10 +6,10 @@ const ASSETS = [
     '.src/styles/tooltip.css',
     '.src/styles/main.css',
     '.src/game.js',
-    './public/resources/textures/',
-    './public/resources/textures/grounds/ground_cobblestone5.png',
-    './public/resources/textures/grounds/grass_rough2.png',
-    './public/resources/lowpoly/village_town_assets_v2.glb',
+    '/public/resources/textures/',
+    '/public/resources/textures/grounds/ground_cobblestone5.png',
+    '/public/resources/textures/grounds/grass_rough2.png',
+    '/public/resources/lowpoly/village_town_assets_v2.glb',
 ];
 
 // Install Service Worker

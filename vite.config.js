@@ -9,7 +9,7 @@ export default defineConfig({
     publicDir: '../public', // Directory for static files
 
     build: {
-        outDir: '../dist', // Output directory for production build
+        outDir: '../dist', // Output directory for production build (at the root level)
         emptyOutDir: true, // Clean the output directory before building
         assetsDir: 'assets', // Directory for built assets inside the output folder
     },

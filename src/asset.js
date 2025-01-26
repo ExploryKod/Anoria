@@ -32,8 +32,8 @@ function loadTextures(path) {
 }
 
 export const textures = {
-    'roads': loadTextures(`/resources/textures/grounds/ground_cobblestone5.png`),
-    'grass': loadTextures(`/resources/textures/grounds/grass_rough2.png`),
+    'roads': loadTextures(`./resources/textures/grounds/ground_cobblestone5.png`),
+    'grass': loadTextures(`./resources/textures/grounds/grass_rough2.png`),
 }
 
 export function changeMeshMaterialTexture(mesh, texture) {
@@ -153,12 +153,13 @@ function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false)
     }
 
     object3D.name = `${meshName}`
+    // MISTAKE WITH y and z so now z = y is used later !! TODO solve this
     object3D.position.set(placerPos.x, placerPos.z, placerPos.y);
     object3D.scale.set(size,size,size);
     object3D.rotation.set(THREE.MathUtils.degToRad(90), THREE.MathUtils.degToRad(180), THREE.MathUtils.degToRad(180));
     object3D.userData = {
         id:  meshName,
-        name: meshName + '-' + placerPos.x + '-' + placerPos.z,
+        name: meshName + '-' + placerPos.x + '-' + placerPos.y,
         type: meshName,
         neighbors: [],
         pop: 0,
@@ -171,6 +172,7 @@ function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false)
         price : 0,
         cityFunds: 0,
         maintenance: 0,
+        worldTime: 0,
         x : placerPos.x,
         y : placerPos.z,
     };

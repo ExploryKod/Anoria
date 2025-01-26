@@ -92,6 +92,58 @@ export class Store {
     }
 
     /**
+     * Updates a house with specified changes passing a whole object.
+     * Skips non-serializable keys in the updates object.
+     * @async
+     * @param {string} name - The name of the house to update.
+     * @param {Object} updates - The updates to apply to the house.
+     * @returns {Promise<void>}
+     */
+    async updateHouseSerializableFields(name, updates) {
+        const tx = this.db.transaction('houses', 'readwrite');
+        const houseStore = tx.objectStore('houses');
+
+        try {
+            const house = await houseStore.get(name);
+            if (house) {
+                // Filter updates to only include serializable keys
+                const serializableUpdates = Object.entries(updates).reduce((acc, [key, value]) => {
+                    if (this.isSerializable(value)) {
+                        acc[key] = value;
+                    } else {
+                        console.warn(`Skipping non-serializable key: ${key}`);
+                    }
+                    return acc;
+                }, {});
+
+                // Merge serializable updates and update the house
+                Object.assign(house, serializableUpdates);
+                await houseStore.put(house);
+                console.log(`House ${name} updated successfully.`);
+            } else {
+                console.warn(`House ${name} not found.`);
+            }
+        } catch (err) {
+            console.error('Failed to update house:', err);
+        }
+    }
+
+    /**
+     * Checks if a value is serializable.
+     * @param {*} value - The value to check.
+     * @returns {boolean} - True if the value is serializable, otherwise false.
+     */
+    async isSerializable(value) {
+        try {
+            JSON.stringify(value);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+
+    /**
      * Updates a specific field of a house with a condition.
      * @async
      * @param {Object} entries - Contains the data to update the house.

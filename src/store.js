@@ -404,7 +404,6 @@ async function getGlobalPopulation() {
         }
     }
 
-
     /**
      * Updates a specific field of a house with a condition.
      * @async
@@ -477,6 +476,7 @@ async function getGlobalPopulation() {
             console.warn(`House ${name} not found.`);
         }
     }
+
 
     /**
      * Deletes a house by its name.
@@ -791,7 +791,7 @@ export function createGameStore() {
         updateAllGameItems,
         getLatestGameItemByField,
         getLatestGameItems,
-        updateLatestGameItemFields
+        updateLatestGameItemFields,
     }
     
 }

@@ -135,13 +135,14 @@ export function createGame() {
                 price : price ? price : 0,
                 cityFunds: funds,
                 maintenance: 0,
+                worldTime: 0,
                 x : selectedObject.userData.x,
                 y : selectedObject.userData.y,
             }
 
             await buildingStore.addHouseAndPay(dbHouseData);
             console.log("GAME - add house and pay complete")
-            scene.update(city);
+            await scene.update(city);
         }
     }
 
