@@ -158,7 +158,7 @@ function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false)
     object3D.rotation.set(THREE.MathUtils.degToRad(90), THREE.MathUtils.degToRad(180), THREE.MathUtils.degToRad(180));
     object3D.userData = {
         id:  meshName,
-        name: meshName + '-' + meshName.position.x + '-' + meshName.position.z,
+        name: meshName + '-' + placerPos.x + '-' + placerPos.z,
         type: meshName,
         neighbors: [],
         pop: 0,
@@ -171,8 +171,8 @@ function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false)
         price : 0,
         cityFunds: 0,
         maintenance: 0,
-        x : meshName.position.x,
-        y : meshName.position.z,
+        x : placerPos.x,
+        y : placerPos.z,
     };
     return object3D
 }
