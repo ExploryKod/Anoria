@@ -309,9 +309,13 @@ async function getGlobalPopulation() {
     async function getHouseItem(name, key) {
         const house = await getHouse(name);
         if (house) {
+            if(!Object.hasOwn(house, key)) {
+                console.warn(`Key ${key} not found in this building.`);
+                return false;
+            }
             return house[key];
         } else {
-            console.warn(`House ${name} not found.`);
+            console.warn(`Building ${name} not found.`);
             return false;
         }
     }

@@ -254,18 +254,10 @@ export const IsInZoneLimits = (zoneLimit, city) => {
     return x+1 < zoneLimit && y+1 < zoneLimit && x-1 > 0 && y-1 > 0
 }
 
-export const zoneBordersBuildings = (zoneLength, buildingData) => {
-    const { city, x, y } = buildingData;
+export const zoneBordersBuildings = (buildingData, time=0) => {
 
-    if (!zoneLength) {
-        console.warn('[zoneBordersBuildings] Zone length must not be undefined');
-        return false;
-    }
-
-    if (zoneLength < 0) {
-        console.warn('[zoneBordersBuildings] Zone length must be a positive integer');
-        return false;
-    }
+    const { buildings, x, y, currentBuildingId } = buildingData;
+    const theCurrentBuilding = currentBuildingId + '-' + x + '-' + y
 
     if (x == null || y == null) {
         console.warn('[zoneBordersBuildings] y and x coordinates have wrong values');
@@ -273,60 +265,98 @@ export const zoneBordersBuildings = (zoneLength, buildingData) => {
     }
 
     // Helper function to safely get buildingId
-    const getBuildingId = (tile) => tile?.buildingId || null;
+    // const getBuildingId = (tile) => tile.buildingId || null;
 
     // Retrieve neighboring tiles and their buildingId
-    const allImmediateNeighbors = [
-        getBuildingId(city.tiles[x]?.[y + zoneLength]),      // South
-        getBuildingId(city.tiles[x + zoneLength]?.[y + zoneLength]), // North-East
-        getBuildingId(city.tiles[x + zoneLength]?.[y]),     // East
-        getBuildingId(city.tiles[x + zoneLength]?.[y - zoneLength]), // South-East
-        getBuildingId(city.tiles[x]?.[y - zoneLength]),     // North
-        getBuildingId(city.tiles[x - zoneLength]?.[y - zoneLength]), // South-West
-        getBuildingId(city.tiles[x - zoneLength]?.[y]),     // West
-        getBuildingId(city.tiles[x - zoneLength]?.[y + zoneLength]), // North-West
-    ];
+    // const allImmediateNeighborsNames = [
+    //     getBuildingId(city.tiles[x]?.[y + zoneLength]),      // South
+    //     getBuildingId(city.tiles[x + zoneLength]?.[y + zoneLength]), // North-East
+    //     getBuildingId(city.tiles[x + zoneLength]?.[y]),     // East
+    //     getBuildingId(city.tiles[x + zoneLength]?.[y - zoneLength]), // South-East
+    //     getBuildingId(city.tiles[x]?.[y - zoneLength]),     // North
+    //     getBuildingId(city.tiles[x - zoneLength]?.[y - zoneLength]), // South-West
+    //     getBuildingId(city.tiles[x - zoneLength]?.[y]),     // West
+    //     getBuildingId(city.tiles[x - zoneLength]?.[y + zoneLength]), // North-West
+    // ];
 
-    // Filter out null values
-    return allImmediateNeighbors.filter(Boolean);
+    let meshs = [];
+    if(buildings) {
+        buildings.filter(building => building).forEach(building => {
+            let temp = [];
+            if(Array.isArray(building)) {
+                building.filter(mesh => mesh && mesh.name && mesh.position).forEach(mesh => {
+                    const deltaX = Math.abs(mesh.position.x - x);
+                    const deltaZ = Math.abs(mesh.position.z - y); // Note: y represents mesh.position.z
+                    // Calculate the zone based on the maximum delta of x or z
+                    const zone = Math.max(deltaX, deltaZ);
+                    let neighborData = {
+                        building: theCurrentBuilding,
+                        time: time,
+                        name: mesh.name,
+                        id : mesh.name + '-' + mesh.position.x + '-' + mesh.position.z,
+                        x: mesh.position.x,
+                        y: mesh.position.z,
+                        deltaX: deltaX,
+                        deltaZ: deltaZ,
+                        zone: zone
+                    };
+
+                    if(Object.hasOwn(mesh, 'userData')) {
+                        if(Object.hasOwn(mesh.userData, 'stocks')) {
+                           neighborData = { ...neighborData, stocks: mesh.userData.stocks };
+                        }
+                    }
+
+                    temp.push(neighborData);
+                })
+                console.log("[UTILS ZONE BORDERS] buildings meshs", meshs)
+                // Filter out null values
+            }
+            meshs.push(...new Set(temp));
+        })
+    }
+
+   return [...new Set(meshs)];
 };
 
-export function getBuildingsInZone(area, buildingData, buildingTarget="") {
-    let buildingsInArea = [];
-
-    if (!area) {
-        console.warn('[getBuildingsInZone] Zone length must not be undefined');
-        return false;
-    }
+export function getBuildingsNamesInZone(buildingData, time=0, targets = {buildingTarget: "", zones: []}) {
+    let zoneBuildings = [];
 
     if (!buildingData) {
         console.warn('[getBuildingsInZone] buildingData must not be undefined');
-        return false;
+        return;
     }
 
-    for (let i = 0; i < area; i++) {
-        const zoneBuildings = zoneBordersBuildings(i, buildingData); 
-
-        if (Array.isArray(zoneBuildings)) {
-            buildingsInArea.push(...zoneBuildings.filter(value => value !== undefined));
-        } else {
-            console.warn(`[getBuildingsInZone] zoneBordersBuildings returned non-array at index ${i}`);
-        }
+    if(!Object.hasOwn(targets, 'buildingTarget') || !Object.hasOwn(targets, 'zones')) {
+        console.error('[getBuildingsInZone] ket buildingTarget or zones are missing from targets object third argument');
+        return;
     }
 
-    if(buildingTarget) {
-        return buildingsInArea.filter(buildingId => buildingId === buildingTarget);
-    } 
+    const { x, y } = buildingData
+    zoneBuildings = zoneBordersBuildings(buildingData, time);
 
-    return buildingsInArea;
+    if(targets.buildingTarget !== "" && targets.zones.length > 0) {
+        // house is filtered also to match a specific building
+        return zoneBuildings.filter(buildingId => (buildingId.name === targets.buildingTarget) && targets.zones.includes(buildingId.zone));
+    }
+
+    if(targets.buildingTarget !== "") {
+        // house is filtered also to match a specific building
+        return zoneBuildings.filter(buildingId => (buildingId.name === targets.buildingTarget));
+    }
+
+    if(targets.zones.length > 0) {
+        return zoneBuildings.filter(building => targets.zones.includes(building.zone))
+    }
+    // only filtered to not add herself as neighbour (through x and y coordinate) (! z from position is y in userData here)
+    return zoneBuildings
 }
-
 
 
 /**
  * Get a neighbor buildingId by its geographical position
  * @param {Object} building - The building object building[x][y]
- * @param {string} neighbor - The geographical position of the neighbor building
+ * @param {Array} neighbors
  */
 export function getBuildingNeighbors(building, neighbors=[]) {
     if(!building.userData || !building.userData.neighborsNames || neighbors.length <= 0) {

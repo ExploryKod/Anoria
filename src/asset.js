@@ -158,15 +158,21 @@ function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false)
     object3D.rotation.set(THREE.MathUtils.degToRad(90), THREE.MathUtils.degToRad(180), THREE.MathUtils.degToRad(180));
     object3D.userData = {
         id:  meshName,
-        x,
-        y,
-        vicinities: { xless : x-1, yless : y-1, xplus: x+1, yplus: y+1},
+        name: meshName + '-' + meshName.position.x + '-' + meshName.position.z,
+        type: meshName,
         neighbors: [],
-        happiness: {food: 0, road: 0, happy: 0},
-        balance:{revenue:0, tax: 0, net:0},
-        citizen:{number:0, jobs:[]},
+        pop: 0,
+        stocks : {food: 0, cabbage : 0, wheat: 0, carrot: 0},
         time: 0,
-        isBuilding: true
+        isBuilding: true,
+        road: 0,
+        stage : 0,
+        stageName: "",
+        price : 0,
+        cityFunds: 0,
+        maintenance: 0,
+        x : meshName.position.x,
+        y : meshName.position.z,
     };
     return object3D
 }

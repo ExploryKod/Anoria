@@ -121,12 +121,14 @@ export function createGame() {
             price = getAssetPrice(tile.buildingId, assetsPrices) || 0
             let funds = await gameStore.getLatestGameItemByField('funds') || 0
             const dbHouseData = {
+                id:  houseID,
                 name: houseID,
                 type: tile.buildingId,
-                neighbors : [],
-                time: 0,
+                neighbors: [],
                 pop: 0,
-                food : 0,
+                stocks : {food: 0, cabbage : 0, wheat: 0, carrot: 0},
+                time: 0,
+                isBuilding: true,
                 road: 0,
                 stage : 0,
                 stageName: "",

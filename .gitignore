@@ -1,6 +1,7 @@
 # Logs
 logs
 *.log
+bug.txt
 .vite
 npm-debug.log*
 yarn-debug.log*

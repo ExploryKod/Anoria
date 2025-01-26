@@ -150,7 +150,7 @@ export class Store {
     async deleteOneHouse(name) {
         const tx = this.db.transaction('houses', 'readwrite');
         await tx.objectStore('houses').delete(name);
-        console.log(`House ${name} deleted successfully.`);
+        console.log(`[DELETION SUCCEED] House or building ${name} deleted successfully.`);
     }
 
     /**

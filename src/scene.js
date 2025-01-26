@@ -6,7 +6,7 @@ import {fetchPlayer, freePromises, playerMesh} from "./fetchPlayer.js";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import { coloredAbuildingOnHover, resetHoveredObject, applyHoverColor, resetObjectColor } from './meshUtils.js';
 import { updateBuildingNeighbors, makeDbItemId, getBuildingNeighbors,
-    zoneBordersBuildings, getBuildingsInZone, makeInfoBuildingText  }
+    zoneBordersBuildings, getBuildingsNamesInZone, makeInfoBuildingText  }
     from "./utils.js";
 import {
     gameWindow,
@@ -193,118 +193,100 @@ export function createScene(buildingStore, gameStore, allStores) {
               const buildingInfo =  city.tiles[x][y];
 
               const isInCityLimits = x+1 < city.size && y+1 < city.size && x-1 > 0 && y-1 > 0
-           
+
               if(currentBuildingId && isInCityLimits) {
-                console.log(`*************** CURRENT BUILDING ID ${currentBuildingId} *************************`)
+                const currentUniqueID = makeDbItemId(currentBuildingId, x, y);
+                console.log(`*************** CURRENT BUILDING ID (type) ${currentBuildingId} ***** UniqueId: ${currentUniqueID}********************`)
                 const buildingData = {
                     city,
                     buildings,
                     x,
                     y,
                     currentBuildingId,
+                    currentUniqueID,
                     terrain
                 };
 
                 updateBuildingNeighbors(buildingData, 1, time);
-                //updateBuildingNeighbors(buildingData, 2, time);
-                //updateBuildingNeighbors(buildingData, 3, time);
+
+              /** ALl buildings : create a neighbors array in indexDB **/
+              const allNeighborsWithinZone = getBuildingsNamesInZone(buildingData, time, {buildingTarget: "", zones:[1,2]})
+              const allMarketsInZone = getBuildingsNamesInZone(buildingData, time, {buildingTarget: "Market-Stall", zones:[1,2]})
+              await buildingStore.updateHouseFields(currentUniqueID, {neighbors: allNeighborsWithinZone})
+              await buildingStore.updateHouseFields(currentUniqueID, {markets: allMarketsInZone})
 
                 if(buildingInfo.buildingId) {
                     infoBuildings.push(buildingInfo)
                 }
 
                 //  Remove a building from the scene if a player remove a building
-                if(!newBuildingId && currentBuildingId) {
-                    if(bulldozeSelected.classList.contains('selected') && currentBuildingId) { 
-                        const uniqueBuildingId = makeDbItemId(currentBuildingId, x, y);
-                        if(houses.includes(currentBuildingId)) {
-                            buildingStore.deleteOneHouse(uniqueBuildingId)
-                        }
+
+                if(bulldozeSelected.classList.contains('selected')) {
+                    const currentUniqueIDToDestroy = makeDbItemId(currentBuildingId, x, y);
+                    if(!newBuildingId && currentBuildingId) {
+                        buildingStore.deleteOneHouse(currentUniqueIDToDestroy)
                         scene.remove(buildings[x][y]);
                         buildings[x][y] = undefined;
                     }
                 }
 
 
+
                 if(commerce.includes(currentBuildingId)) {
-                    console.log(`$$$$$$$$$$$$$$$$$$ Market only ${currentBuildingId} *************************`)
-                    const currentMarketID = makeDbItemId(currentBuildingId, x, y);
-                    const marketTime = { name: currentMarketID, increment: 1, field: 'time' };
+                    const marketTime = { name: currentUniqueID, increment: 1, field: 'time' };
                     buildingStore.incrementHouseField(marketTime, false)
 
-                    const area = 4
-                    const allFarmCarrotInZone = getBuildingsInZone(area, { city, x, y}, 'Farm-Carrot')
-                    console.log("$$$ Farm carrots in market zone [getBuidingsInZone] ? ", allFarmCarrotInZone)
-                    const marketFood = { name: currentMarketID, increment: 1, field: 'food' };
-                    buildingStore.incrementHouseField(marketFood, false)
+                    const currentMarket = await buildingStore.getHouse(currentUniqueID);
+
+                    if(currentMarket) {
+                        console.log("[SCENE HOUSE] current market from db", currentMarket);
+                        console.log("[SCENE HOUSE] current market from db houses red - neighbors", currentMarket?.neighbors.filter(neighbor => neighbor.name === "House-Red"));
+                    }
+
+
+
+
                 }
 
                 //  only update if current building is a house
                 if(houses.includes(currentBuildingId)) {
-                    console.log(`++++++++++++++ HOUSE ONLY ${currentBuildingId} +++++++++++++++++++++++++++++++++++++++++++++++++ `)
-                    const currentHouseID = makeDbItemId(currentBuildingId, x, y);
-                    console.log('+++ [before updatehousedata] current house is a house ', currentHouseID);
 
+                    const currentHouse = await buildingStore.getHouse(currentUniqueID);
+
+                    if(currentHouse) {
+                        console.log("[SCENE HOUSE] current house from db", currentHouse);
+                    }
 
                     if(time > 0) {
-                        const HouseTime = { name: currentHouseID, increment: 1, field: 'time' };
+                        const HouseTime = { name: currentUniqueID, increment: 1, field: 'time' };
                         await buildingStore.incrementHouseField(HouseTime, false)
                     }
 
-                    const HousePop = { name: currentHouseID, increment: 1, field: 'pop' };
+                    const HousePop = { name: currentUniqueID, increment: 1, field: 'pop' };
                     await buildingStore.incrementHouseField(HousePop, {operator: '<=', limit: 2})
 
-                    const houseTime = await buildingStore.getHouseItem(currentHouseID, 'time');
-                    const houseFood = await buildingStore.getHouseItem(currentHouseID, 'food');
+                    const houseTime = await buildingStore.getHouseItem(currentUniqueID, 'time');
+                    const houseFood = await buildingStore.getHouseItem(currentUniqueID, 'food');
                     console.log('+++ current house time: ', houseTime)
                     console.log('+++ current house food: ', houseFood)
 
-                    /* Immediate neighbors */
-                    const neighborFarmFound = getBuildingNeighbors(currentBuilding, ['Farm-Carrot', 'Farm-Wheat', 'Farm-Cabbage'])
-                    const neighborMarketFound = getBuildingNeighbors(currentBuilding, ['Market-Stall'])
                     const neighborRoadFound = getBuildingNeighbors(currentBuilding, ['roads'])
-                    const AllNeighborsFromZone = zoneBordersBuildings(3, { city, x, y })
-                    console.log('all neighbors from zone at 3 : ', AllNeighborsFromZone)
-                    const allneighborsWithinZone = getBuildingsInZone(4, { city, x, y})
-
-                    console.log(`+++ All neighbors at 4 cases from ${currentBuildingId} ==> `, AllNeighborsFromZone)
-
-                    console.log(`+++ ALL HOUSE NEIGHBOR WITHIN A ZONE of 4 for ${currentHouseID} :`, allneighborsWithinZone)
-
 
                     if(neighborRoadFound) {
-                        const HouseRoad = { name: currentHouseID, increment: 1, field: 'road' };
+                        const HouseRoad = { name: currentUniqueID, increment: 1, field: 'road' };
                         await buildingStore.incrementHouseField(HouseRoad, {operator: '<=', limit: 4})
                     }
 
-                    if(allneighborsWithinZone.includes('Market-Stall')) {
-                        console.log(`market found near ${currentHouseID}`)
-                        const HouseFood = { name: currentHouseID, increment: 1, field: 'food' };
-                        await buildingStore.incrementHouseField(HouseFood, false)
-                        await buildingStore.updateHouseFields(currentHouseID, {neighbors: allneighborsWithinZone})
-                    }
-
-                    // if(houseTime === 3 && houseFood <= 0) {
-                    //     console.log('[NO FOOD] and house time beyond 3 : ', houseTime, buildings[x][y])
-                    //
-                    //     scene.remove(buildings[x][y]);
-                    //     const uniqueBuildingId = makeDbItemId(currentBuildingId, x, y);
-                    //     await buildingStore.deleteOneHouse(uniqueBuildingId)
-                    //     buildings[x][y] = createAsset('Tombstone-1', x, y);
-                    //     scene.add(buildings[x][y]);
-                    //
-                    // }
-
+                    /* house evolution to stage 2 */
                     if(houseTime > 3 && houseFood > 5 && firstHouses.includes(currentBuildingId)) {
                         scene.remove(buildings[x][y]);
-                        const uniqueBuildingId = makeDbItemId(currentBuildingId, x, y);
                         const newUniqueBuildingId = makeDbItemId('House-2Story', x, y);
                         console.log('new unique building ', newUniqueBuildingId)
                         const keys = { type : "House-2Story", price: assetsPrices["House-2Story"].price}
-                        await buildingStore.updateHouseName(uniqueBuildingId, newUniqueBuildingId, keys);
-                        await buildingStore.deleteOneHouse(uniqueBuildingId);
+                        await buildingStore.updateHouseName(currentUniqueID, newUniqueBuildingId, keys);
+                        await buildingStore.deleteOneHouse(currentUniqueID);
                         buildings[x][y] = createAsset('House-2Story', x, y);
-                        console.log('[2Story added] >> old and new', uniqueBuildingId, newUniqueBuildingId)
+                        console.log('[2Story added] >> old and new', currentUniqueID, newUniqueBuildingId)
 
                         scene.add(buildings[x][y]);
 
