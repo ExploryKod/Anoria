@@ -30,10 +30,10 @@ function loadTextures(path) {
     texture.repeat.set(1,1);
     return texture;
 }
-const root ="./";
+
 export const textures = {
-    'roads': loadTextures(`${root}resources/textures/grounds/ground_cobblestone5.png`),
-    'grass': loadTextures(`${root}resources/textures/grounds/grass_rough2.png`),
+    'roads': loadTextures(`/resources/textures/grounds/ground_cobblestone5.png`),
+    'grass': loadTextures(`/resources/textures/grounds/grass_rough2.png`),
 }
 
 export function changeMeshMaterialTexture(mesh, texture) {
