@@ -1,83 +1,35 @@
-import { defineConfig } from 'vite';
-import { VitePWA } from 'vite-plugin-pwa';
+import { defineConfig } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
+// https://vitejs.dev/config/
 export default defineConfig({
-    base: '/', // Adjust for deployment location
+  plugins: [VitePWA({
+    registerType: 'prompt',
+    injectRegister: true,
 
-    publicDir: 'public', // Default public directory
-
-    build: {
-        outDir: 'dist', // Default output directory
-        emptyOutDir: true,
-        assetsDir: 'assets',
+    pwaAssets: {
+      disabled: false,
+      config: true,
     },
 
-    plugins: [
-        VitePWA({
-            registerType: 'autoUpdate',
-            manifest: {
-                name: 'My Vite PWA',
-                short_name: 'VitePWA',
-                description: 'A Progressive Web App built with Vite',
-                theme_color: '#ffffff',
-                background_color: '#ffffff',
-                display: 'standalone',
-                start_url: './', // Adjusted for relative paths
-                icons: [
-                    {
-                        src: './icons/icon-192x192.png',
-                        sizes: '192x192',
-                        type: 'image/png',
-                    },
-                    {
-                        src: './icons/icon-512x512.png',
-                        sizes: '512x512',
-                        type: 'image/png',
-                    },
-                ],
-            },
-            workbox: {
-                runtimeCaching: [
-                    {
-                        urlPattern: /.*\.(?:png|jpg|jpeg|svg|gif|webp|ico)/,
-                        handler: 'CacheFirst',
-                        options: {
-                            cacheName: 'image-cache',
-                            expiration: {
-                                maxEntries: 50,
-                                maxAgeSeconds: 30 * 24 * 60 * 60,
-                            },
-                        },
-                    },
-                    {
-                        urlPattern: /.*\.(?:glb|gltf)/,
-                        handler: 'CacheFirst',
-                        options: {
-                            cacheName: 'model-cache',
-                            expiration: {
-                                maxEntries: 50,
-                                maxAgeSeconds: 30 * 24 * 60 * 60,
-                            },
-                        },
-                    },
-                    {
-                        urlPattern: /.*\.(?:js|css|html|json)/,
-                        handler: 'StaleWhileRevalidate',
-                        options: {
-                            cacheName: 'static-cache',
-                            expiration: {
-                                maxEntries: 100,
-                                maxAgeSeconds: 30 * 24 * 60 * 60,
-                            },
-                        },
-                    },
-                ],
-            },
-        }),
-    ],
-
-    server: {
-        open: true,
-        port: 5558,
+    manifest: {
+      name: 'anoria',
+      short_name: 'anoria',
+      description: 'A 3D game with thee js',
+      theme_color: '#ffffff',
     },
-});
+
+    workbox: {
+      globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+      cleanupOutdatedCaches: true,
+      clientsClaim: true,
+    },
+
+    devOptions: {
+      enabled: true,
+      navigateFallback: 'index.html',
+      suppressWarnings: true,
+      type: 'module',
+    },
+  })],
+})

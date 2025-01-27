@@ -14,9 +14,18 @@ node_modules
 dist
 out
 dist-ssr
+dev-dist
 *.local
 models
 
+/public/ios
+/public/windows11
+/public/resources/lowpoly
+/public/resources/textures
+!/public/resources/lowpoly/village_town_assets_v2.glb
+!/public/resources/textures/grounds/ground_cobblestone5.png
+!/public/resources/textures/grounds/grass_rough2.png
+!/public/resources/textures/skies/plain_sky.jpg
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
