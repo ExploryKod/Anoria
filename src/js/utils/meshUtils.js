@@ -16,14 +16,13 @@ const types = [
 ]
 
 /**
-* Changes the emissive color of a building when it is hovered over.
-* If the building is already hovered, its color will be reset to the default color. 
-* The function also ensures that the original emissive color is stored and restored when needed.
-* 
-* @param {Array} intersections - The array of intersections from raycasting, containing the objects intersected by the ray at intersection[0].object.
-* @param {number} [color=0xff0000] - The color to set the emissive color to when the object is hovered. Defaults to red (`0xff0000`).
-* @param {number} [defaultColor=0x000000] - The default color to reset to if no object is hovered or when resetting the color. Defaults to black (`0x000000`).
-*/
+ * Changes the emissive color of a building when it is hovered over.
+ * If the building is already hovered, its color will be reset to the default color.
+ * The function also ensures that the original emissive color is stored and restored when needed.
+ *
+ * @param {Array} intersections - The array of intersections from raycasting, containing the objects intersected by the ray at intersection[0].object.
+ * @param data
+ */
 export function coloredAbuildingOnHover(intersections, data={color: 0xff0000, defaultColor : 0x000000, areaKey:'area_1'}) {
 
    const areaKey = data.areaKey
@@ -142,10 +141,8 @@ export function coloredAbuildingOnHover(intersections, data={color: 0xff0000, de
            } else {
               console.warn("Hover object is not a building")
               hoveredObject = null; 
-              return
+              return;
            }
-
-           
        }
    } else {
        // Reset the emissive color if no object is hovered
@@ -184,7 +181,11 @@ export function coloredAbuildingOnHover(intersections, data={color: 0xff0000, de
 
 
 
-function setColorOnMaterialArray(object3D, color, instance) {
+/**
+ * @param {T} object3D
+ * @param {*} color
+ */
+function setColorOnMaterialArray(object3D, color) {
         // Reset the emissive color of the previously hovered object
         if (object3D && Array.isArray(object3D.material)) {
             // Iterate over the array of MeshLambertMaterial objects
@@ -249,10 +250,9 @@ function setPropertiesOnMaterialArray(object3D, properties, instance = THREE.Mes
  * Changes the emissive color of a zone when it is hovered over.
  * If the zone is already hovered, its color will be reset to the default color.
  * The function ensures that the original emissive color is stored and restored when needed.
- * 
+ *
  * @param {Array} intersections - The array of intersections from raycasting, containing the objects intersected by the ray.
  * @param {number} [color=0x3333CC] - The color to set the emissive color to when the object is hovered. Defaults to red (`0xff0000`).
- * @param {number} [defaultColor=0x000000] - The default color to reset to if no object is hovered or when resetting the color. Defaults to black (`0x000000`).
  */
 export function coloredAZoneOnHover(intersections, color = 0x3333CC) {
    neighborsHoveredObjects
@@ -320,12 +320,12 @@ export function coloredAZoneOnHover(intersections, color = 0x3333CC) {
     }
 }
 
-/** 
+/**
  * Set and get a color value of a selected three js object3D
  * @param {THREE.Object3D} selectedObject - The selected object3D to set the color
- * @param {Number} - optional hex value to set a color
+ * @param hexValue
  * @returns {object : THREE.Object3D, hex: String, hsl : String, rgb : String, color: String, colors: Array<string>}
-*/
+ */
 export function handleColorOnSelectedObject(selectedObject, hexValue=0xff0000) {
 
     if(!selectedObject) {
