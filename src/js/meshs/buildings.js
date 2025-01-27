@@ -4,8 +4,8 @@ import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
-const fbxLoader = new FBXLoader();
-const plyLoader = new PLYLoader();
+// const fbxLoader = new FBXLoader();
+// const plyLoader = new PLYLoader();
 const playerLoader = new GLTFLoader();
 
 const avatarPath = './resources/monster.glb'
@@ -14,24 +14,12 @@ const playerData = {
     size: 0.8
 }
 
-
-
-let mixer;
 const toolIds = {
     zones: ['grass', 'roads'],
     houses: ['House-Blue', 'House-Red', 'House-Purple', 'House-2Story'],
     tombs:  ['Tombstone-1', 'Tombstone-2', 'Tombstone-3'],
     farms: ['Farm-Wheat', 'Farm-Carrot', 'Farm-Cabbage', 'Windmill-001'],
     markets: ['Market-Stall'],
-    nature : []
-}
-
-export const toolPrices = {
-    zones: [{'grass' : 0}, {'roads': 5}],
-    houses: [{'House-Blue': 10}, {'House-Red': 10}, {'House-Purple': 10}, {'House-2Story': 20}],
-    tombs:  [{'Tombstone-1': 2}, {'Tombstone-2': 4}, {'Tombstone-3': 8}],
-    farms: [{'Farm-Wheat': 15}, {'Farm-Carrot': 20}, {'Farm-Cabbage': 20}],
-    markets: [{'Market-Stall': 10}],
     nature : []
 }
 
@@ -79,7 +67,6 @@ const tombstonesNames = [];
 const farmsNames = [];
 const farmsModelsObj = {};
 
-const marketsNames = [];
 const marketsModelsObj = {};
 
 const playerModelObj = {};
@@ -232,11 +219,6 @@ playerLoader.load(
         console.error('player error', error);
     }
 );
-
-console.log('buildingjs - tool ids', toolIds)
-console.log('buildingjs - all assets names', allAssetsNames);
-console.log('buildingjs - button datas in building', buttonData);
-// console.log('player > >> ', playerModelObj)
 
 export {
     toolIds,

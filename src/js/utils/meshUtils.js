@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { textures } from './asset.js';
+import { textures } from '../meshs/asset.js';
 
 let hoveredObject = null;
 let neighborsHoveredObjects = [];

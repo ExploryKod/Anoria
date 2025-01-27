@@ -31,4 +31,30 @@ export const bigHouses = ['House-2Story'];
 export const farms = ['Farm-Wheat', 'Farm-Carrot', 'Farm-Cabbage'];
 export const commerce = ['Market-Stall'];
 
+// index.html
+export const panelLayout = document.getElementById('panel-layout')
+export const panelLayoutInner = document.getElementById('panel-inner')
+export let selectedControl = document.getElementById('bulldoze-btn');
+export const loaderButton = document.getElementById('loader');
 
+export const toolBarButtons = document.querySelectorAll('.toolbar-btn');
+
+export const fasterButton = document.getElementById('faster-btn');
+export const slowerButton = document.getElementById('slower-btn');
+
+export const roadButton = document.getElementById('roads-btn');
+export const bullDozeButton = document.getElementById('bulldoze-btn');
+export const selectButton = document.getElementById('select-btn');
+export const playerButton = document.getElementById('player-btn');
+export const housesButton = document.getElementById('residential-btn');
+export const farmsButton = document.getElementById('farm-btn');
+export const marketButton = document.getElementById('market-btn');
+export const othersButton = document.getElementById('others-btn');
+
+export const panelLayoutCloseBtn = document.querySelector('.panel-layout .panel-close-btn')
+
+export const pauseOverlay = document.querySelector('#pause-overlay');
+
+export const pauseButton = document.getElementById('pause-btn');
+export const playButton = document.getElementById('play-btn');
+export const replayButton = document.getElementById('play-again-btn');

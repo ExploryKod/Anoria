@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import {  assetsPrices } from './buildings.js';
-import { initAnoriaDb, createHouseStore, createGameStore, getStores } from './store.js';
+import {  assetsPrices } from '../meshs/buildings.js';
+import { initAnoriaDb, createHouseStore, createGameStore, getStores } from '../stores/store.js';
 import { createScene } from './scene.js';
-import { createCity } from './city.js'; 
-import {getAssetPrice, makeDbItemId, makeInfoBuildingText} from './utils.js';
-import { handleColorOnSelectedObject } from './meshUtils.js';
+import { createCity } from './city.js';
+import {getAssetPrice, makeDbItemId, makeInfoBuildingText} from '../utils/utils.js';
+import { handleColorOnSelectedObject } from '../utils/meshUtils.js';
 import {
     displayTime,
     overOverlay,
@@ -16,7 +16,7 @@ import {
     infoPanelClockIcon,
     infoPanelNoClockIcon,
     displaySpeed
-} from './ui.js';
+} from '../ui/ui.js';
 
 
 /* IndexDB initialization using store.js async functions */
