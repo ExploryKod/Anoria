@@ -1,8 +1,5 @@
-import './style.css'
-import './styles/main.css'
-import './styles/btn.css'
 import { initPWA } from './pwa.js'
 
-const app = document.querySelector('#root-window')
+const app = document.querySelector('#game-window')
 
 initPWA(app)
