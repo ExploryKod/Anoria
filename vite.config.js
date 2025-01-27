@@ -2,21 +2,19 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-    base: '/', // Base URL for your app (adjust for GitHub Pages if needed)
+    base: '/', // Adjust for deployment location
 
-    root: './src', // Root directory for the project
-
-    publicDir: '../public', // Directory for static files
+    publicDir: 'public', // Default public directory
 
     build: {
-        outDir: '../dist', // Output directory for production build (at the root level)
-        emptyOutDir: true, // Clean the output directory before building
-        assetsDir: 'assets', // Directory for built assets inside the output folder
+        outDir: 'dist', // Default output directory
+        emptyOutDir: true,
+        assetsDir: 'assets',
     },
 
     plugins: [
         VitePWA({
-            registerType: 'autoUpdate', // Automatically update the service worker
+            registerType: 'autoUpdate',
             manifest: {
                 name: 'My Vite PWA',
                 short_name: 'VitePWA',
@@ -24,15 +22,15 @@ export default defineConfig({
                 theme_color: '#ffffff',
                 background_color: '#ffffff',
                 display: 'standalone',
-                start_url: '/',
+                start_url: './', // Adjusted for relative paths
                 icons: [
                     {
-                        src: '/icons/icon-192x192.png',
+                        src: './icons/icon-192x192.png',
                         sizes: '192x192',
                         type: 'image/png',
                     },
                     {
-                        src: '/icons/icon-512x512.png',
+                        src: './icons/icon-512x512.png',
                         sizes: '512x512',
                         type: 'image/png',
                     },
@@ -40,39 +38,36 @@ export default defineConfig({
             },
             workbox: {
                 runtimeCaching: [
-                    // Cache image files (including textures)
                     {
-                        urlPattern: /.*\.(?:png|jpg|jpeg|svg|gif|webp|ico)/, // Match texture file extensions
+                        urlPattern: /.*\.(?:png|jpg|jpeg|svg|gif|webp|ico)/,
                         handler: 'CacheFirst',
                         options: {
                             cacheName: 'image-cache',
                             expiration: {
                                 maxEntries: 50,
-                                maxAgeSeconds: 30 * 24 * 60 * 60, // Cache for 30 days
+                                maxAgeSeconds: 30 * 24 * 60 * 60,
                             },
                         },
                     },
-                    // Cache .glb files (low-poly models)
                     {
-                        urlPattern: /.*\.(?:glb|gltf)/, // Match .glb and .gltf file extensions
+                        urlPattern: /.*\.(?:glb|gltf)/,
                         handler: 'CacheFirst',
                         options: {
                             cacheName: 'model-cache',
                             expiration: {
                                 maxEntries: 50,
-                                maxAgeSeconds: 30 * 24 * 60 * 60, // Cache for 30 days
+                                maxAgeSeconds: 30 * 24 * 60 * 60,
                             },
                         },
                     },
-                    // Cache other static assets like JS, CSS, HTML
                     {
-                        urlPattern: /.*\.(?:js|css|html|json|woff|woff2|ttf|otf)/, // Static assets
+                        urlPattern: /.*\.(?:js|css|html|json)/,
                         handler: 'StaleWhileRevalidate',
                         options: {
                             cacheName: 'static-cache',
                             expiration: {
                                 maxEntries: 100,
-                                maxAgeSeconds: 30 * 24 * 60 * 60, // Cache for 30 days
+                                maxAgeSeconds: 30 * 24 * 60 * 60,
                             },
                         },
                     },
@@ -82,7 +77,7 @@ export default defineConfig({
     ],
 
     server: {
-        open: true, // Automatically open the app in the browser
-        port: 3000, // Local development server port
+        open: true,
+        port: 5558,
     },
 });
