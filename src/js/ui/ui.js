@@ -34,7 +34,7 @@ export const commerce = ['Market-Stall'];
 // index.html
 export const panelLayout = document.getElementById('panel-layout')
 export const panelLayoutInner = document.getElementById('panel-inner')
-export let selectedControl = document.getElementById('bulldoze-btn');
+
 export const loaderButton = document.getElementById('loader');
 
 export const toolBarButtons = document.querySelectorAll('.toolbar-btn');

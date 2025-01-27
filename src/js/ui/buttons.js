@@ -18,14 +18,13 @@ import {
     replayButton,
     roadButton,
     selectButton,
-    selectedControl,
     slowerButton,
     toolBarButtons
 } from "./ui.js";
 import {createGame} from '../game/game.js';
 import {buttonData, toolIds} from '../meshs/buildings.js';
 
-
+let selectedControl = document.getElementById('bulldoze-btn');
 updateSpeedDisplay();
 
 infoObjectCloseBtn.addEventListener('click', () => {
@@ -153,10 +152,6 @@ function closeModal() {
 }
 
 function toggleModal(e) {
-    console.log('we click on modal button')
-    console.log('button data on arrival', buttonData);
-    console.log('tool id on arrival', toolIds);
-
     switch(e.target.dataset.group) {
         case 'residential':
             getButtonsUnactive()
@@ -236,7 +231,7 @@ function createHousesButtons(buttonData) {
 function createMarketsStallsButtons(buttonData) {
     panelLayoutInner.innerHTML = ''
     const marketsToolIDs = toolIds.markets || [];
-    console.log('MARKET TOOL IDS', marketsToolIDs);
+
     const svgCloth =  `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shirt">
                     <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>
                     </svg>`
@@ -254,7 +249,7 @@ function createMarketsStallsButtons(buttonData) {
 function createFarmsButtons(buttonData) {
     panelLayoutInner.innerHTML = ''
     const farmToolIDs = toolIds.farms || [];
-    console.log(farmToolIDs);
+
     const svgCarrot = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-carrot">
                         <path d="M2.27 21.7s9.87-3.5 12.73-6.36a4.5 4.5 0 0 0-6.36-6.37C5.77 11.84 2.27 21.7 2.27 21.7zM8.64 14l-2.05-2.04M15.34 15l-2.46-2.46"/><path d="M22 9s-1.33-2-3.5-2C16.86 7 15 9 15 9s1.33 2 3.5 2S22 9 22 9z"/>
                         <path d="M15 2s-2 1.33-2 3.5S15 9 15 9s2-1.84 2-3.5C17 3.33 15 2 15 2z"/>
@@ -292,7 +287,6 @@ function createFarmsButtons(buttonData) {
 function createOthersButtons(buttonData) {
     panelLayoutInner.innerHTML = ''
     const tombToolIDs = toolIds.tombs || [];
-    console.log(tombToolIDs);
 
     function makeTumbSVG(color) {
         return `<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -305,8 +299,6 @@ function createOthersButtons(buttonData) {
     buttonData.filter(buttonInfo => tombToolIDs.includes(buttonInfo.tool)).forEach((buttonInfo, index) => {
         if (!buttonsDuplicate.includes(buttonInfo.tool)) {
             buttonsDuplicate.push(buttonInfo.tool);
-            console.log(buttonInfo)
-            console.log('button index: ', index)
             makeNewButton(buttonInfo, makeTumbSVG(tumbColors[0][buttonInfo.tool]));
         }
     });
@@ -334,7 +326,6 @@ function makeNewButton(buttonInfo, svg="") {
 }
 
 window.setActiveTool = (e) => {
-    console.log('tool id', e.target.dataset.toolid)
     getButtonsUnactive(e)
     if(e.target.classList.contains('panel-btn')) {
         getButtonsDisabled()
