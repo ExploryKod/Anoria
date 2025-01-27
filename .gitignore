@@ -15,6 +15,7 @@ dist
 out
 dist-ssr
 dev-dist
+/dev-dist
 *.local
 models
 
