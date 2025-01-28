@@ -3,10 +3,12 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  build: {
-    outDir: 'dist',
-    assetsDir: './assets',
+  base: './', // Use relative paths for assets
 
+  build: {
+    outDir: 'dist', // Default output directory
+    emptyOutDir: true,
+    assetsDir: 'assets', // Directory for built assets
   },
 
   plugins: [VitePWA({
