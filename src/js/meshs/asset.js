@@ -158,7 +158,7 @@ function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false)
     object3D.scale.set(size,size,size);
     object3D.rotation.set(THREE.MathUtils.degToRad(90), THREE.MathUtils.degToRad(180), THREE.MathUtils.degToRad(180));
     object3D.userData = {
-        id:  meshName,
+        id:  meshName + '-' + placerPos.x + '-' + placerPos.y,
         name: meshName + '-' + placerPos.x + '-' + placerPos.y,
         type: meshName,
         neighbors: [],

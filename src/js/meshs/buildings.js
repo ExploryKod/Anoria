@@ -114,7 +114,7 @@ gltfloader.load(
             // console.log(child);
             if (child instanceof THREE.Mesh) {
                 // Market Stall Red.002_Material.005_0
-                assetFullName = child.userData.name
+                assetFullName = child.name
                 console.log("[BUILDING] asset full name", assetFullName)
                 assetFullName = assetFullName.replace(/[._\s]/g, '_');
                 const firstNamePart = assetFullName.split('_')[0]

@@ -66,14 +66,10 @@ function getBuildingZonesNeighbors(data, area=1) {
 
 /**
  * Updates the neighbor data for a building in the city grid.
- * @param {Object} params - Parameters for updating the building neighbors.
- * @param {Object} params.city - The city object containing tiles and their respective buildings.
- * @param {Array<Array<Object>>} params.city.tiles - The grid of city tiles.
- * @param {Object} params.buildings - The grid of buildings corresponding to the city tiles.
- * @param {number} params.x - The x-coordinate of the current building in the grid.
- * @param {number} params.y - The y-coordinate of the current building in the grid.
- * @param {string} params.currentBuildingId - The ID of the current building.
  * @returns {void}
+ * @param buildingData
+ * @param area
+ * @param time
  */
 export function updateBuildingNeighbors(buildingData, area=1, time=0) {
 
@@ -257,7 +253,7 @@ export const IsInZoneLimits = (zoneLimit, city) => {
 export const zoneBordersBuildings = (buildingData, time=0) => {
 
     const { buildings, x, y, currentBuildingId } = buildingData;
-    const theCurrentBuilding = currentBuildingId + '-' + x + '-' + y
+    const theCurrentBuilding = currentBuildingId
 
     if (x == null || y == null) {
         console.warn('[zoneBordersBuildings] y and x coordinates have wrong values');
@@ -290,7 +286,7 @@ export const zoneBordersBuildings = (buildingData, time=0) => {
                     // Calculate the zone based on the maximum delta of x or z
                     const zone = Math.max(deltaX, deltaZ);
                     let neighborData = {
-                        building: theCurrentBuilding,
+                        building: theCurrentBuilding + '-' + mesh.position.x + '-' + mesh.position.z,
                         time: time,
                         name: mesh.name,
                         id : mesh.name + '-' + mesh.position.x + '-' + mesh.position.z,
@@ -367,28 +363,6 @@ export function getBuildingNeighbors(building, neighbors=[]) {
 }
 
 /**
- * create a suitable object to store as the database primary key or IndexDB unique keypath
- * @param {String} currentBuildingId - The game name of building id
- * @param {number} x - The x-coordinate of the current building in the grid.
- * @param {number} y - The y-coordinate of the current building in the grid.
- * @return {String} - The formatted unique key for indexDB or another database as buildingId-x-y
- */
-export function makeDbItemId(currentBuildingId, x, y) {
-
-    if(!currentBuildingId) {
-        console.warn('there is no current building suitable id', currentBuildingId);
-        return false;
-    }
-
-    if(x && y && currentBuildingId.length > 0) {
-        return currentBuildingId + '-' + x + '-' + y;
-    } else {
-        console.warn('there is no current building suitable id or x/y suitable coordinates')
-        return false
-    }
-}
-
-/*
  * Function to create a building info text
  * @param {String} textContent - The text content to be displayed in the info building
  * @param {Boolean} isHTMLReset - Whether to reset the current info building text or not

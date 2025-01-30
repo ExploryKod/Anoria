@@ -4,7 +4,7 @@ import {createAsset} from '../meshs/asset.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {fetchPlayer, freePromises, playerMesh} from "../meshs/fetchPlayer.js";
 import {applyHoverColor, resetHoveredObject, resetObjectColor} from '../utils/meshUtils.js';
-import {getBuildingNeighbors, getBuildingsNamesInZone, makeDbItemId, updateBuildingNeighbors, updateBuilding} from "../utils/utils.js";
+import {getBuildingNeighbors, getBuildingsNamesInZone, updateBuildingNeighbors, updateBuilding} from "../utils/utils.js";
 import {
     bulldozeSelected,
     commerce,
@@ -108,13 +108,6 @@ export function createScene(buildingStore, gameStore, allStores) {
 
             let debts = await gameStore.getLatestGameItemByField('debt') || 0;
             totalImmoExpenses = await buildingStore.getGlobalBuildingPrices() || 0
-            const allhousesPrices = await buildingStore.getEachBuildingsExpenses();
-            const stores = await allStores.listAllFromStores()
-            console.log(`[SCENE PRICE] debt on turn ${time} :`, debts)
-            console.log("[SCENE PRICE] total immo expenses is ", totalImmoExpenses)
-            console.log("[SCENE PRICE] all houses prices are", allhousesPrices)
-
-            console.log("[SCENE STORES] all stores are", stores)
 
             const infoGameplay = {
                 name: time === 0 ? 'gameplay_init' : gamePlayVersion,
@@ -139,7 +132,6 @@ export function createScene(buildingStore, gameStore, allStores) {
                 funds: funds ? funds : 300
             }
 
-            console.log("[SCENE] latest game items", infoGameplay || "no game items found");
             await gameStore.clearGameItems();
             await gameStore.addGameItems(infoGameplay);
 
@@ -149,15 +141,13 @@ export function createScene(buildingStore, gameStore, allStores) {
         for(let x = 0; x < city.size; x++) {
             for(let y = 0; y < city.size; y++) {
                 // console.log(`the city at y ${y}- x ${x} : >>`, city)
-              let currentBuildingId = buildings[x][y]?.userData?.id;
+              let currentBuildingId = buildings[x][y]?.userData?.type;
               const currentBuilding = buildings[x][y];
               const newBuildingId = city.tiles[x][y].buildingId;
-              const buildingInfo =  city.tiles[x][y];
-
               const isInCityLimits = x+1 < city.size && y+1 < city.size && x-1 > 0 && y-1 > 0
 
               if(currentBuildingId && isInCityLimits) {
-                const currentUniqueID = makeDbItemId(currentBuildingId, x, y);
+                const currentUniqueID =  buildings[x][y]?.userData?.id;
                 await buildingStore.updateHouseFields(currentUniqueID, {worldTime: time})
 
                 /* update userData in indexDB === real userData state from three mesh */
@@ -184,13 +174,9 @@ export function createScene(buildingStore, gameStore, allStores) {
               await buildingStore.updateHouseFields(currentUniqueID, {neighbors: allNeighborsWithinZone})
               await buildingStore.updateHouseFields(currentUniqueID, {markets: allMarketsInZone})
 
-                if(buildingInfo.buildingId) {
-                    infoBuildings.push(buildingInfo)
-                }
-
                 //  Remove a building from the scene if a player remove a building
                 if(bulldozeSelected.classList.contains('selected')) {
-                    const currentUniqueIDToDestroy = makeDbItemId(currentBuildingId, x, y);
+                    const currentUniqueIDToDestroy = currentBuildingId
                     if(!newBuildingId && currentBuildingId) {
                         buildingStore.deleteOneHouse(currentUniqueIDToDestroy)
                         scene.remove(buildings[x][y]);
@@ -213,6 +199,13 @@ export function createScene(buildingStore, gameStore, allStores) {
                     const marketTime = { name: currentUniqueID, increment: 1, field: 'time' };
                     await buildingStore.incrementHouseField(marketTime, false)
 
+                    /**
+                     * Update market stocks of food in userData and in DB
+                     * @param buildings
+                     * @param buildingStore
+                     * @param datas
+                     * @returns {Promise<void>}
+                     */
                     async function updateMarketStocks(buildings, buildingStore, datas = [{key: "", number: 0, decrease: false}]) {
 
                         if(!buildings) {
@@ -230,7 +223,7 @@ export function createScene(buildingStore, gameStore, allStores) {
                             return;
                         }
 
-
+                        // Update userData food
                         datas.filter(data => !data.decrease).forEach((data) => {
                             buildings[x][y].userData.stocks[data.key] += data.number
                         })
@@ -239,7 +232,7 @@ export function createScene(buildingStore, gameStore, allStores) {
                             buildings[x][y].userData.stocks[data.key] -= data.number
                         })
 
-                        // turn by turn values from userData need to be mirrored in indexDB
+                        // turn by turn values from userData need to be mirrored in indexDB using userData
                         const commerceUserData = {
                             stocks:
                                 {
@@ -264,36 +257,64 @@ export function createScene(buildingStore, gameStore, allStores) {
                         farmsNearBy =  currentMarket?.neighbors.filter(neighbor => neighbor.name.includes("Farms"))
                         marketHouses = currentMarket?.neighbors.filter(neighbor => neighbor.name.includes("House"))
 
+                        let carrotMarketStocks = 0;
+                        let cabbageMarketStocks = 0;
+                        let wheatMarketStocks = 0;
+
                         if(farmsNearBy.length > 0) {
+
+                            farmsNearBy.forEach(farm => {
+                                if(farm.name.includes("Farms-Wheat")) {
+                                    wheatMarketStocks++;
+                                    console.log(`[SCENE HOUSE] Wheat added to market stocks ${currentBuildingId} by ${farm.name}: `, wheatMarketStocks);
+                                }
+                                if(farm.name.includes("Farms-Carrot")) {
+                                    carrotMarketStocks++;
+                                    console.log(`[SCENE HOUSE] Carrot added to market stocks ${currentBuildingId} by ${farm.name}: `, carrotMarketStocks);
+                                }
+                                if(farm.name.includes("Farms-Cabbage")) {
+                                    cabbageMarketStocks++;
+                                    console.log(`[SCENE HOUSE] Cabbage added to market stocks ${currentBuildingId} by ${farm.name}: `, cabbageMarketStocks);
+                                }
+                            })
+
                             const datas = [
-                                {key: 'cabbage', number: 1, decrease: false},
-                                {key: 'carrot', number: 1, decrease: false},
-                                {key: 'wheat', number: 1, decrease: false},
+                                {key: 'cabbage', number:  carrotMarketStocks, decrease: false},
+                                {key: 'carrot', number:  cabbageMarketStocks, decrease: false},
+                                {key: 'wheat', number: wheatMarketStocks, decrease: false},
                                 {key: 'food', number: 3, decrease: false}
                             ]
                             await updateMarketStocks(buildings, buildingStore, datas);
                         }
 
-                        console.log("userdata market stocks", buildings[x][y].userData.stocks);
+                        console.log("userdata market stocks before distribution", buildings[x][y].userData.stocks);
                         /* Distribute food to house around */
+                        let carrotHousesStocks = 0;
+                        let cabbageHousesStocks = 0;
+                        let wheatHousesStocks = 0;
+                        let wheatByHouse = 1;
+                        let carrotByHouse = 1;
+                        let cabbageByHouse = 1;
                         for (const house of marketHouses) {
-
-                            console.log("[scene] [market] [house] ", house, buildings[house.x][house.y])
                             //await buildingStore.updateHouseFields(house.id, {stocks: { food: 1, carrot: 1, cabbage: 0, wheat: 0}})
                             const buildingsUserData = buildings[house.x][house.y].userData
-                            buildings[house.x][house.y].userData = {...buildingsUserData, stocks: {food: 2, carrot: 2, cabbage: 0, wheat: 0}};
-                            const datas = [
-                                {key: 'cabbage', number: 1, decrease: true},
-                                {key: 'carrot', number: 1, decrease: true},
-                                {key: 'wheat', number: 1, decrease: true},
-                                {key: 'food', number: 3, decrease: true}
-                            ]
-                            await updateMarketStocks(buildings, buildingStore, datas);
-
-                            console.log("[scene] [market] [house] userData", buildingsUserData)
-                            console.log("[scene] [market] [house] userData new", buildings[house.x][house.y].userData)
+                            console.log(`[scene] [market] [house] ${buildings[house.x][house.y].name} food userData before distribution`, buildings[house.x][house.y].userData.stocks)
+                            buildings[house.x][house.y].userData = {...buildingsUserData, stocks: {food: 0, carrot: carrotByHouse, cabbage: cabbageByHouse, wheat: wheatByHouse}};
+                            carrotHousesStocks += carrotByHouse;
+                            cabbageHousesStocks += cabbageByHouse;
+                            wheatHousesStocks += wheatByHouse;
+                            console.log(`[scene] [market] [house] ${buildings[house.x][house.y].name} food userData after distribution`, buildings[house.x][house.y].userData.stocks)
                         }
-                        buildings[x][y].userData.stocks = {food: 0 , carrot: 0, cabbage: 0, wheat: 0};
+                        const foodHousesStocks = cabbageHousesStocks + carrotHousesStocks + wheatHousesStocks;
+                        const datas = [
+                            {key: 'cabbage', number: cabbageHousesStocks, decrease: true},
+                            {key: 'carrot', number: carrotHousesStocks, decrease: true},
+                            {key: 'wheat', number: wheatHousesStocks, decrease: true},
+                            {key: 'food', number: foodHousesStocks, decrease: true}
+                        ]
+                        await updateMarketStocks(buildings, buildingStore, datas);
+                        //buildings[x][y].userData.stocks = {food: 0 , carrot: carrotStocks, cabbage: cabbageStocks, wheat: 0};
+                        console.log(`userdata market stocks after distribution on turn ${time} to houses from zone`, buildings[x][y].userData.stocks);
                     }
                 }
 
@@ -359,10 +380,9 @@ export function createScene(buildingStore, gameStore, allStores) {
                   // if data model has changed as user add a new building, update the mesh 
             if(newBuildingId && (newBuildingId !== currentBuildingId)) {
                 //remove the initial building if needed
-                const currentBuildingIdDb = makeDbItemId(currentBuildingId, x, y);
                 let isExistingBuilding;
-                if(currentBuildingIdDb) {
-                    isExistingBuilding = buildingStore.getHouse(currentBuildingIdDb);
+                if(currentBuildingId) {
+                    isExistingBuilding = buildingStore.getHouse(currentBuildingId);
                 }
 
                 console.log(`Building is existing`, isExistingBuilding)
