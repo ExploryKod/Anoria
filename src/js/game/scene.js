@@ -4,7 +4,7 @@ import {createAsset} from '../meshs/asset.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {fetchPlayer, freePromises, playerMesh} from "../meshs/fetchPlayer.js";
 import {applyHoverColor, resetHoveredObject, resetObjectColor} from '../utils/meshUtils.js';
-import {getBuildingNeighbors, getBuildingsNamesInZone, updateBuildingNeighbors, updateBuilding} from "../utils/utils.js";
+import {getBuildingNeighbors, makeDbItemId, getBuildingsNamesInZone, updateBuildingNeighbors, updateBuilding} from "../utils/utils.js";
 import {
     bulldozeSelected,
     commerce,
@@ -144,10 +144,12 @@ export function createScene(buildingStore, gameStore, allStores) {
               let currentBuildingId = buildings[x][y]?.userData?.type;
               const currentBuilding = buildings[x][y];
               const newBuildingId = city.tiles[x][y].buildingId;
+              const buildingInfo =  city.tiles[x][y];
+
               const isInCityLimits = x+1 < city.size && y+1 < city.size && x-1 > 0 && y-1 > 0
 
               if(currentBuildingId && isInCityLimits) {
-                const currentUniqueID =  buildings[x][y]?.userData?.id;
+                const currentUniqueID =  makeDbItemId(currentBuildingId, x, y)
                 await buildingStore.updateHouseFields(currentUniqueID, {worldTime: time})
 
                 /* update userData in indexDB === real userData state from three mesh */
@@ -168,17 +170,17 @@ export function createScene(buildingStore, gameStore, allStores) {
 
                 updateBuildingNeighbors(buildingData, 1, time);
 
-              /** ALl buildings : create a neighbors array in indexDB **/
-              const allNeighborsWithinZone = getBuildingsNamesInZone(buildingData, time, {buildingTarget: "", zones:[1,2]})
-              const allMarketsInZone = getBuildingsNamesInZone(buildingData, time, {buildingTarget: "Market-Stall", zones:[1,2]})
-              await buildingStore.updateHouseFields(currentUniqueID, {neighbors: allNeighborsWithinZone})
-              await buildingStore.updateHouseFields(currentUniqueID, {markets: allMarketsInZone})
+                if(buildingInfo.buildingId) {
+                    infoBuildings.push(buildingInfo)
+                }
 
                 //  Remove a building from the scene if a player remove a building
-                if(bulldozeSelected.classList.contains('selected')) {
-                    const currentUniqueIDToDestroy = currentBuildingId
-                    if(!newBuildingId && currentBuildingId) {
-                        buildingStore.deleteOneHouse(currentUniqueIDToDestroy)
+                if(!newBuildingId && currentBuildingId) {
+                    if(bulldozeSelected.classList.contains('selected') && currentBuildingId) {
+                        const uniqueBuildingId = makeDbItemId(currentBuildingId, x, y);
+                        if(houses.includes(currentBuildingId)) {
+                            buildingStore.deleteOneHouse(uniqueBuildingId)
+                        }
                         scene.remove(buildings[x][y]);
                         buildings[x][y] = undefined;
                     }

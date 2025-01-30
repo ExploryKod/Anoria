@@ -3,7 +3,7 @@ import {  assetsPrices } from '../meshs/buildings.js';
 import { initAnoriaDb, createHouseStore, createGameStore, getStores } from '../stores/store.js';
 import { createScene } from './scene.js';
 import { createCity } from './city.js';
-import {getAssetPrice, makeInfoBuildingText} from '../utils/utils.js';
+import {getAssetPrice, makeDbItemId, makeInfoBuildingText} from '../utils/utils.js';
 import { handleColorOnSelectedObject } from '../utils/meshUtils.js';
 import {
     displayTime,
@@ -74,7 +74,7 @@ export function createGame() {
             if(buildingsObjects.includes(selectedObject.userData.id)) {
                 console.log('******* SELECTING A BUILDING *********', selectedObject.userData.name)
                 let isRoad = false
-                const uniqueId = selectedObject.userData.id
+                const uniqueId = makeDbItemId(selectedObject.userData.id, selectedObject.userData.x, selectedObject.userData.y)
                 const buildingPop = await buildingStore.getHouseItem(uniqueId, 'pop')
                 const buildingFood = await buildingStore.getHouseItem(uniqueId, 'food')
 
@@ -121,7 +121,6 @@ export function createGame() {
             price = getAssetPrice(tile.buildingId, assetsPrices) || 0
             let funds = await gameStore.getLatestGameItemByField('funds') || 0
             const dbHouseData = {
-                id:  houseID,
                 name: houseID,
                 type: tile.buildingId,
                 neighbors: [],

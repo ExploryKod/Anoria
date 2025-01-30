@@ -158,8 +158,7 @@ function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false)
     object3D.scale.set(size,size,size);
     object3D.rotation.set(THREE.MathUtils.degToRad(90), THREE.MathUtils.degToRad(180), THREE.MathUtils.degToRad(180));
     object3D.userData = {
-        id:  meshName + '-' + placerPos.x + '-' + placerPos.y,
-        name: meshName + '-' + placerPos.x + '-' + placerPos.y,
+        id:  meshName,
         type: meshName,
         neighbors: [],
         pop: 0,
@@ -173,8 +172,8 @@ function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false)
         cityFunds: 0,
         maintenance: 0,
         worldTime: 0,
-        x : placerPos.x,
-        y : placerPos.z,
+        x,
+        y,
     };
     return object3D
 }

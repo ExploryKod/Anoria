@@ -363,6 +363,28 @@ export function getBuildingNeighbors(building, neighbors=[]) {
 }
 
 /**
+ * create a suitable object to store as the database primary key or IndexDB unique keypath
+ * @param {String} currentBuildingId - The game name of building id
+ * @param {number} x - The x-coordinate of the current building in the grid.
+ * @param {number} y - The y-coordinate of the current building in the grid.
+ * @return {String} - The formatted unique key for indexDB or another database as buildingId-x-y
+ */
+export function makeDbItemId(currentBuildingId, x, y) {
+
+    if(!currentBuildingId) {
+        console.warn('there is no current building suitable id', currentBuildingId);
+        return false;
+    }
+
+    if(x && y && currentBuildingId.length > 0) {
+        return currentBuildingId + '-' + x + '-' + y;
+    } else {
+        console.warn('there is no current building suitable id or x/y suitable coordinates')
+        return false
+    }
+}
+
+/*
  * Function to create a building info text
  * @param {String} textContent - The text content to be displayed in the info building
  * @param {Boolean} isHTMLReset - Whether to reset the current info building text or not
