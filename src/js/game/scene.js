@@ -25,7 +25,7 @@ import {assetsPrices} from "../meshs/buildings.js";
 
 const SKY_URL = './resources/textures/skies/plain_sky.jpg';
 
-export function createScene(buildingStore, gameStore) {
+export function createScene(housesStore, gameStore) {
 
     const scene = new THREE.Scene();
     // scene.background = new THREE.Color(0x79845);
@@ -102,12 +102,12 @@ export function createScene(buildingStore, gameStore) {
 
         console.log('=================== TIME TURN ====================== ', time)
         const gamePlayVersion = 'gameplay_' + time
-        const totalPop = await buildingStore.getGlobalPopulation();
+        const totalPop = await housesStore.getGlobalPopulation();
         let totalImmoExpenses = 0;
         let funds = await gameStore.getLatestGameItemByField('funds') || 300;
 
             let debts = await gameStore.getLatestGameItemByField('debt') || 0;
-            totalImmoExpenses = await buildingStore.getGlobalBuildingPrices() || 0
+            totalImmoExpenses = await housesStore.getGlobalBuildingPrices() || 0
 
             const infoGameplay = {
                 name: time === 0 ? 'gameplay_init' : gamePlayVersion,
@@ -149,12 +149,12 @@ export function createScene(buildingStore, gameStore) {
 
               if(currentBuildingId && isInCityLimits) {
                 const currentUniqueID =  makeDbItemId(currentBuildingId, x, y)
-                await buildingStore.updateHouseFields(currentUniqueID, {worldTime: time})
+                await housesStore.updateHouseFields(currentUniqueID, {worldTime: time})
 
                 /* update userData in indexDB === real userData state from three mesh */
                 const currentUserData = buildings[x][y].userData
 
-                await buildingStore.updateHouseFields(currentUniqueID, {})
+                await housesStore.updateHouseFields(currentUniqueID, {})
 
                 console.log(`*************** CURRENT BUILDING ID (type) ${currentBuildingId} ***** UniqueId: ${currentUniqueID}********************`)
                 const buildingData = {
@@ -174,7 +174,7 @@ export function createScene(buildingStore, gameStore) {
                     if(bulldozeSelected.classList.contains('selected') && currentBuildingId) {
                         const uniqueBuildingId = makeDbItemId(currentBuildingId, x, y);
                         if(houses.includes(currentBuildingId)) {
-                            buildingStore.deleteOneHouse(uniqueBuildingId)
+                            housesStore.deleteOneHouse(uniqueBuildingId)
                         }
                         scene.remove(buildings[x][y]);
                         buildings[x][y] = undefined;
@@ -194,24 +194,24 @@ export function createScene(buildingStore, gameStore) {
                 /* Only for commerce buildings */
                 if(commerce.includes(currentBuildingId)) {
                     const marketTime = { name: currentUniqueID, increment: 1, field: 'time' };
-                    await buildingStore.incrementHouseField(marketTime, false)
+                    await housesStore.incrementHouseField(marketTime, false)
 
                     /**
                      * Update market stocks of food in userData and in DB
                      * @param buildings
-                     * @param buildingStore
+                     * @param housesStore
                      * @param datas
                      * @returns {Promise<void>}
                      */
-                    async function updateMarketStocks(buildings, buildingStore, datas = [{key: "", number: 0, decrease: false}]) {
+                    async function updateMarketStocks(buildings, housesStore, datas = [{key: "", number: 0, decrease: false}]) {
 
                         if(!buildings) {
                             console.warn("Need buildings to update markets stocks")
                             return;
                         }
 
-                        if(!buildingStore) {
-                            console.warn("Need buildingStore to update markets stocks")
+                        if(!housesStore) {
+                            console.warn("Need housesStore to update markets stocks")
                             return;
                         }
 
@@ -240,12 +240,12 @@ export function createScene(buildingStore, gameStore) {
                                 }
                         }
 
-                        await buildingStore.updateHouseFields(currentUniqueID, commerceUserData)
+                        await housesStore.updateHouseFields(currentUniqueID, commerceUserData)
                     }
 
 
 
-                    const currentMarket = await buildingStore.getHouse(currentUniqueID);
+                    const currentMarket = await housesStore.getHouse(currentUniqueID);
                     let marketHouses = [];
                     let farmsNearBy = [];
 
@@ -281,7 +281,7 @@ export function createScene(buildingStore, gameStore) {
                                 {key: 'wheat', number: wheatMarketStocks, decrease: false},
                                 {key: 'food', number: 3, decrease: false}
                             ]
-                            await updateMarketStocks(buildings, buildingStore, datas);
+                            await updateMarketStocks(buildings, housesStore, datas);
                         }
 
                         console.log("userdata market stocks before distribution", buildings[x][y].userData.stocks);
@@ -293,7 +293,7 @@ export function createScene(buildingStore, gameStore) {
                         let carrotByHouse = 1;
                         let cabbageByHouse = 1;
                         for (const house of marketHouses) {
-                            //await buildingStore.updateHouseFields(house.id, {stocks: { food: 1, carrot: 1, cabbage: 0, wheat: 0}})
+                            //await housesStore.updateHouseFields(house.id, {stocks: { food: 1, carrot: 1, cabbage: 0, wheat: 0}})
                             const buildingsUserData = buildings[house.x][house.y].userData
                             console.log(`[scene] [market] [house] ${buildings[house.x][house.y].name} food userData before distribution`, buildings[house.x][house.y].userData.stocks)
                             buildings[house.x][house.y].userData = {...buildingsUserData, stocks: {food: 0, carrot: carrotByHouse, cabbage: cabbageByHouse, wheat: wheatByHouse}};
@@ -309,7 +309,7 @@ export function createScene(buildingStore, gameStore) {
                             {key: 'wheat', number: wheatHousesStocks, decrease: true},
                             {key: 'food', number: foodHousesStocks, decrease: true}
                         ]
-                        await updateMarketStocks(buildings, buildingStore, datas);
+                        await updateMarketStocks(buildings, housesStore, datas);
                         //buildings[x][y].userData.stocks = {food: 0 , carrot: carrotStocks, cabbage: cabbageStocks, wheat: 0};
                         console.log(`userdata market stocks after distribution on turn ${time} to houses from zone`, buildings[x][y].userData.stocks);
                     }
@@ -329,8 +329,8 @@ export function createScene(buildingStore, gameStore) {
                             }
                     }
 
-                    await buildingStore.updateHouseFields(currentUniqueID, valuesFromUserData)
-                    const currentHouse = await buildingStore.getHouse(currentUniqueID);
+                    await housesStore.updateHouseFields(currentUniqueID, valuesFromUserData)
+                    const currentHouse = await housesStore.getHouse(currentUniqueID);
 
                     if(currentHouse) {
                         console.log("[SCENE HOUSE] current house from db", currentHouse);
@@ -338,24 +338,24 @@ export function createScene(buildingStore, gameStore) {
 
                     if(time > 0) {
                         const HouseTime = { name: currentUniqueID, increment: 1, field: 'time' };
-                        await buildingStore.incrementHouseField(HouseTime, false)
+                        await housesStore.incrementHouseField(HouseTime, false)
                     }
 
                     const housePop = { name: currentUniqueID, increment: 1, field: 'pop' };
-                    await buildingStore.incrementHouseField(housePop, {operator: '<=', limit: 2})
+                    await housesStore.incrementHouseField(housePop, {operator: '<=', limit: 2})
 
-                    const houseTime = await buildingStore.getHouseItem(currentUniqueID, 'time');
+                    const houseTime = await housesStore.getHouseItem(currentUniqueID, 'time');
                     console.log('+++ current house time: ', houseTime)
 
                     const neighborRoadFound = getBuildingNeighbors(currentBuilding, ['roads'])
 
                     if(neighborRoadFound) {
                         const HouseRoad = { name: currentUniqueID, increment: 1, field: 'road' };
-                        await buildingStore.incrementHouseField(HouseRoad, {operator: '<=', limit: 4})
+                        await housesStore.incrementHouseField(HouseRoad, {operator: '<=', limit: 4})
                     }
 
                     /* house evolution to stage 2 */
-                    const houseStocks = await buildingStore.getHouseItem(currentUniqueID, 'stocks')
+                    const houseStocks = await housesStore.getHouseItem(currentUniqueID, 'stocks')
                     const houseFood = houseStocks.food;
 
                     if(houseTime > 3 && houseFood > 5 && firstHouses.includes(currentBuildingId)) {
@@ -364,8 +364,8 @@ export function createScene(buildingStore, gameStore) {
                         const newUniqueBuildingId = makeDbItemId('House-2Story', x, y);
                         console.log('new unique building ', newUniqueBuildingId)
                         const keys = { type : "House-2Story", price: assetsPrices["House-2Story"].price}
-                        await buildingStore.updateHouseName(currentUniqueID, newUniqueBuildingId, keys);
-                        await buildingStore.deleteOneHouse(currentUniqueID);
+                        await housesStore.updateHouseName(currentUniqueID, newUniqueBuildingId, keys);
+                        await housesStore.deleteOneHouse(currentUniqueID);
                         buildings[x][y] = createAsset('House-2Story', x, y);
                         scene.add(buildings[x][y]);
                     }
@@ -379,7 +379,7 @@ export function createScene(buildingStore, gameStore) {
                 //remove the initial building if needed
                 let isExistingBuilding;
                 if(currentBuildingId) {
-                    isExistingBuilding = buildingStore.getHouse(currentBuildingId);
+                    isExistingBuilding = housesStore.getHouse(currentBuildingId);
                 }
 
                 console.log(`Building is existing`, isExistingBuilding)

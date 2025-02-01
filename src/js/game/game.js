@@ -16,14 +16,8 @@ import {
     infoPanelNoClockIcon,
     displaySpeed
 } from '../ui/ui.js';
-import GameStore from "../stores/gameStore.js";
-import HousesStore from "../stores/housesStore.js";
-import housesStore from "../stores/housesStore.js";
-
-
-/* IndexDB initialization using store.js async functions */
-//initAnoriaDb()
-
+import gameStore from "../stores/GameStore.js";
+import housesStore from "../stores/HousesStore.js";
 
 export function createGame() {
     let activeToolId = '';
@@ -36,7 +30,7 @@ export function createGame() {
     displayTime.textContent = time.toString() + ' jours';
 
     /* Scene initialization */
-    const scene = createScene(housesStore, GameStore);
+    const scene = createScene(housesStore, gameStore);
 
     /* City initialization */
     const city = createCity(16);
@@ -75,8 +69,7 @@ export function createGame() {
                 console.log('******* SELECTING A BUILDING *********', selectedObject.userData.name)
                 let isRoad = false
                 const uniqueId = makeDbItemId(selectedObject.userData.id, selectedObject.userData.x, selectedObject.userData.y)
-                const buildingPop = await HousesStore.getHouseItem(uniqueId, 'pop')
-                const buildingFood = await HousesStore.getHouseItem(uniqueId, 'food')
+                const buildingPop = await housesStore.getHouseItem(uniqueId, 'pop')
 
                 /* Check if neighbor */
                 let neighbors = false;
@@ -86,22 +79,6 @@ export function createGame() {
 
                 makeInfoBuildingText(`Bâtiment: ${selectedObject.userData.id} x: ${selectedObject.userData.x} y: ${selectedObject.userData.y}`, false)
                 makeInfoBuildingText(`Nombre d'habitants: ${buildingPop}`, false)
-                makeInfoBuildingText(`Nourriture: ${buildingFood} kilos d'aliments`, false)
-
-                if(neighbors) {
-                    neighbors.filter(neighbor => neighbor.buildingName !== undefined).map(neighbor => {
-                        if(neighbor.buildingName === 'roads') {
-                            isRoad = true
-                            makeInfoBuildingText(`Routes : ${isRoad ? "oui" : "non"}`, false)
-                        } else {
-                            isRoad = false
-                            makeInfoBuildingText(`Routes : ${isRoad ? "oui" : "non"}`, false)
-
-                        }
-
-                    })
-                }
-          
             }
            
             if(infoObjectOverlay.classList.contains('active')) {
@@ -119,7 +96,7 @@ export function createGame() {
             const houseID = tile.buildingId + '-' + selectedObject.userData.x + '-' + selectedObject.userData.y
 
             price = getAssetPrice(tile.buildingId, assetsPrices) || 0
-            let funds = await GameStore.getLatestGameItemByField('funds') || 0
+            let funds = await gameStore.getLatestGameItemByField('funds') || 0
             const dbHouseData = {
                 name: houseID,
                 type: tile.buildingId,
@@ -140,7 +117,7 @@ export function createGame() {
                 y : selectedObject.userData.y,
             }
 
-            await HousesStore.addHouseAndPay(dbHouseData);
+            await housesStore.addHouseAndPay(dbHouseData);
             console.log("GAME - add house and pay complete")
             await scene.update(city);
         }
