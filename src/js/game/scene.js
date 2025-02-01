@@ -161,12 +161,12 @@ export function createScene(housesStore, gameStore) {
                     terrain
                 };
 
-                updateBuildingNeighbors(buildingData, 1, time);
-                console.log(currentUserData.neighbors);
-                currentUserData.neighbors.forEach((neighbor) => {
-                    console.log(neighbor);
-                })
-
+                  updateBuildingNeighbors(buildingData, 1, time);
+                  /** ALl buildings : create a neighbors array in indexDB **/
+                  const allNeighborsWithinZone = getBuildingsNamesInZone(buildingData, time, {buildingTarget: "", zones:[1,2]})
+                  const allMarketsInZone = getBuildingsNamesInZone(buildingData, time, {buildingTarget: "Market-Stall", zones:[1,2]})
+                  await housesStore.updateHouseFields(currentUniqueID, {neighbors: allNeighborsWithinZone})
+                  await housesStore.updateHouseFields(currentUniqueID, {markets: allMarketsInZone})
 
                 //  Remove a building from the scene if a player remove a building
                 if(!newBuildingId && currentBuildingId) {
