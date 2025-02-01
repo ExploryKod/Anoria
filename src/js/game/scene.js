@@ -136,7 +136,6 @@ export function createScene(buildingStore, gameStore) {
             await gameStore.addGameItems(infoGameplay);
 
         // --- BOUCLE SUR LA VILLE ----
-        let infoBuildings = []
 
         for(let x = 0; x < city.size; x++) {
             for(let y = 0; y < city.size; y++) {
@@ -169,10 +168,6 @@ export function createScene(buildingStore, gameStore) {
                 };
 
                 updateBuildingNeighbors(buildingData, 1, time);
-
-                if(buildingInfo.buildingId) {
-                    infoBuildings.push(buildingInfo)
-                }
 
                 //  Remove a building from the scene if a player remove a building
                 if(!newBuildingId && currentBuildingId) {
