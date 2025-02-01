@@ -1,23 +1,17 @@
 import * as THREE from 'three';
 import {
     toolIds,
-    miscellaneous,
-    assetNames,
     buildingModelsObj,
     tombstonesModelsObj,
     farmsModelsObj,
     marketsModelsObj,
-    dragonModelObj,
-    assetFullName,
-    allAssetsNames,
     playerModelObj,
-    playerNames,
     playerAnimations
 } from './buildings.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { fetchPlayer, freePromises } from './fetchPlayer.js';
-let avatarPath = '/resources/monster.glb';
-const gltfLoader = new GLTFLoader();
+// import { fetchPlayer, freePromises } from './fetchPlayer.js';
+// let avatarPath = '/resources/monster.glb';
+// const gltfLoader = new GLTFLoader();
 
 // Object of anonymous functions for creating assets > assets library
 const geometry = new THREE.BoxGeometry(1,1,1);
@@ -132,7 +126,7 @@ function createCitizen(x, y, z, size, meshName, playersModels, playerAnimationsD
         mixer = new THREE.AnimationMixer(model3D);
         // Armature|mixamo.com|Layer0
 
-        console.log('ANIMATIONS PLAYER', playerAnimations)
+        //console.log('ANIMATIONS PLAYER', playerAnimations)
         let animate = THREE.AnimationClip.findByName(playerAnimations, playerAnimationsData.name);
         let idle = mixer.clipAction(animate);
         idle.play();
@@ -221,7 +215,6 @@ function createZone(x, y, buildingId='') {
             //mesh.material.emissive.setHex(0xff0000)
             mesh.castShadow = true;
             mesh.receiveShadow = true;
-            console.log('[asset] Initial mesh road ', mesh);
             break;
         case 'grass':
             roof = getRoof('grass')

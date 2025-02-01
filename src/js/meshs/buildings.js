@@ -6,13 +6,13 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 // const fbxLoader = new FBXLoader();
 // const plyLoader = new PLYLoader();
-const playerLoader = new GLTFLoader();
+// const playerLoader = new GLTFLoader();
 
-const avatarPath = './resources/monster.glb'
-const playerData = {
-    url: avatarPath,
-    size: 0.8
-}
+// const avatarPath = './resources/monster.glb'
+// const playerData = {
+//     url: avatarPath,
+//     size: 0.8
+// }
 
 const toolIds = {
     zones: ['grass', 'roads'],
@@ -115,12 +115,11 @@ gltfloader.load(
             if (child instanceof THREE.Mesh) {
                 // Market Stall Red.002_Material.005_0
                 assetFullName = child.name
-                console.log("[BUILDING] asset full name", assetFullName)
                 assetFullName = assetFullName.replace(/[._\s]/g, '_');
                 const firstNamePart = assetFullName.split('_')[0]
                 const secondNamePart = assetFullName.split('_')[1]
                 const toolName = `${firstNamePart}-${secondNamePart}`
-                console.warn("[BUILDING] tool name", toolName)
+                //console.warn("[BUILDING] tool name", toolName)
                 allAssetsNames.map((asset, index) => {
                     if (asset.houses && toolIds.houses.includes(toolName)) {
                         if (wantedHouses.includes(toolName)) {
@@ -202,23 +201,23 @@ gltfloader.load(
 );
 
 // Load a glTF resource if file with several assets
-playerLoader.load(
-    playerData.url,
-    function(gltf) {
-        const model = gltf.scene;
-        console.log('AVATAR ', model)
-
-        playerAnimations = gltf.animations;
-        const firstNamePart = 'player'
-        const secondNamePart = 'hero'
-        playerNames.push(`${firstNamePart}-${secondNamePart}`);
-        Object.assign(playerModelObj, {[`${firstNamePart}-${secondNamePart}`]: model})
-    },
-    undefined,
-    function(error) {
-        console.error('player error', error);
-    }
-);
+// playerLoader.load(
+//     playerData.url,
+//     function(gltf) {
+//         const model = gltf.scene;
+//         console.log('AVATAR ', model)
+//
+//         playerAnimations = gltf.animations;
+//         const firstNamePart = 'player'
+//         const secondNamePart = 'hero'
+//         playerNames.push(`${firstNamePart}-${secondNamePart}`);
+//         Object.assign(playerModelObj, {[`${firstNamePart}-${secondNamePart}`]: model})
+//     },
+//     undefined,
+//     function(error) {
+//         console.error('player error', error);
+//     }
+// );
 
 export {
     toolIds,
