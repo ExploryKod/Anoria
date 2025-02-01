@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import {  assetsPrices } from '../meshs/buildings.js';
-import { initAnoriaDb, createHouseStore, createGameStore, getStores } from '../stores/store.js';
 import { createScene } from './scene.js';
 import { createCity } from './city.js';
 import {getAssetPrice, makeDbItemId, makeInfoBuildingText} from '../utils/utils.js';
@@ -17,10 +16,14 @@ import {
     infoPanelNoClockIcon,
     displaySpeed
 } from '../ui/ui.js';
+import GameStore from "../stores/gameStore.js";
+import HousesStore from "../stores/housesStore.js";
+import housesStore from "../stores/housesStore.js";
 
 
 /* IndexDB initialization using store.js async functions */
-initAnoriaDb()
+//initAnoriaDb()
+
 
 export function createGame() {
     let activeToolId = '';
@@ -32,16 +35,13 @@ export function createGame() {
     localStorage.setItem("speed", "4000");
     displayTime.textContent = time.toString() + ' jours';
 
-    const buildingStore = createHouseStore();
-    const gameStore = createGameStore();
-    const allStores = getStores()
     /* Scene initialization */
-    const scene = createScene(buildingStore, gameStore, allStores);
+    const scene = createScene(housesStore, GameStore);
 
     /* City initialization */
     const city = createCity(16);
 
-    scene.initialize(city);
+    scene.initialize(city).then(r => console.log(r));
 
     // handler function to extract coordinate of an object I click on (data from asset js and using scene js methods)
     scene.onObjectSelected = async (selectedObject) => {
@@ -57,7 +57,7 @@ export function createGame() {
         if(activeToolId === 'bulldoze') {
             // remove building from that location
             tile.buildingId = undefined;
-            scene.update(city);
+            await scene.update(city);
         } else if(activeToolId === "select-object") {
             console.log(`Je sélectionne ${selectedObject.userData.id} à ${x} ${y} >> `, selectedObject.userData)
             infoObjectOverlay.classList.toggle('active');
@@ -75,8 +75,8 @@ export function createGame() {
                 console.log('******* SELECTING A BUILDING *********', selectedObject.userData.name)
                 let isRoad = false
                 const uniqueId = makeDbItemId(selectedObject.userData.id, selectedObject.userData.x, selectedObject.userData.y)
-                const buildingPop = await buildingStore.getHouseItem(uniqueId, 'pop')
-                const buildingFood = await buildingStore.getHouseItem(uniqueId, 'food')
+                const buildingPop = await HousesStore.getHouseItem(uniqueId, 'pop')
+                const buildingFood = await HousesStore.getHouseItem(uniqueId, 'food')
 
                 /* Check if neighbor */
                 let neighbors = false;
@@ -109,7 +109,7 @@ export function createGame() {
             } else {
                 window.game.play()
             }
-            scene.update(city)
+            await scene.update(city)
         } else if(!tile.buildingId) {
             // place building at that location
             tile.buildingId = activeToolId;
@@ -119,13 +119,14 @@ export function createGame() {
             const houseID = tile.buildingId + '-' + selectedObject.userData.x + '-' + selectedObject.userData.y
 
             price = getAssetPrice(tile.buildingId, assetsPrices) || 0
-            let funds = await gameStore.getLatestGameItemByField('funds') || 0
+            let funds = await GameStore.getLatestGameItemByField('funds') || 0
             const dbHouseData = {
                 name: houseID,
                 type: tile.buildingId,
                 neighbors: [],
                 pop: 0,
                 stocks : {food: 0, cabbage : 0, wheat: 0, carrot: 0},
+                gameTurn: time,
                 time: 0,
                 isBuilding: true,
                 road: 0,
@@ -139,7 +140,7 @@ export function createGame() {
                 y : selectedObject.userData.y,
             }
 
-            await buildingStore.addHouseAndPay(dbHouseData);
+            await HousesStore.addHouseAndPay(dbHouseData);
             console.log("GAME - add house and pay complete")
             await scene.update(city);
         }
