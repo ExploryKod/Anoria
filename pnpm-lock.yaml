@@ -12,6 +12,9 @@ importers:
 
   .:
     dependencies:
+      dexie:
+        specifier: ^4.0.11
+        version: 4.0.11
       three:
         specifier: ^0.162.0
         version: 0.162.0
@@ -1093,6 +1096,9 @@ packages:
   detect-libc@2.0.3:
     resolution: {integrity: sha512-bwy0MGW55bG41VqxxypOsdSdGqLwXPI/focwgTYCFMbdUiBAxLg9CFzG08sz2aqzknwiX7Hkl0bQENjg8iLByw==}
     engines: {node: '>=8'}
+
+  dexie@4.0.11:
+    resolution: {integrity: sha512-SOKO002EqlvBYYKQSew3iymBoN2EQ4BDw/3yprjh7kAfFzjBYkaMNa/pZvcA7HSWlcKSQb9XhPe3wKyQ0x4A8A==}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -3135,6 +3141,8 @@ snapshots:
   defu@6.1.4: {}
 
   detect-libc@2.0.3: {}
+
+  dexie@4.0.11: {}
 
   dunder-proto@1.0.1:
     dependencies:

@@ -25,7 +25,7 @@ import {assetsPrices} from "../meshs/buildings.js";
 
 const SKY_URL = './resources/textures/skies/plain_sky.jpg';
 
-export function createScene(buildingStore, gameStore, allStores) {
+export function createScene(buildingStore, gameStore) {
 
     const scene = new THREE.Scene();
     // scene.background = new THREE.Color(0x79845);
