@@ -79,6 +79,7 @@ export function createGame() {
 
                 makeInfoBuildingText(`Bâtiment: ${selectedObject.userData.id} x: ${selectedObject.userData.x} y: ${selectedObject.userData.y}`, false)
                 makeInfoBuildingText(`Nombre d'habitants: ${buildingPop}`, false)
+                console.log(`[House neighbors] neighbors of ${selectedObject.userData.id} ${selectedObject.userData.name}`, neighbors)
             }
            
             if(infoObjectOverlay.classList.contains('active')) {

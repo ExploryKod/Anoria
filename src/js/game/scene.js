@@ -162,6 +162,11 @@ export function createScene(housesStore, gameStore) {
                 };
 
                 updateBuildingNeighbors(buildingData, 1, time);
+                console.log(currentUserData.neighbors);
+                currentUserData.neighbors.forEach((neighbor) => {
+                    console.log(neighbor);
+                })
+
 
                 //  Remove a building from the scene if a player remove a building
                 if(!newBuildingId && currentBuildingId) {
