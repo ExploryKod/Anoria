@@ -9,13 +9,10 @@ import {
     bulldozeSelected,
     commerce,
     delayBox,
-    displayDead,
     displayDebt,
     displayDelay,
     displayDelayUI,
-    displayFood,
     displayFunds,
-    displayNeedFood,
     displayPop,
     firstHouses,
     gameWindow,
@@ -90,9 +87,6 @@ export function createScene(housesStore, gameStore) {
         }
 
         displayPop.textContent = '0'
-        displayFood.textContent = '0'
-        displayNeedFood.textContent = '0'
-        displayDead.textContent = '0'
         displayFunds.textContent = '0'
         displayDelay.textContent = '0'
         displayDebt.textContent = '0'
@@ -174,7 +168,7 @@ export function createScene(housesStore, gameStore) {
                     if(bulldozeSelected.classList.contains('selected') && currentBuildingId) {
                         const uniqueBuildingId = makeDbItemId(currentBuildingId, x, y);
                         if(houses.includes(currentBuildingId)) {
-                            housesStore.deleteOneHouse(uniqueBuildingId)
+                            await housesStore.deleteOneHouse(uniqueBuildingId)
                         }
                         scene.remove(buildings[x][y]);
                         buildings[x][y] = undefined;
@@ -443,10 +437,8 @@ export function createScene(housesStore, gameStore) {
 
             // Updating the appropriate HTML elements with the data from each item
             displayPop.textContent = population.toString();
-            displayFood.textContent = foodAvailable.toString();
             displayFunds.textContent = funds.toString();
             displayDebt.textContent = debt.toString() + " $";
-            displayDead.textContent = deads.toString();
         })
 
         console.log('=================== END TURN ====================== ', time)
