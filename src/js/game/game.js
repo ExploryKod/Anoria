@@ -163,25 +163,6 @@ export function createGame() {
             displayTime.textContent = 'play'
         },
 
-        gameOver(reason='death', data = {}, key="") {
-            overOverlayMessage.innerHTML = ""
-            const placeholder = "Des";
-            switch(reason) {
-                case 'death' :
-                    overOverlayMessage.innerHTML = `<p> ${data['deads'] ? data['deads'] : placeholder} personnes sont mortes du fait de votre incompétence!</p><p>Vous êtes viré et ruiné !</p>`
-                    break
-                case 'money' :
-                    overOverlayMessage.innerHTML = `<p>Trop de dettes!</p><p>Vous êtes viré et ruiné !</p>`
-                    break
-                case 'idle' :
-                    overOverlayMessage.innerHTML = `<p>Vous avez cru prendre des vacances au soleil ? Vous n'avez pas améner le moindre habitant ! </p><p>Vous êtes viré !</p>`
-                    break
-            }
-            overOverlay.classList.add('active')
-
-            isOver = true;
-        },
-
         replay() {
             isOver = false;
             overOverlay.classList.remove('active')
