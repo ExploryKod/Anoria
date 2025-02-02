@@ -96,7 +96,7 @@ export function createGame() {
 
             const houseID = tile.buildingId + '-' + selectedObject.userData.x + '-' + selectedObject.userData.y
             const houseNeighbors = await housesStore.getHouseItem(houseID, 'neighbors');
-            let HouseRoads  = {roads: 1};
+            let HouseRoads  = {roads: 0};
             if(houseNeighbors) {
                 HouseRoads = {roads: houseNeighbors.filter(neighbor => neighbor.name === 'roads').length};
             }
@@ -111,7 +111,7 @@ export function createGame() {
                 gameTurn: time,
                 time: 0,
                 isBuilding: true,
-                roads: 2,
+                roads:  HouseRoads.roads ?? 0,
                 stage : 0,
                 stageName: "",
                 price : price ? price : 0,

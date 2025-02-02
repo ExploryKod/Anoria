@@ -327,15 +327,20 @@ export function createScene(housesStore, gameStore) {
                 //  only update if current building is a house
                 if(houses.includes(currentBuildingId)) {
 
+
                     // turn by turn values from userData need to be mirrored in indexDB
-                    const valuesFromUserData = {
-                        stocks:
-                            {
-                            food: buildings[x][y].userData.stocks.food,
-                            carrot: buildings[x][y].userData.stocks.carrot,
-                            cabbage: buildings[x][y].userData.stocks.cabbage,
-                            wheat: buildings[x][y].userData.stocks.wheat
-                            }
+                    let valuesFromUserData = {}
+
+                    if(Object.hasOwn(buildings[x][y], 'userData') && Object.hasOwn(buildings[x][y].userData, 'stocks')) {
+                        valuesFromUserData = {
+                            stocks:
+                                {
+                                    food: buildings[x][y].userData.stocks.food,
+                                    carrot: buildings[x][y].userData.stocks.carrot,
+                                    cabbage: buildings[x][y].userData.stocks.cabbage,
+                                    wheat: buildings[x][y].userData.stocks.wheat
+                                }
+                        }
                     }
 
                     await housesStore.updateHouseFields(currentUniqueID, valuesFromUserData)
@@ -357,18 +362,23 @@ export function createScene(housesStore, gameStore) {
                     console.log('+++ current house time: ', houseTime)
 
                     const houseNeighbors = await housesStore.getHouseItem(currentUniqueID, 'neighbors');
+
                     const position = {x: 1, y: 1, z: 1}
                     const scale = {x: 1, y: 0.8, z: 1}
                     if(houseNeighbors) {
+                        const isRoad = houseNeighbors.filter(neighbor => neighbor.name === 'roads').length
                         const HouseRoads = {roads : houseNeighbors.filter(neighbor => neighbor.name === 'roads').length};
                         await housesStore.updateHouseFields(currentUniqueID, HouseRoads)
                         // Major problem here : is this apply to every house mesh ??
-                        if(HouseRoads.roads > 0) {
+                        if(isRoad > 0) {
+                            console.warn('There is one neighbor road at least for: ', buildings[x][y], HouseRoads, isRoad);
                             setStatusSprite(buildings[x][y], textures['no-roads'], scale, position, false)
                         } else {
+                            console.warn('There is no neighbor roads for: ', buildings[x][y], HouseRoads, isRoad);
                             setStatusSprite(buildings[x][y], textures['no-roads'], scale, position, true)
                         }
                     } else {
+                        console.warn('There is no neighbor roads and no object roads for: ', buildings[x][y]);
                         setStatusSprite(buildings[x][y], textures['no-roads'], scale, position, true)
                     }
 
