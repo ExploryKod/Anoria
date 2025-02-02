@@ -1,6 +1,4 @@
 import * as THREE from "three";
-import * as assetManager from "../meshs/asset_initial.js";
-
 
 function getBuildingZonesNeighbors(data, area=1) {
 

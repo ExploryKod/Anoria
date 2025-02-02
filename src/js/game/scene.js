@@ -8,7 +8,6 @@ import {
     makeDbItemId,
     getBuildingsNamesInZone,
     updateBuildingNeighbors,
-    makeInfoBuildingText
 } from "../utils/utils.js";
 import {
     bulldozeSelected,

@@ -18,9 +18,8 @@ import {
 } from '../ui/ui.js';
 import gameStore from "../stores/GameStore.js";
 import housesStore from "../stores/HousesStore.js";
-import AssetManager from "../meshs/assets.js";
 
-export function createGame() {
+export function createGame(assetManager) {
     let activeToolId = '';
     let time = 0;
     let isPause;
@@ -30,7 +29,7 @@ export function createGame() {
     localStorage.setItem("speed", "4000");
     displayTime.textContent = time.toString() + ' jours';
 
-    const assetManager = new AssetManager();
+
     /* Scene initialization */
     const scene = createScene(housesStore, gameStore, assetManager);
 
