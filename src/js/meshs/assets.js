@@ -32,7 +32,7 @@ class AssetManager extends MeshLoader {
     }
 
     getToolIds() {
-        return toolIds
+        return this.toolIds
     }
 
     #changeMeshColor(mesh, color) {
