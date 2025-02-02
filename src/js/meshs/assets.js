@@ -1,21 +1,6 @@
 import * as THREE from 'three';
 import { textures } from './data.js';
-import {
-    toolIds,
-    buttonData,
-    allAssetsNames,
-    assetFullName,
-    playerModelObj,
-    marketsModelsObj,
-    assetNames,
-    buildingModelsObj,
-    tombstonesModelsObj,
-    farmsModelsObj,
-    playerAnimations
-} from './meshManager.js'
 import MeshLoader from "./MeshLoader.js";
-
-
 
 class AssetManager extends MeshLoader {
     #geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -150,7 +135,7 @@ class AssetManager extends MeshLoader {
     async initializeTerrains() {
 
         // Zones
-        toolIds.zones.forEach(toolId => {
+        this.toolIds.zones.forEach(toolId => {
             this.#assets[toolId] = (x, y) => this.#createTerrain(x, y, toolId);
         });
     }
