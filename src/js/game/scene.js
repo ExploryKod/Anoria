@@ -372,14 +372,14 @@ export function createScene(housesStore, gameStore) {
                         // Major problem here : is this apply to every house mesh ??
                         if(isRoad > 0) {
                             console.warn('There is one neighbor road at least for: ', buildings[x][y], HouseRoads, isRoad);
-                            setStatusSprite(buildings[x][y], textures['no-roads'], scale, position, false)
+                            setStatusSprite(buildings[x][y], textures['no-roads'], 'no-roads', scale, position, false)
                         } else {
                             console.warn('There is no neighbor roads for: ', buildings[x][y], HouseRoads, isRoad);
-                            setStatusSprite(buildings[x][y], textures['no-roads'], scale, position, true)
+                            setStatusSprite(buildings[x][y], textures['no-roads'], 'no-roads', scale, position, true)
                         }
                     } else {
                         console.warn('There is no neighbor roads and no object roads for: ', buildings[x][y]);
-                        setStatusSprite(buildings[x][y], textures['no-roads'], scale, position, true)
+                        setStatusSprite(buildings[x][y], textures['no-roads'], 'no-roads', scale, position, true)
                     }
 
                     /* house evolution to stage 2 */

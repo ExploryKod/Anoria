@@ -193,18 +193,20 @@ export function changeBuildingSides(mesh, texture) {
     return mesh;
 }
 
-export function setSprite(texture = textures['no-roads']) {
+export function setSprite(texture = textures['no-roads'], name) {
     const spriteMaterial = new THREE.SpriteMaterial({
         map: texture,
         depthTest: false
     });
-    return new THREE.Sprite(spriteMaterial);
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.name = name;
+    return sprite;
 }
 
 
-export function setStatusSprite(mesh, texture, scale, position, visible =false) {
-    const isAlreadySprite = mesh.children.find(child => child.type === "Sprite");
-    const sprite =  isAlreadySprite ? isAlreadySprite : setSprite(texture)
+export function setStatusSprite(mesh, texture, name, scale, position, visible =false) {
+    const isAlreadySprite = mesh.children.find(child => child.type === "Sprite" && child.name === name);
+    const sprite =  isAlreadySprite ? isAlreadySprite : setSprite(texture, name)
     sprite.scale.set(scale.x, scale.y, scale.z);  // Adjust scale
     sprite.position.set(position.x, position.y, position.z);   // Move slightly above the road
     sprite.visible = visible;
