@@ -15,7 +15,18 @@
 
 **Autre informations :** 
 
-> "Village / Town Assets" (https://skfb.ly/otGwo) by imwolfgang is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+> "Village / Town Assets" [source ici](https://skfb.ly/otGwo) by imwolfgang is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+
+## Icones (provienne de DuckIcons)
+
+> Icone de route barré par Pawel-kuna : [site du designer ici](https://iconduck.com/designers/pawel-kuna) (MIT license).
+
+> Icone de blé barré de la collection [libreIcons](https://iconduck.com/sets/libreicons-icon-library)  par Denis Suitters: [son site ici](https://iconduck.com/designers/dennis-suitters) (MIT License). 
+
+> Icone de lucide.dev : sous la licence de [ISC License consultable ici](https://lucide.dev/license)
+Contributeurs des icones de lucide.dev présente sur Anoria
+- Lapin : Daniel Bayley [consulter son site ici](https://github.com/danielbayley)
+- Escargot : Daniel Bayley (voir ci-dessus) et Karsa [site de karsa](https://github.com/karsa-mistmere)
 
 ## Autres assets 
 
