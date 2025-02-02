@@ -1,8 +1,16 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-import {baseUrl, toolIds, wantedHouses} from "./data.js";
+import {wantedHouses} from "./data.js";
 
+const toolIds = {
+    zones: ['grass', 'roads'],
+    houses: ['House-Blue', 'House-Red', 'House-Purple', 'House-2Story'],
+    tombs:  ['Tombstone-1', 'Tombstone-2', 'Tombstone-3'],
+    farms: ['Farm-Wheat', 'Farm-Carrot', 'Farm-Cabbage', 'Windmill-001'],
+    markets: ['Market-Stall'],
+    nature : []
+}
 
 let allAssetsNames = [
     {houses: []},
@@ -31,8 +39,6 @@ let playerAnimations;
 
 let buttonData = [];
 
-
-
 // Instantiate a loader
 const gltfloader = new GLTFLoader();
 
@@ -45,7 +51,7 @@ gltfloader.setDRACOLoader( dracoLoader );
 // Load a glTF resource if file with several assets
 gltfloader.load(
     // resource URL
-    `${baseUrl}resources/lowpoly/village_town_assets_v2.glb`,
+    `./resources/lowpoly/village_town_assets_v2.glb`,
     // called when the resource is loaded
     function ( gltf ) {
 

@@ -4,8 +4,8 @@ import {createAsset} from '../meshs/asset.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {fetchPlayer, freePromises, playerMesh} from "../meshs/fetchPlayer.js";
 import {applyHoverColor, resetHoveredObject, resetObjectColor} from '../utils/meshUtils.js';
-import {  texturesPath } from '../meshs/data.js'
-import { setStatusSprite, textures } from "../meshs/asset.js";
+import {  textures  } from '../meshs/data.js'
+import { setStatusSprite } from "../meshs/asset.js";
 import {
     getBuildingNeighbors,
     makeDbItemId,

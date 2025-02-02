@@ -1,7 +1,6 @@
-import { loadTextures } from "./asset.js";
+import * as THREE from "three";
 
 export const baseUrl = import.meta.env.BASE_URL;
-
 
 // export const texturesPath = [
 //     { "roads": `${baseUrl}resources/textures/grounds/ground_cobblestone5.png` },
@@ -13,26 +12,25 @@ export const baseUrl = import.meta.env.BASE_URL;
 //     { "specular": `${baseUrl}resources/textures/maps/specular.png` },
 //     { "grid": `${baseUrl}resources/textures/maps/grid.png` }
 // ];
-
-export const textures = {
-    'roads': loadTextures(`${baseUrl}/resources/textures/grounds/ground_cobblestone5.png`),
-    'grass': loadTextures(`${baseUrl}/resources/textures/grounds/grass_rough2.png`),
-    'decal': loadTextures(`${baseUrl}/resources/textures/skies/plain_sky.jpg`),
-    'no-roads': loadTextures(`${baseUrl}/resources/textures/status/no-road.png`),
-    'no-power': loadTextures(`${baseUrl}/resources/textures/status/no-road.png`),
-    'base' : loadTextures(`${baseUrl}/resources/textures/maps/base.png`),
-    'specular' : loadTextures(`${baseUrl}/resources/textures/maps/specular.png`),
-    'grid': loadTextures(`${baseUrl}/resources/textures/maps/grid.png`)
+const loader = new THREE.TextureLoader();
+export function loadTextures(path) {
+    const texture = loader.load(path)
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(1,1);
+    return texture;
 }
 
-export const toolIds = {
-    zones: ['grass', 'roads'],
-    houses: ['House-Blue', 'House-Red', 'House-Purple', 'House-2Story'],
-    tombs:  ['Tombstone-1', 'Tombstone-2', 'Tombstone-3'],
-    farms: ['Farm-Wheat', 'Farm-Carrot', 'Farm-Cabbage', 'Windmill-001'],
-    markets: ['Market-Stall'],
-    nature : []
-}
+export const textures = Object.freeze({
+    'roads': loadTextures(`/resources/textures/grounds/ground_cobblestone5.png`),
+    'grass': loadTextures(`/resources/textures/grounds/grass_rough2.png`),
+    'decal': loadTextures(`/resources/textures/skies/plain_sky.jpg`),
+    'no-roads': loadTextures(`/resources/textures/status/no-road.png`),
+    'no-power': loadTextures(`/resources/textures/status/no-road.png`),
+    'base' : loadTextures(`/resources/textures/maps/base.png`),
+    'specular' : loadTextures(`/resources/textures/maps/specular.png`),
+    'grid': loadTextures(`/resources/textures/maps/grid.png`)
+})
 
 export const assetsPrices = Object.freeze({
     // Zones
