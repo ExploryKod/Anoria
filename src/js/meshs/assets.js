@@ -1,16 +1,35 @@
 import * as THREE from 'three';
 import { textures } from './data.js';
-import GenerateMesh from "./GenerateMesh.js";
+import {
+    toolIds,
+    buttonData,
+    allAssetsNames,
+    assetFullName,
+    playerModelObj,
+    marketsModelsObj,
+    assetNames,
+    buildingModelsObj,
+    tombstonesModelsObj,
+    farmsModelsObj,
+    playerAnimations
+} from './meshManager.js'
 
-class AssetManager extends GenerateMesh {
+class AssetManager {
     #geometry = new THREE.BoxGeometry(1, 1, 1);
     #assets = {};
     #modelPath = "";
 
     constructor() {
-        super()
         this.#modelPath = `./resources/lowpoly/village_town_assets_v2.glb`
-        this.initializeAssets();
+        this.initializeAssets()
+    }
+
+    getButtonData() {
+        return buttonData
+    }
+
+    getToolIds() {
+        return toolIds
     }
 
     #changeMeshColor(mesh, color) {
@@ -112,32 +131,23 @@ class AssetManager extends GenerateMesh {
         return mesh;
     }
 
-    async getButtonData() {
-        return this.buttonData
-    }
-
-    getToolIds() {
-        return this.toolIds
-    }
-
-    async #getModelsObj(type) {
+    #getModelsObj(type) {
         switch(type) {
             case 'building':
-                return this.loadMeshes(this.#modelPath).buildingModelsObj;
+                return buildingModelsObj;
             case 'tombstone':
-                return this.loadMeshes(this.#modelPath).tombstonesModelsObj;
+                return tombstonesModelsObj
             case 'farm':
-                return  this.loadMeshes(this.#modelPath).farmsModelsObj;
+                return farmsModelsObj
             case 'market':
-                return this.loadMeshes(this.#modelPath).marketsModelsObj;
+                return marketsModelsObj
             default:
                 throw new Error(`Unknown model type: ${type}`);
         }
     }
 
     initializeAssets() {
-        const toolIds = this.toolIds
-        const buttonData = this.loadMeshes(this.#modelPath).buttonData
+
         // Zones
         toolIds.zones.forEach(toolId => {
             this.#assets[toolId] = (x, y) => this.#createZone(x, y, toolId);
