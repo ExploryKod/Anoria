@@ -21,12 +21,16 @@ import {
     slowerButton,
     toolBarButtons
 } from "./ui.js";
-import {createGame} from '../game/game.js';
-import {buttonData, toolIds} from '../meshs/buildings.js';
+import { createGame } from '../game/game.js';
+import AssetManager from "../meshs/assets.js";
 
+const assetManager = new AssetManager();
 let selectedControl = document.getElementById('bulldoze-btn');
-updateSpeedDisplay();
 
+let buttonData = await assetManager.getButtonData();
+let toolIds = assetManager.getToolIds();
+updateSpeedDisplay();
+console.log("[Buttons] button data and toolids", buttonData, toolIds)
 infoObjectCloseBtn.addEventListener('click', () => {
     if(infoObjectOverlay.classList.contains('active')) {
         infoObjectOverlay.classList.remove('active')
@@ -96,7 +100,7 @@ othersButton.addEventListener('click', toggleModal)
 panelLayoutCloseBtn.addEventListener('click', closeModal)
 
 window.onload = () => {
-    window.game = createGame();
+    window.game = createGame(assetManager);
 }
 
 // Animation panel buttons

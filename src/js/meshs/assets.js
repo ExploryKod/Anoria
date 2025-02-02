@@ -1,18 +1,15 @@
 import * as THREE from 'three';
-import {
-    buildingModelsObj,
-    farmsModelsObj,
-    marketsModelsObj,
-    tombstonesModelsObj,
-    toolIds
-} from './buildings.js';
 import { textures } from './data.js';
+import GenerateMesh from "./GenerateMesh.js";
 
-class AssetManager {
+class AssetManager extends GenerateMesh {
     #geometry = new THREE.BoxGeometry(1, 1, 1);
     #assets = {};
+    #modelPath = "";
 
     constructor() {
+        super()
+        this.#modelPath = `./resources/lowpoly/village_town_assets_v2.glb`
         this.initializeAssets();
     }
 
@@ -27,6 +24,7 @@ class AssetManager {
     }
 
     #createBuilding(x, y, z, size, meshName, objectsData, changeColor = false) {
+        console.log("button objectsData", objectsData, meshName, size);
         const placerPos = new THREE.Vector3(x, y, z);
         const object3D = objectsData[meshName].clone();
 
@@ -114,36 +112,97 @@ class AssetManager {
         return mesh;
     }
 
+    async getButtonData() {
+        return this.buttonData
+    }
+
+    getToolIds() {
+        return this.toolIds
+    }
+
+    async #getModelsObj(type) {
+        switch(type) {
+            case 'building':
+                return this.loadMeshes(this.#modelPath).buildingModelsObj;
+            case 'tombstone':
+                return this.loadMeshes(this.#modelPath).tombstonesModelsObj;
+            case 'farm':
+                return  this.loadMeshes(this.#modelPath).farmsModelsObj;
+            case 'market':
+                return this.loadMeshes(this.#modelPath).marketsModelsObj;
+            default:
+                throw new Error(`Unknown model type: ${type}`);
+        }
+    }
+
     initializeAssets() {
+        const toolIds = this.toolIds
+        const buttonData = this.loadMeshes(this.#modelPath).buttonData
+        // Zones
         toolIds.zones.forEach(toolId => {
             this.#assets[toolId] = (x, y) => this.#createZone(x, y, toolId);
         });
 
+        // Houses
         toolIds.houses.forEach(toolId => {
             this.#assets[toolId] = (x, y, z = 0) =>
-                this.#createBuilding(x, y, z, 0.5, toolId, buildingModelsObj);
+                this.#createBuilding(x, y, z, 0.5, toolId, this.#getModelsObj('building'));
         });
 
+        // Tombs
         toolIds.tombs.forEach(toolId => {
             this.#assets[toolId] = (x, y, z = 0) =>
-                this.#createBuilding(x, y, z, 0.5, toolId, tombstonesModelsObj);
+                this.#createBuilding(x, y, z, 0.5, toolId, this.#getModelsObj('tombstone'));
         });
 
+        // Farms
         toolIds.farms.forEach(toolId => {
             if (toolId.substring(0, 4) === "Farm") {
                 this.#assets[toolId] = (x, y, z = 0) =>
-                    this.#createBuilding(x, y, z, 1, toolId, farmsModelsObj);
+                    this.#createBuilding(x, y, z, 1, toolId, this.#getModelsObj('farm'));
             } else {
                 this.#assets[toolId] = (x, y, z = 0) =>
-                    this.#createBuilding(x, y, z, 0.3, toolId, farmsModelsObj);
+                    this.#createBuilding(x, y, z, 0.3, toolId, this.#getModelsObj('farm'));
             }
         });
 
+        // Markets
         toolIds.markets.forEach(toolId => {
             this.#assets[toolId] = (x, y, z = 0) =>
-                this.#createBuilding(x, y, z, 0.7, toolId, marketsModelsObj);
+                this.#createBuilding(x, y, z, 0.7, toolId, this.#getModelsObj('market'));
         });
     }
+
+    // initializeAssets() {
+    //     toolIds.zones.forEach(toolId => {
+    //         this.#assets[toolId] = (x, y) => this.#createZone(x, y, toolId);
+    //     });
+    //
+    //     toolIds.houses.forEach(toolId => {
+    //         this.#assets[toolId] = (x, y, z = 0) =>
+    //             this.#createBuilding(x, y, z, 0.5, toolId, this.buildingModelsObj);
+    //     });
+    //
+    //     toolIds.tombs.forEach(toolId => {
+    //         this.#assets[toolId] = (x, y, z = 0) =>
+    //             this.#createBuilding(x, y, z, 0.5, toolId, tombstonesModelsObj);
+    //     });
+    //
+    //     toolIds.farms.forEach(toolId => {
+    //         if (toolId.substring(0, 4) === "Farm") {
+    //             this.#assets[toolId] = (x, y, z = 0) =>
+    //                 this.#createBuilding(x, y, z, 1, toolId, farmsModelsObj);
+    //         } else {
+    //             this.#assets[toolId] = (x, y, z = 0) =>
+    //                 this.#createBuilding(x, y, z, 0.3, toolId, farmsModelsObj);
+    //         }
+    //     });
+    //
+    //     toolIds.markets.forEach(toolId => {
+    //         this.#assets[toolId] = (x, y, z = 0) =>
+    //             this.#createBuilding(x, y, z, 0.7, toolId, marketsModelsObj);
+    //     });
+    // }
 
     createAsset(assetId, x, y) {
         if (assetId in this.#assets) {
