@@ -363,8 +363,17 @@ export function createScene(housesStore, gameStore) {
 
                     const houseNeighbors = await housesStore.getHouseItem(currentUniqueID, 'neighbors');
 
-                    const position = {x: 1, y: 1, z: 1}
-                    const scale = {x: 1, y: 0.8, z: 1}
+                    const statutsIconsMeta = {
+                        road: {
+                            position : {x: -1, y: 1, z: 1},
+                            scale : {x: 2, y: 2, z: 2}
+                        },
+                        food: {
+                            position : {x: -0.5, y: 1, z: 0},
+                            scale : {x: 1, y: 1, z: 1},
+                        }
+                    }
+
                     if(houseNeighbors) {
                         const isRoad = houseNeighbors.filter(neighbor => neighbor.name === 'roads').length
                         const HouseRoads = {roads : houseNeighbors.filter(neighbor => neighbor.name === 'roads').length};
@@ -372,19 +381,26 @@ export function createScene(housesStore, gameStore) {
                         // Major problem here : is this apply to every house mesh ??
                         if(isRoad > 0) {
                             console.warn('There is one neighbor road at least for: ', buildings[x][y], HouseRoads, isRoad);
-                            setStatusSprite(buildings[x][y], textures['no-roads'], 'no-roads', scale, position, false)
+                            setStatusSprite(buildings[x][y], textures['no-roads'], 'no-roads',
+                                statutsIconsMeta.road.scale, statutsIconsMeta.road.position, false)
                         } else {
                             console.warn('There is no neighbor roads for: ', buildings[x][y], HouseRoads, isRoad);
-                            setStatusSprite(buildings[x][y], textures['no-roads'], 'no-roads', scale, position, true)
+                            setStatusSprite(buildings[x][y], textures['no-roads'], 'no-roads',
+                                statutsIconsMeta.road.scale, statutsIconsMeta.road.position, true)
                         }
                     } else {
                         console.warn('There is no neighbor roads and no object roads for: ', buildings[x][y]);
-                        setStatusSprite(buildings[x][y], textures['no-roads'], 'no-roads', scale, position, true)
+                        setStatusSprite(buildings[x][y], textures['no-roads'], 'no-roads',
+                            statutsIconsMeta.road.scale, statutsIconsMeta.road.position, true)
                     }
 
                     /* house evolution to stage 2 */
                     const houseStocks = await housesStore.getHouseItem(currentUniqueID, 'stocks')
                     const houseFood = houseStocks.food;
+
+                    if(houseStocks.food <= 0) {
+                        setStatusSprite(buildings[x][y], textures['nofood'], 'nofood', statutsIconsMeta.food.scale, statutsIconsMeta.food.position, true)
+                    }
 
                     if(houseTime > 3 && houseFood > 5 && firstHouses.includes(currentBuildingId)) {
                         /* [refactor] can be replaced by updateBuilding from utils.js */
