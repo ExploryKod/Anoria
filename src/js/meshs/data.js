@@ -17,7 +17,8 @@ export const textures = Object.freeze({
     'no-power': loadTextures(`/resources/textures/status/no-road.png`),
     'base' : loadTextures(`/resources/textures/maps/base.png`),
     'specular' : loadTextures(`/resources/textures/maps/specular.png`),
-    'grid': loadTextures(`/resources/textures/maps/grid.png`)
+    'grid': loadTextures(`/resources/textures/maps/grid.png`),
+    'nofood': loadTextures(`/resources/textures/status/nofood.png`)
 })
 
 export const assetsPrices = Object.freeze({

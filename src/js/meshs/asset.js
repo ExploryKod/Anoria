@@ -158,45 +158,16 @@ function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false)
         y,
     };
 
-    // Create the sprite material (icon overlay)
-    const spriteMaterial = new THREE.SpriteMaterial({
-        map: textures['no-roads'],
-        depthTest: false
-    });
-
-    // // Create the sprite and set its properties
-    // const sprite = new THREE.Sprite(spriteMaterial);
-    // sprite.scale.set(1, 1, 1);  // Adjust scale
-    // sprite.position.set(-0.5, 0.2, 1.5);   // Move slightly above the road
-    // sprite.visible = true;
-    //
-    // // Attach sprite to the road mesh
-    // object3D.add(sprite);
-
     return object3D
 }
 
-export function changeBuildingSides(mesh, texture) {
-    let roof;
-    let sides;
-    let buildingSidesArray = [];
-    let materialSides = [];
-
-    roof = getRoof()
-    sides =  getBuildingSides(texture)
-    buildingSidesArray = [sides, sides,roof, roof,sides, sides]
-    materialSides = buildingSidesArray
-    mesh = new THREE.Mesh(geometry, materialSides)
-    mesh.material.forEach(material =>  material.color.set(0xff00ff))
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    return mesh;
-}
 
 export function setSprite(texture = textures['no-roads'], name) {
     const spriteMaterial = new THREE.SpriteMaterial({
         map: texture,
-        depthTest: false
+        depthTest: false,
+        transparent: true,
+        alphaTest: 0.5
     });
     const sprite = new THREE.Sprite(spriteMaterial);
     sprite.name = name;
