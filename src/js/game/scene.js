@@ -4,7 +4,16 @@ import {createAsset} from '../meshs/asset.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {fetchPlayer, freePromises, playerMesh} from "../meshs/fetchPlayer.js";
 import {applyHoverColor, resetHoveredObject, resetObjectColor} from '../utils/meshUtils.js';
-import {getBuildingNeighbors, makeDbItemId, getBuildingsNamesInZone, updateBuildingNeighbors, updateBuilding} from "../utils/utils.js";
+import {  texturesPath } from '../meshs/data.js'
+import { setStatusSprite, textures } from "../meshs/asset.js";
+import {
+    getBuildingNeighbors,
+    makeDbItemId,
+    getBuildingsNamesInZone,
+    updateBuildingNeighbors,
+    updateBuilding,
+    makeInfoBuildingText
+} from "../utils/utils.js";
 import {
     bulldozeSelected,
     commerce,
@@ -18,9 +27,9 @@ import {
     gameWindow,
     houses
 } from '../ui/ui.js';
-import {assetsPrices} from "../meshs/buildings.js";
+import {assetsPrices} from "../meshs/data.js";
 
-const SKY_URL = './resources/textures/skies/plain_sky.jpg';
+const SKY_URL = '/resources/textures/skies/plain_sky.jpg';
 
 export function createScene(housesStore, gameStore) {
 
@@ -147,7 +156,7 @@ export function createScene(housesStore, gameStore) {
 
                 /* update userData in indexDB === real userData state from three mesh */
                 const currentUserData = buildings[x][y].userData
-
+                console.log(`[SCENE] Building current userData at turn ${time}`, currentUserData)
                 await housesStore.updateHouseFields(currentUniqueID, {})
 
                 console.log(`*************** CURRENT BUILDING ID (type) ${currentBuildingId} ***** UniqueId: ${currentUniqueID}********************`)
@@ -291,11 +300,12 @@ export function createScene(housesStore, gameStore) {
                         let wheatByHouse = 1;
                         let carrotByHouse = 1;
                         let cabbageByHouse = 1;
+                        let totalHouseFood = wheatByHouse + carrotByHouse + cabbageByHouse;
                         for (const house of marketHouses) {
                             //await housesStore.updateHouseFields(house.id, {stocks: { food: 1, carrot: 1, cabbage: 0, wheat: 0}})
                             const buildingsUserData = buildings[house.x][house.y].userData
                             console.log(`[scene] [market] [house] ${buildings[house.x][house.y].name} food userData before distribution`, buildings[house.x][house.y].userData.stocks)
-                            buildings[house.x][house.y].userData = {...buildingsUserData, stocks: {food: 0, carrot: carrotByHouse, cabbage: cabbageByHouse, wheat: wheatByHouse}};
+                            buildings[house.x][house.y].userData = {...buildingsUserData, stocks: {food: totalHouseFood, carrot: carrotByHouse, cabbage: cabbageByHouse, wheat: wheatByHouse}};
                             carrotHousesStocks += carrotByHouse;
                             cabbageHousesStocks += cabbageByHouse;
                             wheatHousesStocks += wheatByHouse;
@@ -346,11 +356,20 @@ export function createScene(housesStore, gameStore) {
                     const houseTime = await housesStore.getHouseItem(currentUniqueID, 'time');
                     console.log('+++ current house time: ', houseTime)
 
-                    const neighborRoadFound = getBuildingNeighbors(currentBuilding, ['roads'])
-
-                    if(neighborRoadFound) {
-                        const HouseRoad = { name: currentUniqueID, increment: 1, field: 'road' };
-                        await housesStore.incrementHouseField(HouseRoad, {operator: '<=', limit: 4})
+                    const houseNeighbors = await housesStore.getHouseItem(currentUniqueID, 'neighbors');
+                    const position = {x: 1, y: 1, z: 1}
+                    const scale = {x: 1, y: 0.8, z: 1}
+                    if(houseNeighbors) {
+                        const HouseRoads = {roads : houseNeighbors.filter(neighbor => neighbor.name === 'roads').length};
+                        await housesStore.updateHouseFields(currentUniqueID, HouseRoads)
+                        // Major problem here : is this apply to every house mesh ??
+                        if(HouseRoads.roads > 0) {
+                            setStatusSprite(buildings[x][y], textures['no-roads'], scale, position, false)
+                        } else {
+                            setStatusSprite(buildings[x][y], textures['no-roads'], scale, position, true)
+                        }
+                    } else {
+                        setStatusSprite(buildings[x][y], textures['no-roads'], scale, position, true)
                     }
 
                     /* house evolution to stage 2 */

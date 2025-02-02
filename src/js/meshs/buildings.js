@@ -1,52 +1,8 @@
 import * as THREE from 'three';
-import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
-import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import {baseUrl, toolIds, wantedHouses} from "./data.js";
 
-// const fbxLoader = new FBXLoader();
-// const plyLoader = new PLYLoader();
-// const playerLoader = new GLTFLoader();
-
-// const avatarPath = './resources/monster.glb'
-// const playerData = {
-//     url: avatarPath,
-//     size: 0.8
-// }
-
-const toolIds = {
-    zones: ['grass', 'roads'],
-    houses: ['House-Blue', 'House-Red', 'House-Purple', 'House-2Story'],
-    tombs:  ['Tombstone-1', 'Tombstone-2', 'Tombstone-3'],
-    farms: ['Farm-Wheat', 'Farm-Carrot', 'Farm-Cabbage', 'Windmill-001'],
-    markets: ['Market-Stall'],
-    nature : []
-}
-
-export const assetsPrices = Object.freeze({
-    // Zones
-    'grass': { price: 0, category: 'zones' },
-    'roads': { price: 5, category: 'zones' },
-
-    // Houses
-    'House-Blue': { price: 10, category: 'houses' },
-    'House-Red': { price: 10, category: 'houses' },
-    'House-Purple': { price: 10, category: 'houses' },
-    'House-2Story': { price: 20, category: 'houses' },
-
-    // Tombs
-    'Tombstone-1': { price: 2, category: 'tombs' },
-    'Tombstone-2': { price: 4, category: 'tombs' },
-    'Tombstone-3': { price: 8, category: 'tombs' },
-
-    // Farms
-    'Farm-Wheat': { price: 10, category: 'farms' },
-    'Farm-Carrot': { price: 20, category: 'farms' },
-    'Farm-Cabbage': { price: 30, category: 'farms' },
-
-    // Markets
-    'Market-Stall': { price: 10, category: 'markets' }
-});
 
 let allAssetsNames = [
     {houses: []},
@@ -55,12 +11,13 @@ let allAssetsNames = [
     {markets: []},
     {other: []}
 ];
+
 let assetFullName;
 
 const buildingModelsObj = {};
 
 const tombstonesModelsObj = {};
-const miscellaneous = [];
+
 const assetNames = [];
 const tombstonesNames = [];
 
@@ -71,19 +28,10 @@ const marketsModelsObj = {};
 
 const playerModelObj = {};
 let playerAnimations;
-const playerNames = [];
-
-const dragonModelObj = {};
 
 let buttonData = [];
 
 
-const wantedHouses = [
-    'House-Blue',
-    'House-Red',
-    'House-Purple',
-    'House-2Story'
-]
 
 // Instantiate a loader
 const gltfloader = new GLTFLoader();
@@ -97,13 +45,10 @@ gltfloader.setDRACOLoader( dracoLoader );
 // Load a glTF resource if file with several assets
 gltfloader.load(
     // resource URL
-    './resources/lowpoly/village_town_assets_v2.glb',
+    `${baseUrl}resources/lowpoly/village_town_assets_v2.glb`,
     // called when the resource is loaded
     function ( gltf ) {
 
-        // scene.add( gltf.scene );
-        // console.log('pack gltf', gltf);
-       
         gltf.animations; // Array<THREE.AnimationClip>
         gltf.scene; // THREE.Group
         gltf.scenes; // Array<THREE.Group>
@@ -226,12 +171,9 @@ export {
     assetFullName,
     playerModelObj,
     marketsModelsObj,
-    miscellaneous,
     assetNames,
     buildingModelsObj,
     tombstonesModelsObj,
-    dragonModelObj,
     farmsModelsObj,
-    playerNames,
     playerAnimations
  };

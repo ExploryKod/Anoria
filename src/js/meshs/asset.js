@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
 import {
     toolIds,
     buildingModelsObj,
@@ -8,26 +9,18 @@ import {
     playerModelObj,
     playerAnimations
 } from './buildings.js';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-// import { fetchPlayer, freePromises } from './fetchPlayer.js';
-// let avatarPath = '/resources/monster.glb';
-// const gltfLoader = new GLTFLoader();
 
 // Object of anonymous functions for creating assets > assets library
 const geometry = new THREE.BoxGeometry(1,1,1);
 const loader = new THREE.TextureLoader();
+import { textures } from './data.js';
 let loadingPromises = [];
-function loadTextures(path) {
+export function loadTextures(path) {
     const texture = loader.load(path)
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(1,1);
     return texture;
-}
-
-export const textures = {
-    'roads': loadTextures(`./resources/textures/grounds/ground_cobblestone5.png`),
-    'grass': loadTextures(`./resources/textures/grounds/grass_rough2.png`),
 }
 
 export function changeMeshMaterialTexture(mesh, texture) {
@@ -159,7 +152,7 @@ function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false)
         stocks : {food: 0, cabbage : 0, wheat: 0, carrot: 0},
         time: 0,
         isBuilding: true,
-        road: 0,
+        roads: 0,
         stage : 0,
         stageName: "",
         price : 0,
@@ -169,6 +162,22 @@ function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false)
         x,
         y,
     };
+
+    // Create the sprite material (icon overlay)
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: textures['no-roads'],
+        depthTest: false
+    });
+
+    // // Create the sprite and set its properties
+    // const sprite = new THREE.Sprite(spriteMaterial);
+    // sprite.scale.set(1, 1, 1);  // Adjust scale
+    // sprite.position.set(-0.5, 0.2, 1.5);   // Move slightly above the road
+    // sprite.visible = true;
+    //
+    // // Attach sprite to the road mesh
+    // object3D.add(sprite);
+
     return object3D
 }
 
@@ -189,68 +198,125 @@ export function changeBuildingSides(mesh, texture) {
     return mesh;
 }
 
+export function setStatusSprite(mesh, texture, scale, position, visible =false) {
+    // Create the sprite material (icon overlay)
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: texture,
+        depthTest: false
+    });
+
+    // Create the sprite and set its properties
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(scale.x, scale.y, scale.z);  // Adjust scale
+    sprite.position.set(position.x, position.y, position.z);   // Move slightly above the road
+    sprite.visible = visible;
+
+    // Attach sprite to the road mesh
+    mesh.add(sprite);
+}
+
 function createZone(x, y, buildingId='') {
-    let roof;
-    let sides;
     let mesh;
-    let buildingSidesArray;
-    let materialSides;
     let material;
-    let oneMaterial;
 
     const materials = {
-        'roads': new THREE.MeshLambertMaterial({ map: textures['roads'] }),
-        'grass': new THREE.MeshLambertMaterial({ map: textures['grass'] })
-    }
-
+        'roads': new THREE.MeshLambertMaterial({ map: textures['roads'],  specularMap: textures['specular'] }),
+        'grass': new THREE.MeshLambertMaterial({ map: textures['grass'], specularMap: textures['specular'] })
+    };
 
     switch(buildingId) {
         case 'roads':
-            material = materials['roads']
+            material = materials['roads'];
             mesh = new THREE.Mesh(geometry, material);
-            mesh.userData = { id: buildingId, x, y,  isBuilding: false, time: 0};
-            mesh.name = buildingId
+            mesh.userData = { id: buildingId, x, y, isBuilding: false, time: 0 };
+            mesh.name = buildingId;
             mesh.scale.set(1, 1, 1);
             mesh.position.set(x, -0.5, y);
-            //mesh.material.emissive.setHex(0xff0000)
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             break;
         case 'grass':
-            roof = getRoof('grass')
-            sides =  getGrassSides()
-            buildingSidesArray = [sides, sides,roof, roof,sides, sides]
-            materialSides = buildingSidesArray
-            oneMaterial = materials['grass']
-            mesh = new THREE.Mesh(geometry, oneMaterial)
-            mesh.name = buildingId
-            mesh.userData = { id:buildingId, x, y,  isBuilding: false, time: 0}
-            if(Array.isArray(mesh.material)) {
-                mesh.material.forEach(material =>  material.map?.repeat.set(1,1))
-            } else {
-                mesh.material.map?.repeat.set(1,1)
-            }
-          
+            material = materials['grass'];
+            mesh = new THREE.Mesh(geometry, material);
+            mesh.name = buildingId;
+            mesh.userData = { id: buildingId, x, y, isBuilding: false, time: 0 };
             mesh.scale.set(1, 1, 1);
             mesh.position.set(x, -0.5, y);
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             break;
+
         default:
-            console.log(`default choice for ${buildingId}`)
-            // roof = getRoof()
-            // sides =  getBuildingSides(textureName)
-            // buildingSidesArray = [sides, sides,roof, roof,sides, sides]
-            // materialSides = buildingSidesArray
-            // mesh = new THREE.Mesh(geometry, materialSides)
-            // mesh.name = buildingId
-            // mesh.userData = { id:buildingId, x, y,  isBuilding: false }
-            // mesh.material.forEach(material =>  material.map?.repeat.set(1,1))
-            // mesh.scale.set(1, 1, 1);
-            // mesh.position.set(x, 0.5, y);
+            console.log(`default choice for ${buildingId}`);
     }
 
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    return mesh
+    return mesh;
 }
+
+
+// function createZone(x, y, buildingId='') {
+//     let roof;
+//     let sides;
+//     let mesh;
+//     let buildingSidesArray;
+//     let materialSides;
+//     let material;
+//     let oneMaterial;
+//
+//     const materials = {
+//         'roads': new THREE.MeshLambertMaterial({ map: textures['roads'] }),
+//         'grass': new THREE.MeshLambertMaterial({ map: textures['grass'] })
+//     }
+//
+//
+//     switch(buildingId) {
+//         case 'roads':
+//             material = materials['roads']
+//             mesh = new THREE.Mesh(geometry, material);
+//             const decalGeometry = new DecalGeometry(mesh, geometry);
+//             mesh.userData = { id: buildingId, x, y,  isBuilding: false, time: 0};
+//             mesh.name = buildingId
+//             mesh.scale.set(1, 1, 1);
+//             mesh.position.set(x, 0.5, y);
+//             //mesh.material.emissive.setHex(0xff0000)
+//             mesh.castShadow = true;
+//             mesh.receiveShadow = true;
+//             break;
+//         case 'grass':
+//             roof = getRoof('grass')
+//             sides =  getGrassSides()
+//             buildingSidesArray = [sides, sides,roof, roof,sides, sides]
+//             materialSides = buildingSidesArray
+//             oneMaterial = materials['grass']
+//             mesh = new THREE.Mesh(geometry, oneMaterial)
+//             mesh.name = buildingId
+//             mesh.userData = { id:buildingId, x, y,  isBuilding: false, time: 0}
+//             if(Array.isArray(mesh.material)) {
+//                 mesh.material.forEach(material =>  material.map?.repeat.set(1,1))
+//             } else {
+//                 mesh.material.map?.repeat.set(1,1)
+//             }
+//
+//             mesh.scale.set(1, 1, 1);
+//             mesh.position.set(x, -0.5, y);
+//             mesh.castShadow = true;
+//             mesh.receiveShadow = true;
+//             break;
+//         default:
+//             console.log(`default choice for ${buildingId}`)
+//             // roof = getRoof()
+//             // sides =  getBuildingSides(textureName)
+//             // buildingSidesArray = [sides, sides,roof, roof,sides, sides]
+//             // materialSides = buildingSidesArray
+//             // mesh = new THREE.Mesh(geometry, materialSides)
+//             // mesh.name = buildingId
+//             // mesh.userData = { id:buildingId, x, y,  isBuilding: false }
+//             // mesh.material.forEach(material =>  material.map?.repeat.set(1,1))
+//             // mesh.scale.set(1, 1, 1);
+//             // mesh.position.set(x, 0.5, y);
+//     }
+//
+//     mesh.castShadow = true;
+//     mesh.receiveShadow = true;
+//     return mesh
+// }

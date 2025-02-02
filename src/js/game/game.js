@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {  assetsPrices } from '../meshs/buildings.js';
+import {  assetsPrices } from '../meshs/data.js';
 import { createScene } from './scene.js';
 import { createCity } from './city.js';
 import {getAssetPrice, makeDbItemId, makeInfoBuildingText} from '../utils/utils.js';
@@ -67,9 +67,9 @@ export function createGame() {
 
             if(buildingsObjects.includes(selectedObject.userData.id)) {
                 console.log('******* SELECTING A BUILDING *********', selectedObject.userData.name)
-                let isRoad = false
                 const uniqueId = makeDbItemId(selectedObject.userData.id, selectedObject.userData.x, selectedObject.userData.y)
                 const buildingPop = await housesStore.getHouseItem(uniqueId, 'pop')
+                const houseRoads = await housesStore.getHouseItem(uniqueId, 'roads');
 
                 /* Check if neighbor */
                 let neighbors = false;
@@ -79,7 +79,7 @@ export function createGame() {
 
                 makeInfoBuildingText(`Bâtiment: ${selectedObject.userData.id} x: ${selectedObject.userData.x} y: ${selectedObject.userData.y}`, false)
                 makeInfoBuildingText(`Nombre d'habitants: ${buildingPop}`, false)
-                console.log(`[House neighbors] neighbors of ${selectedObject.userData.id} ${selectedObject.userData.name}`, neighbors)
+                makeInfoBuildingText(`Desservie par ${houseRoads ? houseRoads : 0 } route(s).`, false)
             }
            
             if(infoObjectOverlay.classList.contains('active')) {
@@ -95,7 +95,11 @@ export function createGame() {
             let price = 0
 
             const houseID = tile.buildingId + '-' + selectedObject.userData.x + '-' + selectedObject.userData.y
-
+            const houseNeighbors = await housesStore.getHouseItem(houseID, 'neighbors');
+            let HouseRoads  = {roads: 1};
+            if(houseNeighbors) {
+                HouseRoads = {roads: houseNeighbors.filter(neighbor => neighbor.name === 'roads').length};
+            }
             price = getAssetPrice(tile.buildingId, assetsPrices) || 0
             let funds = await gameStore.getLatestGameItemByField('funds') || 0
             const dbHouseData = {
@@ -107,7 +111,7 @@ export function createGame() {
                 gameTurn: time,
                 time: 0,
                 isBuilding: true,
-                road: 0,
+                roads: 2,
                 stage : 0,
                 stageName: "",
                 price : price ? price : 0,
