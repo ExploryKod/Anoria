@@ -15,7 +15,7 @@ const toolIds = {
 let allAssetsNames = [
     {houses: []},
     {nature: []},
-    {farm: []},
+    {farms: []},
     {markets: []},
     {other: []}
 ];
@@ -93,8 +93,8 @@ gltfloader.load(
                             name: `${firstNamePart}-${secondNamePart}`,
                             'mesh': child
                         })
-                    } else if (asset.farm && toolIds.farms.includes(toolName)) {
-                        asset.farm.push({
+                    } else if (asset.farms && toolIds.farms.includes(toolName)) {
+                        asset.farms.push({
                             'fullName': child.userData.name,
                             name: `${firstNamePart}-${secondNamePart}`,
                             'mesh': child
