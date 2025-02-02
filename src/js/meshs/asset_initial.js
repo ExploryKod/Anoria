@@ -17,19 +17,6 @@ const geometry = new THREE.BoxGeometry(1,1,1);
 
 let loadingPromises = [];
 
-
-export function changeMeshMaterialTexture(mesh, texture) {
-    mesh.traverse((obj) => {
-        if (obj.material) {
-            obj.material = new THREE.MeshLambertMaterial({
-                map: texture,
-            })
-            obj.receiveShadow = true;
-            obj.castShadow = true;
-        }
-    });
-}
-
 export function changeMeshColor(mesh, color) {
     mesh.traverse((obj) => {
         if (obj.material) {
@@ -40,30 +27,7 @@ export function changeMeshColor(mesh, color) {
     });
 }
 
-function getRoof(topTexture = '') {
-    if(topTexture !== '') {
-        return new THREE.MeshLambertMaterial({ map: textures[topTexture].clone() })
-    } else {
-        return new THREE.MeshLambertMaterial({ color: 0x333333 })
-    }
-}
-
-function getBuildingSides(textureId) {
-    return new THREE.MeshLambertMaterial({ map: textures[textureId].clone() })
-}
-
-function getGrassSides() {
-    return new THREE.MeshLambertMaterial({ color: 0x004444 })
-}
-
-const playerAnimationsData = {
-    name: 'Armature|mixamo.com|Layer0',
-    isAnimated: true
-}
-
-let assets = {
-    'player-hero': (x, y, z=0) => createCitizen(x, y, z, 0.8, 'player-hero', playerModelObj, playerAnimationsData)
-};
+let assets = {};
 
 toolIds.zones.forEach((toolId) => {
     assets[toolId] = (x, y) => createZone(x, y, toolId);
@@ -83,7 +47,6 @@ toolIds.farms.forEach((toolId) => {
     } else {
         assets[toolId] = (x,y, z=0) => createBuilding(x,y,z, 0.3, toolId, farmsModelsObj);
     }
-
 })
 
 toolIds.markets.forEach((toolId) => {
@@ -98,28 +61,6 @@ export function createAsset(assetId, x, y) {
        console.warn(`Asset ${assetId} does not exist, see assets: `, assets);
        return undefined
    }
-}
-
-
-
-function createCitizen(x, y, z, size, meshName, playersModels, playerAnimationsData) {
-    const model3D = playersModels[meshName].clone()
-    let mixer;
-    let placerPos = new THREE.Vector3(x, y, z);
-    model3D.scale.set(size, size, size);
-    model3D.position.set(placerPos.x, placerPos.z, placerPos.y);
-    model3D.name = meshName
-    model3D.userData = { id:  meshName, x, y, vicinities: [x-1, y-1]}
-    if(playerAnimationsData.isAnimated) {
-        mixer = new THREE.AnimationMixer(model3D);
-        // Armature|mixamo.com|Layer0
-
-        //console.log('ANIMATIONS PLAYER', playerAnimations)
-        let animate = THREE.AnimationClip.findByName(playerAnimations, playerAnimationsData.name);
-        let idle = mixer.clipAction(animate);
-        idle.play();
-    }
-    return { model: model3D, mixer: mixer }
 }
 
 function createBuilding(x, y, z, size, meshName, objectsData, changeColor=false) {

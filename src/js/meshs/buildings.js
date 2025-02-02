@@ -151,25 +151,6 @@ gltfloader.load(
     }
 );
 
-// Load a glTF resource if file with several assets
-// playerLoader.load(
-//     playerData.url,
-//     function(gltf) {
-//         const model = gltf.scene;
-//         console.log('AVATAR ', model)
-//
-//         playerAnimations = gltf.animations;
-//         const firstNamePart = 'player'
-//         const secondNamePart = 'hero'
-//         playerNames.push(`${firstNamePart}-${secondNamePart}`);
-//         Object.assign(playerModelObj, {[`${firstNamePart}-${secondNamePart}`]: model})
-//     },
-//     undefined,
-//     function(error) {
-//         console.error('player error', error);
-//     }
-// );
-
 export {
     toolIds,
     buttonData,
