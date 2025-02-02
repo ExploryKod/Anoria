@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import * as assetManager from "../meshs/asset_initial.js";
 
 
 function getBuildingZonesNeighbors(data, area=1) {
@@ -468,53 +469,6 @@ export function getAssetPrice(buildingId, assetsPrices) {
 
     return assetsPrices[buildingId]?.price;
 }
-
-export async function updateBuilding({
-                                                       scene,
-                                                       buildings,
-                                                       x,
-                                                       y,
-                                                       assetType,
-                                                       assetsPrices,
-                                                       currentUniqueID,
-                                                       buildingStore,
-                                                       createAsset,
-                                                       makeDbItemId,
-                                                   }) {
-    // Validate required parameters
-    if (!scene || !buildings || !buildingStore || !createAsset || !makeDbItemId) {
-        throw new Error('Missing required parameters.');
-    }
-
-    // Step 1: Remove the existing building
-    const currentBuilding = buildings[x]?.[y];
-    if (currentBuilding) {
-        scene.remove(currentBuilding);
-    }
-
-    // Step 2: Generate a new unique building ID
-    const newUniqueBuildingId = makeDbItemId(assetType, x, y);
-    console.log('New unique building ID:', newUniqueBuildingId);
-
-    // Step 3: Dynamically prepare keys for the new building
-    const assetDetails = assetsPrices[assetType] || {};
-    const keys = {
-        type: assetType,
-        ...assetDetails, // Merge any additional keys dynamically
-    };
-
-    // Step 4: Update building name and delete the old building in the store
-    await buildingStore.updateHouseName(currentUniqueID, newUniqueBuildingId, keys);
-    await buildingStore.deleteOneHouse(currentUniqueID);
-
-    // Step 5: Create and add the new building
-    const newBuilding = createAsset(assetType, x, y);
-    buildings[x][y] = newBuilding;
-    scene.add(newBuilding);
-
-    console.log('[2Story added] >> old and new IDs:', currentUniqueID, newUniqueBuildingId);
-}
-
 
 // Example usage:
 /*
