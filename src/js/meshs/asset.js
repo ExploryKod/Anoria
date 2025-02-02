@@ -1,15 +1,14 @@
 import * as THREE from 'three';
-import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
 import {
     buildingModelsObj,
-    tombstonesModelsObj,
     farmsModelsObj,
     marketsModelsObj,
-    playerModelObj,
     playerAnimations,
+    playerModelObj,
+    tombstonesModelsObj,
     toolIds
 } from './buildings.js';
-import { textures } from './data.js';
+import {textures} from './data.js';
 
 
 // Object of anonymous functions for creating assets > assets library
@@ -194,15 +193,18 @@ export function changeBuildingSides(mesh, texture) {
     return mesh;
 }
 
-export function setStatusSprite(mesh, texture, scale, position, visible =false) {
-    // Create the sprite material (icon overlay)
+export function setSprite(texture = textures['no-roads']) {
     const spriteMaterial = new THREE.SpriteMaterial({
         map: texture,
         depthTest: false
     });
+    return new THREE.Sprite(spriteMaterial);
+}
 
-    // Create the sprite and set its properties
-    const sprite = new THREE.Sprite(spriteMaterial);
+
+export function setStatusSprite(mesh, texture, scale, position, visible =false) {
+    const isAlreadySprite = mesh.children.find(child => child.type === "Sprite");
+    const sprite =  isAlreadySprite ? isAlreadySprite : setSprite(texture)
     sprite.scale.set(scale.x, scale.y, scale.z);  // Adjust scale
     sprite.position.set(position.x, position.y, position.z);   // Move slightly above the road
     sprite.visible = visible;
