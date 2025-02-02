@@ -21,7 +21,7 @@ import {
     firstHouses,
     gameWindow,
     houses
-} from '../ui/ui.js';
+} from '../ui/nodes.js';
 import {assetsPrices} from "../meshs/data.js";
 
 const SKY_URL = '/resources/textures/skies/plain_sky.jpg';

@@ -3,7 +3,6 @@ import {  assetsPrices } from '../meshs/data.js';
 import { createScene } from './scene.js';
 import { createCity } from './city.js';
 import {getAssetPrice, makeDbItemId, makeInfoBuildingText} from '../utils/utils.js';
-import { handleColorOnSelectedObject } from '../utils/meshUtils.js';
 import {
     displayTime,
     overOverlay,
@@ -15,11 +14,9 @@ import {
     infoPanelClockIcon,
     infoPanelNoClockIcon,
     displaySpeed
-} from '../ui/ui.js';
-import gameStore from "../stores/GameStore.js";
-import housesStore from "../stores/HousesStore.js";
+} from '../ui/nodes.js';
 
-export function createGame(assetManager) {
+export function createGame(housesStore, gameStore, assetManager) {
     let activeToolId = '';
     let time = 0;
     let isPause;
