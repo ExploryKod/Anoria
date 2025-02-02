@@ -26,8 +26,11 @@ import AssetManager from "../meshs/assets.js";
 
 const assetManager = new AssetManager();
 let selectedControl = document.getElementById('bulldoze-btn');
-
-let buttonData = await assetManager.getButtonData();
+await assetManager.initializeTerrains()
+await assetManager.initializeBuildings('houses')
+await assetManager.initializeBuildings('markets')
+await assetManager.initializeBuildings('farms')
+let buttonData = assetManager.getButtonData();
 let toolIds = assetManager.getToolIds();
 updateSpeedDisplay();
 console.log("[Buttons] button data and toolids", buttonData, toolIds)

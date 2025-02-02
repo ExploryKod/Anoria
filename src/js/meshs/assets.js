@@ -13,19 +13,22 @@ import {
     farmsModelsObj,
     playerAnimations
 } from './meshManager.js'
+import MeshLoader from "./MeshLoader.js";
 
-class AssetManager {
+
+
+class AssetManager extends MeshLoader {
     #geometry = new THREE.BoxGeometry(1, 1, 1);
     #assets = {};
     #modelPath = "";
 
     constructor() {
+        super()
         this.#modelPath = `./resources/lowpoly/village_town_assets_v2.glb`
-        this.initializeAssets()
     }
 
     getButtonData() {
-        return buttonData
+        return this.buttonData
     }
 
     getToolIds() {
@@ -86,7 +89,7 @@ class AssetManager {
         return object3D;
     }
 
-    #createZone(x, y, buildingId = '') {
+    #createTerrain(x, y, buildingId = '') {
         let mesh;
         let material;
 
@@ -133,86 +136,38 @@ class AssetManager {
 
     #getModelsObj(type) {
         switch(type) {
-            case 'building':
-                return buildingModelsObj;
-            case 'tombstone':
-                return tombstonesModelsObj
-            case 'farm':
-                return farmsModelsObj
-            case 'market':
-                return marketsModelsObj
+            case 'houses':
+                return this.modelsObj['houses'];
+            case 'farms':
+                return this.modelsObj['farms']
+            case 'markets':
+                return this.modelsObj['markets'];
             default:
                 throw new Error(`Unknown model type: ${type}`);
         }
     }
 
-    initializeAssets() {
+    async initializeTerrains() {
 
         // Zones
         toolIds.zones.forEach(toolId => {
-            this.#assets[toolId] = (x, y) => this.#createZone(x, y, toolId);
-        });
-
-        // Houses
-        toolIds.houses.forEach(toolId => {
-            this.#assets[toolId] = (x, y, z = 0) =>
-                this.#createBuilding(x, y, z, 0.5, toolId, this.#getModelsObj('building'));
-        });
-
-        // Tombs
-        toolIds.tombs.forEach(toolId => {
-            this.#assets[toolId] = (x, y, z = 0) =>
-                this.#createBuilding(x, y, z, 0.5, toolId, this.#getModelsObj('tombstone'));
-        });
-
-        // Farms
-        toolIds.farms.forEach(toolId => {
-            if (toolId.substring(0, 4) === "Farm") {
-                this.#assets[toolId] = (x, y, z = 0) =>
-                    this.#createBuilding(x, y, z, 1, toolId, this.#getModelsObj('farm'));
-            } else {
-                this.#assets[toolId] = (x, y, z = 0) =>
-                    this.#createBuilding(x, y, z, 0.3, toolId, this.#getModelsObj('farm'));
-            }
-        });
-
-        // Markets
-        toolIds.markets.forEach(toolId => {
-            this.#assets[toolId] = (x, y, z = 0) =>
-                this.#createBuilding(x, y, z, 0.7, toolId, this.#getModelsObj('market'));
+            this.#assets[toolId] = (x, y) => this.#createTerrain(x, y, toolId);
         });
     }
 
-    // initializeAssets() {
-    //     toolIds.zones.forEach(toolId => {
-    //         this.#assets[toolId] = (x, y) => this.#createZone(x, y, toolId);
-    //     });
-    //
-    //     toolIds.houses.forEach(toolId => {
-    //         this.#assets[toolId] = (x, y, z = 0) =>
-    //             this.#createBuilding(x, y, z, 0.5, toolId, this.buildingModelsObj);
-    //     });
-    //
-    //     toolIds.tombs.forEach(toolId => {
-    //         this.#assets[toolId] = (x, y, z = 0) =>
-    //             this.#createBuilding(x, y, z, 0.5, toolId, tombstonesModelsObj);
-    //     });
-    //
-    //     toolIds.farms.forEach(toolId => {
-    //         if (toolId.substring(0, 4) === "Farm") {
-    //             this.#assets[toolId] = (x, y, z = 0) =>
-    //                 this.#createBuilding(x, y, z, 1, toolId, farmsModelsObj);
-    //         } else {
-    //             this.#assets[toolId] = (x, y, z = 0) =>
-    //                 this.#createBuilding(x, y, z, 0.3, toolId, farmsModelsObj);
-    //         }
-    //     });
-    //
-    //     toolIds.markets.forEach(toolId => {
-    //         this.#assets[toolId] = (x, y, z = 0) =>
-    //             this.#createBuilding(x, y, z, 0.7, toolId, marketsModelsObj);
-    //     });
-    // }
+    async initializeBuildings(propertyKey) {
+
+        if(Object.hasOwn(this.modelMetas, propertyKey) && Object.hasOwn(this.toolIds, propertyKey)) {
+            await this.loadAssets(this.assetFullName, propertyKey, this.modelsObj, this.allAssetsNames, this.assetNames, this.toolIds, this.buttonData);
+            // Houses
+            this.toolIds[propertyKey].forEach(toolId => {
+                this.#assets[toolId] = (x, y, z = 0) =>
+                    this.#createBuilding(x, y, z, this.modelMetas[propertyKey].size, toolId, this.#getModelsObj(propertyKey));
+            });
+        } else {
+            console.warn(`Unknown property property type ${propertyKey}`);
+        }
+    }
 
     createAsset(assetId, x, y) {
         if (assetId in this.#assets) {
