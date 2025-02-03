@@ -20,83 +20,15 @@ import {
     selectButton,
     slowerButton,
     toolBarButtons
-} from "./ui.js";
-import {createGame} from '../game/game.js';
-import {buttonData, toolIds} from '../meshs/buildings.js';
-
-let selectedControl = document.getElementById('bulldoze-btn');
-updateSpeedDisplay();
-
-infoObjectCloseBtn.addEventListener('click', () => {
-    if(infoObjectOverlay.classList.contains('active')) {
-        infoObjectOverlay.classList.remove('active')
-        window.game.play()
-    }
-})
-
-playButton.addEventListener('click', () => {
-    pauseOverlay.classList.remove('active')
-    window.game.play()
-})
-
-pauseButton.addEventListener('click', () => {
-    pauseOverlay.classList.add('active')
-    window.game.pause()
-})
-
-replayButton.addEventListener('click', () => {
-    window.game.replay()
-})
+} from "./nodes.js";
+import { createGame } from '../game/game.js';
+import gameStore from "../stores/GameStore.js";
+import housesStore from "../stores/HousesStore.js";
+import AssetManager from "../meshs/AssetManager.js";
 
 function updateSpeedDisplay() {
     const speed = parseInt(localStorage.getItem('speed'), 10) || 3000;
     displaySpeed.textContent = `Vitesse du jeu: ${speed} ms`;
-}
-
-fasterButton.addEventListener('click', () => {
-    let speed = parseInt(localStorage.getItem('speed'), 10) || 3000;
-    if(speed <= 0) {
-        return
-    }
-
-    speed -= 500;
-    localStorage.setItem('speed', speed.toString());
-    window.game.startInterval()
-    updateSpeedDisplay();
-});
-
-slowerButton.addEventListener('click', () => {
-    let speed = parseInt(localStorage.getItem('speed'), 10) || 3000;
-    speed += 500;
-    localStorage.setItem('speed', speed.toString());
-    window.game.startInterval()
-    updateSpeedDisplay();
-});
-
-bullDozeButton.addEventListener('click', (e) => {
-    setActiveTool(e);
-})
-
-selectButton.addEventListener('click', (e) => {
-    setActiveTool(e);
-})
-
-roadButton.addEventListener('click', (e) => {
-    setActiveTool(e);
-})
-
-housesButton.addEventListener('click', toggleModal)
-
-farmsButton.addEventListener('click', toggleModal)
-
-marketButton.addEventListener('click', toggleModal)
-
-othersButton.addEventListener('click', toggleModal)
-
-panelLayoutCloseBtn.addEventListener('click', closeModal)
-
-window.onload = () => {
-    window.game = createGame();
 }
 
 // Animation panel buttons
@@ -114,10 +46,8 @@ let animateButton = function(e) {
 
 const bubblyButtons = document.getElementsByClassName("bubbly-button");
 
-for (let i = 0; i < bubblyButtons.length; i++) {
-    bubblyButtons[i].addEventListener('click', animateButton, false);
-}
-// END ANIMATION BUTTON
+
+
 function getButtonsUnactive() {
     toolBarButtons.forEach(button => {
         button.classList.remove('selected')
@@ -304,8 +234,6 @@ function createOthersButtons(buttonData) {
     });
 }
 
-
-
 function makeNewButton(buttonInfo, svg="") {
     const button = document.createElement('button');
     button.type = 'button';
@@ -325,13 +253,98 @@ function makeNewButton(buttonInfo, svg="") {
     loaderButton.classList.remove('active')
 }
 
-window.setActiveTool = (e) => {
-    getButtonsUnactive(e)
-    if(e.target.classList.contains('panel-btn')) {
-        getButtonsDisabled()
+// Root initialization
+const assetManager = new AssetManager();
+let selectedControl = document.getElementById('bulldoze-btn');
+await assetManager.initializeTerrains()
+await assetManager.initializeBuildings('houses')
+await assetManager.initializeBuildings('markets')
+await assetManager.initializeBuildings('farms')
+let buttonData = assetManager.getButtonData();
+let toolIds = assetManager.getToolIds();
+
+console.log("[Buttons] button data and toolids", buttonData, toolIds)
+
+window.onload = () => {
+
+    updateSpeedDisplay();
+
+    for (let i = 0; i < bubblyButtons.length; i++) {
+        bubblyButtons[i].addEventListener('click', animateButton, false);
     }
-    toggleModal(e)
-    selectedControl = e.currentTarget;
-    selectedControl.classList.add('selected');
-    window.game.setActiveToolId(e.target.dataset.toolid);
+
+    infoObjectCloseBtn.addEventListener('click', () => {
+        if(infoObjectOverlay.classList.contains('active')) {
+            infoObjectOverlay.classList.remove('active')
+            window.game.play()
+        }
+    })
+
+    playButton.addEventListener('click', () => {
+        pauseOverlay.classList.remove('active')
+        window.game.play()
+    })
+
+    pauseButton.addEventListener('click', () => {
+        pauseOverlay.classList.add('active')
+        window.game.pause()
+    })
+
+    replayButton.addEventListener('click', () => {
+        window.game.replay()
+    })
+
+    fasterButton.addEventListener('click', () => {
+        let speed = parseInt(localStorage.getItem('speed'), 10) || 3000;
+        if(speed <= 0) {
+            return
+        }
+
+        speed -= 500;
+        localStorage.setItem('speed', speed.toString());
+        window.game.startInterval()
+        updateSpeedDisplay();
+    });
+
+    slowerButton.addEventListener('click', () => {
+        let speed = parseInt(localStorage.getItem('speed'), 10) || 3000;
+        speed += 500;
+        localStorage.setItem('speed', speed.toString());
+        window.game.startInterval()
+        updateSpeedDisplay();
+    });
+
+    bullDozeButton.addEventListener('click', (e) => {
+        setActiveTool(e);
+    })
+
+    selectButton.addEventListener('click', (e) => {
+        setActiveTool(e);
+    })
+
+    roadButton.addEventListener('click', (e) => {
+        setActiveTool(e);
+    })
+
+    housesButton.addEventListener('click', toggleModal)
+
+    farmsButton.addEventListener('click', toggleModal)
+
+    marketButton.addEventListener('click', toggleModal)
+
+    othersButton.addEventListener('click', toggleModal)
+
+    panelLayoutCloseBtn.addEventListener('click', closeModal)
+    window.game = createGame(housesStore, gameStore, assetManager);
+    window.setActiveTool = (e) => {
+        getButtonsUnactive(e)
+        if(e.target.classList.contains('panel-btn')) {
+            getButtonsDisabled()
+        }
+        toggleModal(e)
+        selectedControl = e.currentTarget;
+        selectedControl.classList.add('selected');
+        window.game.setActiveToolId(e.target.dataset.toolid);
+    }
 }
+

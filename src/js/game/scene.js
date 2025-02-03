@@ -1,18 +1,13 @@
 import * as THREE from 'three';
 import {createCamera} from './camera.js';
-import {createAsset} from '../meshs/asset.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {fetchPlayer, freePromises, playerMesh} from "../meshs/fetchPlayer.js";
 import {applyHoverColor, resetHoveredObject, resetObjectColor} from '../utils/meshUtils.js';
 import {  textures  } from '../meshs/data.js'
-import { setStatusSprite } from "../meshs/asset.js";
 import {
-    getBuildingNeighbors,
     makeDbItemId,
     getBuildingsNamesInZone,
     updateBuildingNeighbors,
-    updateBuilding,
-    makeInfoBuildingText
 } from "../utils/utils.js";
 import {
     bulldozeSelected,
@@ -26,12 +21,12 @@ import {
     firstHouses,
     gameWindow,
     houses
-} from '../ui/ui.js';
+} from '../ui/nodes.js';
 import {assetsPrices} from "../meshs/data.js";
 
 const SKY_URL = '/resources/textures/skies/plain_sky.jpg';
 
-export function createScene(housesStore, gameStore) {
+export function createScene(housesStore, gameStore, assetManager) {
 
     const scene = new THREE.Scene();
     // scene.background = new THREE.Color(0x79845);
@@ -45,7 +40,6 @@ export function createScene(housesStore, gameStore) {
             scene.background = texture;
         }
     );
-
 
     const camera = createCamera(gameWindow);
     const renderer = new THREE.WebGLRenderer();
@@ -83,7 +77,7 @@ export function createScene(housesStore, gameStore) {
             for(let y = 0; y < city.size; y++) {
                 // Grass
                 const terrainId = city.tiles[x][y].terrainId;
-                const mesh = createAsset(terrainId, x, y);
+                const mesh = assetManager.createAsset(terrainId, x, y);
                 mesh.name = terrainId;
                 scene.add(mesh);
                 column.push(mesh);  
@@ -158,6 +152,8 @@ export function createScene(housesStore, gameStore) {
                 const currentUserData = buildings[x][y].userData
                 console.log(`[SCENE] Building current userData at turn ${time}`, currentUserData)
                 await housesStore.updateHouseFields(currentUniqueID, {})
+
+
 
                 console.log(`*************** CURRENT BUILDING ID (type) ${currentBuildingId} ***** UniqueId: ${currentUniqueID}********************`)
                 const buildingData = {
@@ -327,15 +323,20 @@ export function createScene(housesStore, gameStore) {
                 //  only update if current building is a house
                 if(houses.includes(currentBuildingId)) {
 
+
                     // turn by turn values from userData need to be mirrored in indexDB
-                    const valuesFromUserData = {
-                        stocks:
-                            {
-                            food: buildings[x][y].userData.stocks.food,
-                            carrot: buildings[x][y].userData.stocks.carrot,
-                            cabbage: buildings[x][y].userData.stocks.cabbage,
-                            wheat: buildings[x][y].userData.stocks.wheat
-                            }
+                    let valuesFromUserData = {}
+
+                    if(Object.hasOwn(buildings[x][y], 'userData') && Object.hasOwn(buildings[x][y].userData, 'stocks')) {
+                        valuesFromUserData = {
+                            stocks:
+                                {
+                                    food: buildings[x][y].userData.stocks.food,
+                                    carrot: buildings[x][y].userData.stocks.carrot,
+                                    cabbage: buildings[x][y].userData.stocks.cabbage,
+                                    wheat: buildings[x][y].userData.stocks.wheat
+                                }
+                        }
                     }
 
                     await housesStore.updateHouseFields(currentUniqueID, valuesFromUserData)
@@ -357,26 +358,54 @@ export function createScene(housesStore, gameStore) {
                     console.log('+++ current house time: ', houseTime)
 
                     const houseNeighbors = await housesStore.getHouseItem(currentUniqueID, 'neighbors');
-                    const position = {x: 1, y: 1, z: 1}
-                    const scale = {x: 1, y: 0.8, z: 1}
+
+                    const statutsIconsMeta = {
+                        road: {
+                            position : {x: -1, y: 1, z: 1},
+                            scale : {x: 2, y: 2, z: 2}
+                        },
+                        food: {
+                            position : {x: -0.5, y: 1, z: 0},
+                            scale : {x: 1, y: 1, z: 1},
+                        }
+                    }
+
                     if(houseNeighbors) {
+                        const isRoad = houseNeighbors.filter(neighbor => neighbor.name === 'roads').length
                         const HouseRoads = {roads : houseNeighbors.filter(neighbor => neighbor.name === 'roads').length};
                         await housesStore.updateHouseFields(currentUniqueID, HouseRoads)
                         // Major problem here : is this apply to every house mesh ??
-                        if(HouseRoads.roads > 0) {
-                            setStatusSprite(buildings[x][y], textures['no-roads'], scale, position, false)
+                        if(isRoad > 0) {
+                            console.warn('There is one neighbor road at least for: ', buildings[x][y], HouseRoads, isRoad);
+                            assetManager.setStatusSprite(buildings[x][y], textures['no-roads'], 'no-roads',
+                                statutsIconsMeta.road.scale, statutsIconsMeta.road.position, false)
                         } else {
-                            setStatusSprite(buildings[x][y], textures['no-roads'], scale, position, true)
+                            console.warn('There is no neighbor roads for: ', buildings[x][y], HouseRoads, isRoad);
+                            assetManager.setStatusSprite(buildings[x][y], textures['no-roads'], 'no-roads',
+                                statutsIconsMeta.road.scale, statutsIconsMeta.road.position, true)
                         }
                     } else {
-                        setStatusSprite(buildings[x][y], textures['no-roads'], scale, position, true)
+                        console.warn('There is no neighbor roads and no object roads for: ', buildings[x][y]);
+                        assetManager.setStatusSprite(buildings[x][y], textures['no-roads'], 'no-roads',
+                            statutsIconsMeta.road.scale, statutsIconsMeta.road.position, true)
                     }
 
                     /* house evolution to stage 2 */
                     const houseStocks = await housesStore.getHouseItem(currentUniqueID, 'stocks')
-                    const houseFood = houseStocks.food;
+                    const foodGoal = housePop > 2 && houseStocks.food > housePop * 2
+                    const decay = houseTime > 3 && housePop >= 2 && houseStocks.food < housePop
 
-                    if(houseTime > 3 && houseFood > 5 && firstHouses.includes(currentBuildingId)) {
+                    if(houseStocks.food <= 0) {
+                        assetManager.setStatusSprite(buildings[x][y], textures['nofood'], 'nofood', statutsIconsMeta.food.scale, statutsIconsMeta.food.position, true)
+                    } else {
+                        assetManager.setStatusSprite(buildings[x][y], textures['nofood'], 'nofood', statutsIconsMeta.food.scale, statutsIconsMeta.food.position, false)
+                    }
+
+                    if(decay) {
+                        assetManager.changeMeshColor(buildings[x][y],  0X404040)
+                    }
+
+                    if(houseTime > 3 && foodGoal && firstHouses.includes(currentBuildingId)) {
                         /* [refactor] can be replaced by updateBuilding from utils.js */
                         scene.remove(buildings[x][y]);
                         const newUniqueBuildingId = makeDbItemId('House-2Story', x, y);
@@ -384,7 +413,7 @@ export function createScene(housesStore, gameStore) {
                         const keys = { type : "House-2Story", price: assetsPrices["House-2Story"].price}
                         await housesStore.updateHouseName(currentUniqueID, newUniqueBuildingId, keys);
                         await housesStore.deleteOneHouse(currentUniqueID);
-                        buildings[x][y] = createAsset('House-2Story', x, y);
+                        buildings[x][y] = assetManager.createAsset('House-2Story', x, y);
                         scene.add(buildings[x][y]);
                     }
 
@@ -403,7 +432,7 @@ export function createScene(housesStore, gameStore) {
                 console.log(`Building is existing`, isExistingBuilding)
                 if(!isExistingBuilding) {
                     scene.remove(buildings[x][y]);
-                    buildings[x][y] = createAsset(newBuildingId, x, y);
+                    buildings[x][y] = assetManager.createAsset(newBuildingId, x, y);
                     scene.add(buildings[x][y]);
                 }
 

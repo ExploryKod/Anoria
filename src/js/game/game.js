@@ -3,7 +3,6 @@ import {  assetsPrices } from '../meshs/data.js';
 import { createScene } from './scene.js';
 import { createCity } from './city.js';
 import {getAssetPrice, makeDbItemId, makeInfoBuildingText} from '../utils/utils.js';
-import { handleColorOnSelectedObject } from '../utils/meshUtils.js';
 import {
     displayTime,
     overOverlay,
@@ -15,11 +14,9 @@ import {
     infoPanelClockIcon,
     infoPanelNoClockIcon,
     displaySpeed
-} from '../ui/ui.js';
-import gameStore from "../stores/GameStore.js";
-import housesStore from "../stores/HousesStore.js";
+} from '../ui/nodes.js';
 
-export function createGame() {
+export function createGame(housesStore, gameStore, assetManager) {
     let activeToolId = '';
     let time = 0;
     let isPause;
@@ -29,8 +26,9 @@ export function createGame() {
     localStorage.setItem("speed", "4000");
     displayTime.textContent = time.toString() + ' jours';
 
+
     /* Scene initialization */
-    const scene = createScene(housesStore, gameStore);
+    const scene = createScene(housesStore, gameStore, assetManager);
 
     /* City initialization */
     const city = createCity(16);
@@ -56,9 +54,6 @@ export function createGame() {
             console.log(`Je sélectionne ${selectedObject.userData.id} à ${x} ${y} >> `, selectedObject.userData)
             infoObjectOverlay.classList.toggle('active');
             makeInfoBuildingText("", true)
-            // color of building will become red
-            const hexSelected = handleColorOnSelectedObject(selectedObject)
-            console.log("Hex ", hexSelected)
 
             if(!buildingsObjects.includes(selectedObject.userData.id)) {
                 console.warn("no building here")
@@ -70,16 +65,58 @@ export function createGame() {
                 const uniqueId = makeDbItemId(selectedObject.userData.id, selectedObject.userData.x, selectedObject.userData.y)
                 const buildingPop = await housesStore.getHouseItem(uniqueId, 'pop')
                 const houseRoads = await housesStore.getHouseItem(uniqueId, 'roads');
+                const houseStocks = await housesStore.getHouseItem(uniqueId, 'stocks');
 
                 /* Check if neighbor */
-                let neighbors = false;
+                let neighbors = [];
                 if(selectedObject.userData.neighbors) {
-                    neighbors = selectedObject.userData.neighbors;
+                    neighbors = selectedObject.userData.neighbors
+                        .filter(neighbor => neighbor.buildingId && neighbor.buildingId !== "");
                 }
 
                 makeInfoBuildingText(`Bâtiment: ${selectedObject.userData.id} x: ${selectedObject.userData.x} y: ${selectedObject.userData.y}`, false)
                 makeInfoBuildingText(`Nombre d'habitants: ${buildingPop}`, false)
                 makeInfoBuildingText(`Desservie par ${houseRoads ? houseRoads : 0 } route(s).`, false)
+
+                if(neighbors.length > 0) {
+                    makeInfoBuildingText(`Voisin immédiats: `, false)
+                    neighbors.filter(neigh => neigh.x && neigh.y).forEach(neighbor => {
+                        makeInfoBuildingText(`- ${neighbor.buildingId} | adresse: x: ${neighbor.x} et y: ${neighbor.y}`, false)
+                    })
+                } else {
+                    makeInfoBuildingText(`Maison isolée`, false)
+                }
+
+                if(selectedObject.userData.id.includes('House') && Object.hasOwn(houseStocks, 'food')) {
+                    makeInfoBuildingText(`Nourriture disponible: `, false)
+                    makeInfoBuildingText(`- Blé : ${houseStocks.wheat} paniers`, false)
+                    makeInfoBuildingText(`- Légumes verts : ${houseStocks.cabbage} paniers`, false)
+                    makeInfoBuildingText(`- Autres légumes : ${houseStocks.carrot} paniers`, false)
+                    makeInfoBuildingText(`------------------------------------`, false)
+                    makeInfoBuildingText(`- Total : ${houseStocks.food} paniers`, false)
+                } else {
+                    makeInfoBuildingText(`Maison isolée`, false)
+                }
+
+                if(selectedObject.userData.id.includes('Farm') && Object.hasOwn(houseStocks, 'food')) {
+                    makeInfoBuildingText(`Nourriture disponible: `, false)
+                    if(selectedObject.userData.id.includes('Farm-Wheat')) {
+                        makeInfoBuildingText(`- Blé : ${houseStocks.wheat} paniers produits`, false)
+                    }
+
+                    if(selectedObject.userData.id.includes('Farm-Carrot')) {
+                        makeInfoBuildingText(`- Carrotes : ${houseStocks.carrot} paniers produits`, false)
+                    }
+
+                    if(selectedObject.userData.id.includes('Farm-Cabbage')) {
+                        makeInfoBuildingText(`- Légumes verts : ${houseStocks.cabbage} paniers produits`, false)
+                    }
+
+                    makeInfoBuildingText(`------------------------------------`, false)
+                    makeInfoBuildingText(`- Total : ${houseStocks.food} unités produites`, false)
+                } else {
+                    makeInfoBuildingText(`Maison isolée`, false)
+                }
             }
            
             if(infoObjectOverlay.classList.contains('active')) {
@@ -95,8 +132,9 @@ export function createGame() {
             let price = 0
 
             const houseID = tile.buildingId + '-' + selectedObject.userData.x + '-' + selectedObject.userData.y
+            const houseStocks = await housesStore.getHouseItem(houseID, 'stocks');
             const houseNeighbors = await housesStore.getHouseItem(houseID, 'neighbors');
-            let HouseRoads  = {roads: 1};
+            let HouseRoads  = {roads: 0};
             if(houseNeighbors) {
                 HouseRoads = {roads: houseNeighbors.filter(neighbor => neighbor.name === 'roads').length};
             }
@@ -107,11 +145,11 @@ export function createGame() {
                 type: tile.buildingId,
                 neighbors: [],
                 pop: 0,
-                stocks : {food: 0, cabbage : 0, wheat: 0, carrot: 0},
+                stocks : houseStocks ? houseStocks : {food: 0, cabbage : 0, wheat: 0, carrot: 0},
                 gameTurn: time,
                 time: 0,
                 isBuilding: true,
-                roads: 2,
+                roads:  HouseRoads.roads ?? 0,
                 stage : 0,
                 stageName: "",
                 price : price ? price : 0,

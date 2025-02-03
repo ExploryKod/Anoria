@@ -1,23 +1,12 @@
 import * as THREE from "three";
 
-export const baseUrl = import.meta.env.BASE_URL;
-
-// export const texturesPath = [
-//     { "roads": `${baseUrl}resources/textures/grounds/ground_cobblestone5.png` },
-//     { "grass": `${baseUrl}resources/textures/grounds/grass_rough2.png` },
-//     { "decal": `${baseUrl}resources/textures/skies/plain_sky.jpg` },
-//     { "no-roads": `${baseUrl}resources/textures/status/no-road.png` },
-//     { "no-power": `${baseUrl}resources/textures/status/no-road.png` },
-//     { "base": `${baseUrl}resources/textures/maps/base.png` },
-//     { "specular": `${baseUrl}resources/textures/maps/specular.png` },
-//     { "grid": `${baseUrl}resources/textures/maps/grid.png` }
-// ];
 const loader = new THREE.TextureLoader();
 export function loadTextures(path) {
     const texture = loader.load(path)
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(1,1);
+    texture.flipY = false;
     return texture;
 }
 
@@ -29,7 +18,8 @@ export const textures = Object.freeze({
     'no-power': loadTextures(`/resources/textures/status/no-road.png`),
     'base' : loadTextures(`/resources/textures/maps/base.png`),
     'specular' : loadTextures(`/resources/textures/maps/specular.png`),
-    'grid': loadTextures(`/resources/textures/maps/grid.png`)
+    'grid': loadTextures(`/resources/textures/maps/grid.png`),
+    'nofood': loadTextures(`/resources/textures/status/nofood.png`)
 })
 
 export const assetsPrices = Object.freeze({
