@@ -41,7 +41,6 @@ export function createScene(housesStore, gameStore, assetManager) {
         }
     );
 
-
     const camera = createCamera(gameWindow);
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(gameWindow.offsetWidth, gameWindow.offsetHeight);
@@ -153,6 +152,8 @@ export function createScene(housesStore, gameStore, assetManager) {
                 const currentUserData = buildings[x][y].userData
                 console.log(`[SCENE] Building current userData at turn ${time}`, currentUserData)
                 await housesStore.updateHouseFields(currentUniqueID, {})
+
+
 
                 console.log(`*************** CURRENT BUILDING ID (type) ${currentBuildingId} ***** UniqueId: ${currentUniqueID}********************`)
                 const buildingData = {
@@ -391,6 +392,8 @@ export function createScene(housesStore, gameStore, assetManager) {
 
                     /* house evolution to stage 2 */
                     const houseStocks = await housesStore.getHouseItem(currentUniqueID, 'stocks')
+                    const foodGoal = housePop > 2 && houseStocks.food > housePop * 2
+                    const decay = houseTime > 3 && housePop >= 2 && houseStocks.food < housePop
 
                     if(houseStocks.food <= 0) {
                         assetManager.setStatusSprite(buildings[x][y], textures['nofood'], 'nofood', statutsIconsMeta.food.scale, statutsIconsMeta.food.position, true)
@@ -398,7 +401,11 @@ export function createScene(housesStore, gameStore, assetManager) {
                         assetManager.setStatusSprite(buildings[x][y], textures['nofood'], 'nofood', statutsIconsMeta.food.scale, statutsIconsMeta.food.position, false)
                     }
 
-                    if(houseTime > 3 && houseStocks.food > 1 && firstHouses.includes(currentBuildingId)) {
+                    if(decay) {
+                        assetManager.changeMeshColor(buildings[x][y],  0X404040)
+                    }
+
+                    if(houseTime > 3 && foodGoal && firstHouses.includes(currentBuildingId)) {
                         /* [refactor] can be replaced by updateBuilding from utils.js */
                         scene.remove(buildings[x][y]);
                         const newUniqueBuildingId = makeDbItemId('House-2Story', x, y);

@@ -6,6 +6,23 @@ class AssetManager extends MeshLoader {
     #geometry = new THREE.BoxGeometry(1, 1, 1);
     #assets = {};
     #modelPath = "";
+    #meshUserData = {
+        id: "nothing",
+        type: "nothing",
+        name: "nothing",
+        neighbors: [],
+        pop: 0,
+        stocks: { food: 0, cabbage: 0, wheat: 0, carrot: 0 },
+        time: 0,
+        isBuilding: false,
+        roads: 0,
+        stage: 0,
+        stageName: "",
+        price: 0,
+        cityFunds: 0,
+        maintenance: 0,
+        worldTime: 0
+    }
 
     constructor() {
         super()
@@ -20,9 +37,52 @@ class AssetManager extends MeshLoader {
         return this.toolIds
     }
 
-    #changeMeshColor(mesh, color) {
+    /**
+     * @param {string|number} name
+     * @param {string|number|symbol} group
+     * @param modelsObj
+     */
+    #isObject3DByName(name, group, modelsObj) {
+        if(Object.hasOwn(modelsObj, group)) {
+            let mesh = modelsObj[group];
+            console.log("the mesh is ", mesh[name]);
+            if(mesh[name]?.isObject3D) {
+                mesh = modelsObj[group][name].clone();
+                return mesh;
+            } else {
+                console.warn('this is not a mesh: ', mesh);
+                return false;
+            }
+
+        }
+        return false;
+    }
+
+    #isObject3DByMesh(mesh) {
+        if(Object.hasOwn(mesh, 'isObject3D')) {
+
+            if(!mesh.isObject3D) {
+                console.error('this is not a mesh object3D: ', mesh);
+                return false;
+            } else {
+                return true;
+            }
+
+        } else {
+            console.error('this object has no Object3D property: ', mesh);
+            return false;
+        }
+    }
+
+    changeMeshColor(mesh, color) {
+
+        if(!Object.hasOwn(mesh, 'isObject3D')) {
+            console.error('this is not a mesh object3D: ', mesh);
+        }
+
         mesh.traverse(obj => {
             if (obj.material) {
+                obj.material = obj.material.clone();
                 obj.material = new THREE.MeshLambertMaterial({ color });
                 obj.receiveShadow = true;
                 obj.castShadow = true;
@@ -30,18 +90,44 @@ class AssetManager extends MeshLoader {
         });
     }
 
-    #createBuilding(x, y, z, size, meshName, objectsData, changeColor = false) {
-        console.log("button objectsData", objectsData, meshName, size);
-        const placerPos = new THREE.Vector3(x, y, z);
-        const object3D = objectsData[meshName].clone();
+    /**
+     * Handles any clean up needed before an object is removed
+     */
+    dispose(mesh) {
 
-        if (changeColor) {
-            object3D.traverse(child => {
-                if (child.isMesh) {
-                    this.#changeMeshColor(child, 0xff00ff);
+        if(this.#isObject3DByMesh(mesh)) {
+            mesh.traverse((obj) => {
+                if (obj.material) {
+                    obj.material?.dispose();
+                }
+            })
+        }
+    }
+
+    cloneMeshMaterial(mesh) {
+
+        if(!this.#isObject3DByMesh()) {
+            console.warn('this is not a mesh object3D: ', mesh);
+            return null
+        }
+
+        if(this.#isObject3DByMesh(mesh)) {
+            mesh.traverse((obj) => {
+                if(obj.material) {
+                    obj.material = obj.material.clone();
+                } else {
+                    console.warn('no material found here: ', obj);
                 }
             });
         }
+
+    }
+
+    #createBuilding(x, y, z, size, meshName, objectsData) {
+        console.log("button objectsData", objectsData, meshName, size);
+        console.log("the meshs are now", this.#getModelsObj('houses'));
+        const placerPos = new THREE.Vector3(x, y, z);
+        const object3D = objectsData[meshName].clone();
 
         object3D.name = `${meshName}`;
         object3D.position.set(placerPos.x, placerPos.z, placerPos.y);
@@ -52,24 +138,9 @@ class AssetManager extends MeshLoader {
             THREE.MathUtils.degToRad(180)
         );
 
-        object3D.userData = {
-            id: meshName,
-            type: meshName,
-            neighbors: [],
-            pop: 0,
-            stocks: { food: 0, cabbage: 0, wheat: 0, carrot: 0 },
-            time: 0,
-            isBuilding: true,
-            roads: 0,
-            stage: 0,
-            stageName: "",
-            price: 0,
-            cityFunds: 0,
-            maintenance: 0,
-            worldTime: 0,
-            x,
-            y
-        };
+
+
+        object3D.userData = {id: meshName, type: meshName, name: meshName, isBuilding: true, x, y, ...this.userData};
 
         return object3D;
     }

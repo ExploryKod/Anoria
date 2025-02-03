@@ -106,6 +106,7 @@ class MeshLoader {
                         })
                     }
                 });
+                return modelsObj;
             },
             // called while loading is progressing
             function ( xhr ) {
