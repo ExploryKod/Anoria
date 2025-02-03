@@ -6,6 +6,7 @@ export function loadTextures(path) {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(1,1);
+    texture.flipY = false;
     return texture;
 }
 
