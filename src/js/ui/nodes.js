@@ -17,9 +17,6 @@ export const delayBox = document.querySelector('.info-panel .delay-box');
 // scene.js
 export const gameWindow = document.getElementById('game-window');
 export const displayPop = document.querySelector('.info-panel .display-pop');
-export const displayFood = document.querySelector('.info-panel .display-food');
-export const displayNeedFood = document.querySelector('.info-panel .display-starve');
-export const displayDead = document.querySelector('.info-panel .display-dead');
 export const displayDelay = document.querySelector('.info-panel .display-delay');
 export const displayDelayUI = document.querySelector('.delay-ui');
 export const bulldozeSelected = document.querySelector('.bulldoze-btn');

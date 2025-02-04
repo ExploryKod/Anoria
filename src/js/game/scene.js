@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import {createCamera} from './camera.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {fetchPlayer, freePromises, playerMesh} from "../meshs/fetchPlayer.js";
 import {applyHoverColor, resetHoveredObject, resetObjectColor} from '../utils/meshUtils.js';
 import {  textures  } from '../meshs/data.js'
 import {
@@ -497,29 +496,6 @@ export function createScene(housesStore, gameStore, assetManager) {
         console.log('=================== END TURN ====================== ', time)
 
     }
-
-    function addPlayerToScene(x=0, y=0, z=0) {
-        const avatarPath = './resources/dragon.glb'
-        const playerData = {
-            url: avatarPath,
-            x: x,
-            y: y,
-            z: z,
-            size: 0.8
-        }
-
-        const playerAnimationsData = {
-            name: 'Flying',
-            isAnimated: true
-        }
-        if(playerMesh) {
-            playerMesh.userData = {id: 'player-hero', x, y}
-        }
-
-        fetchPlayer(THREE, loadingPromises, scene, playerAnimationsData, playerData)
-        freePromises(loadingPromises)
-    }
-   
 
     function setUpLights(citySize) {
         console.log("City size:", citySize);
