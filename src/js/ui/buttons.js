@@ -26,6 +26,9 @@ import gameStore from "../stores/GameStore.js";
 import housesStore from "../stores/HousesStore.js";
 import AssetManager from "../meshs/AssetManager.js";
 
+let buttonData;
+let toolIds;
+
 function updateSpeedDisplay() {
     const speed = parseInt(localStorage.getItem('speed'), 10) || 3000;
     displaySpeed.textContent = `Vitesse du jeu: ${speed} ms`;
@@ -82,6 +85,9 @@ function closeModal() {
 }
 
 function toggleModal(e) {
+
+
+
     switch(e.target.dataset.group) {
         case 'residential':
             getButtonsUnactive()
@@ -253,19 +259,22 @@ function makeNewButton(buttonInfo, svg="") {
     loaderButton.classList.remove('active')
 }
 
-// Root initialization
-const assetManager = new AssetManager();
-let selectedControl = document.getElementById('bulldoze-btn');
-await assetManager.initializeTerrains()
-await assetManager.initializeBuildings('houses')
-await assetManager.initializeBuildings('markets')
-await assetManager.initializeBuildings('farms')
-let buttonData = assetManager.getButtonData();
-let toolIds = assetManager.getToolIds();
 
-console.log("[Buttons] button data and toolids", buttonData, toolIds)
+window.onload = async () => {
 
-window.onload = () => {
+    // Root initialization
+    const assetManager = new AssetManager();
+    let selectedControl = document.getElementById('bulldoze-btn');
+    await assetManager.initializeTerrains()
+    await assetManager.initializeBuildings('houses')
+    await assetManager.initializeBuildings('markets')
+    await assetManager.initializeBuildings('farms')
+    buttonData = assetManager.getButtonData();
+    toolIds = assetManager.getToolIds();
+
+
+
+
 
     updateSpeedDisplay();
 

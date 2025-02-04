@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 const loader = new THREE.TextureLoader();
+
 export function loadTextures(path) {
     const texture = loader.load(path)
     texture.wrapS = THREE.RepeatWrapping;

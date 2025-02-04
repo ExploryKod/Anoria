@@ -4,14 +4,6 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 class MeshLoader {
 
-    wantedHouses = [
-        'House-Blue',
-        'House-Red',
-        'House-Purple',
-        'House-2Story'
-    ]
-
-
     toolIds = {
             zones: ['grass', 'roads'],
             houses: ['House-Blue', 'House-Red', 'House-Purple', 'House-2Story'],
