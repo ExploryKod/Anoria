@@ -20,7 +20,7 @@
     --toolbar-btn-color: var(--cta);
     --panel-btn-color: var(--cta);
     --panel-bg-color: var(--primary-05);
-    --toolbar-bg-color: var(--primary);
+    --toolbar-bg-color: #229CFB;
     --toolbar-bg-color-05: var(--primary-05);
 
     --house-red-color:var(--red-300);
@@ -69,6 +69,7 @@ html {
 }
 
 body {
+    background: var(--primary);
     margin: 0;
     padding: 0;
     position: relative;
@@ -88,7 +89,7 @@ html, body {
 }
 
 canvas {
-    width: 100vw !important;
+    width: 100% !important;
     height: 100% !important;
 }
 
@@ -107,17 +108,24 @@ canvas {
 
 .toolbar {
     background-color: var(--toolbar-bg-color);
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.toolbar .toolbar__inner {
+    background-color: var(--toolbar-bg-color);
     padding: 10px;
     display: flex;
     justify-content: flex-start;
+    flex-wrap: wrap;
     align-items: center;
     gap: 20px;
 }
 
-
-
 .toolbar .toolbar-btn {
-    height: 50px;
+    padding: 3px;
     border: 3px solid var(--cta);
     border-radius: 10px;
    
@@ -200,11 +208,6 @@ canvas {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-}
-
-.pause-overlay, .game-window .over-overlay {
-    border-radius: 15px;
-
 }
 
 .pause-overlay {
@@ -418,8 +421,9 @@ canvas {
 /* INFO PANEL */
 
 .info-panel-wrapper {
+    padding: 10px;
     z-index: 998;
-    background-color: var(--toolbar-bg-color);
+    background-color: var(--lightgreen);
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -448,38 +452,43 @@ canvas {
 /* Information panel : layout des cards information */
 .info-panel {
     margin: 0;
-    padding: 5px calc(var(--progress-bar-h) + 4px) 20px;
     height: auto;
     width: 100%;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    column-gap: 20px;
+    gap: 10%;
 }
 
 
-.info-panel > .info-box {
-    border-radius: 10px;
-    padding: 10px;
-    background-color: var(--cta);
-    border-right: 1px solid var(--primary);
+.info-box {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 30px;
+}
 
-    svg {
-     height: 16px;
-     width: 16px;
-    }
+.info-box svg {
+    height: 16px;
+    width: 16px;
+}
 
-    svg.lucide-alarm-clock-off {
-        display: none;
-    }
+.box {
+     svg {
+         color: white;
+     }
+}
 
-    > article {
-        display: flex;
-        column-gap: 5px;
-    }
+.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.box__text {
+  color:  white;
+}
+
+svg.lucide-alarm-clock-off {
+    display: none;
 }
 
 .info-panel p {
@@ -626,6 +635,7 @@ footer a:hover {
     text-align: left;
 }
 
+/* pwa */
 #pwa-toast {
     visibility: hidden;
     position: fixed;
@@ -672,13 +682,14 @@ footer a:hover {
     .info-panel {
         display: flex;
         justify-content: center;
+        flex-wrap: wrap;
     }
 
-    .info-panel > .info-box .speed-box {
+    .info-box .speed-box {
        display: none;
     }
 
-    .info-panel > .info-box .delay-box {
+    .info-box .delay-box {
         display: none;
     }
 

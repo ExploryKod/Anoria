@@ -19,15 +19,10 @@
         <p>Nous sommes navré, mais ce jeu n'est pas encore accessible sur cette taille d'écran</p>
     </div>
 </div>
-<div id="root-window" class="root-window">
+<div id="root-window" class="root-window mx-auto container">
     <section id="toolbar" class="toolbar">
-
+        <div class="toolbar__inner">
         <div class="toolbar__container">
-            <button type="button" id="toggle-btn" class="toolbar-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu">
-                    <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
-            </button>
 
             <button type="button" id="pause-btn" data-action="pause" class="toolbar-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause">
@@ -107,11 +102,73 @@
             </svg>
         </button>
         </div>
+        </div>
+    </section>
+    <section class="info-panel-wrapper">
+        <div class="delay-ui-wrapper">
+            <div class="delay-ui"></div>
+        </div>
 
+        <div class="info-panel">
+            <section class="info-box">
+                <article class="clock-box box">
+                  <span class="clock-icon icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-4"><circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alarm-clock-off">
+                        <path d="M6.87 6.87a8 8 0 1 0 11.26 11.26"/><path d="M19.9 14.25a8 8 0 0 0-9.15-9.15"/><path d="m22 6-3-3"/><path d="M6.26 18.67 4 21"/><path d="m2 2 20 20"/><path d="M4 4 2 6"/>
+                    </svg>
+                  </span>
+                    <div class="display-time box__text"></div>
+                </article>
+                <article class="delay-box box">
+                    <span class="delay-icon icon">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alarm-clock"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/><path d="M6.38 18.7 4 21"/><path d="M17.64 18.67 20 21"/>
+                         </svg>
+                      </span>
+                    <div class="display-delay box__text"></div>
+                </article>
+                <article class="speed-box box">
+                    <div class="display-speed box__text"></div>
+                </article>
+            </section>
+
+            <section class="info-box">
+                <article class="pop-box box">
+                 <span class="info-box pop-icon icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </span>
+                    <div class="display-pop box__text"></div>
+                </article>
+            </section>
+
+            <section class="info-box">
+                <article class="budget-box box">
+                <span class="budget-icon icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-euro">
+                          <path d="M4 10h12"/><path d="M4 14h9"/>
+                          <path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/>
+                        </svg>
+                  </span>
+                    <div class="display-funds box__text"></div>
+                </article>
+
+                <article class="debt-box box">
+                <span class="debt-icon icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-landmark"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>
+                    </svg>
+                </span>
+                    <div class="display-debt box__text"></div>
+                </article>
+            </section>
+        </div>
     </section>
     <div id="game-window" class="game-window">
-        <div
-        id="pwa-toast"
+        <div id="pwa-toast" class="pwa-toast"
         role="alert"
         aria-labelledby="toast-message"
       >
@@ -167,15 +224,6 @@
             </button>
         </div>
 
-
-
-
-
-
-
-
-
-
         <div id="panel-layout" class="panel-layout">
 
             <div class="panel-inner-wrapper">
@@ -190,69 +238,7 @@
             </div>
         </div>
     </div>
-    <section class="info-panel-wrapper">
-        <div class="delay-ui-wrapper">
-            <div class="delay-ui"></div>
-        </div>
 
-        <div class="info-panel">
-            <section class="info-box">
-                <article class="clock-box">
-                  <span class="clock-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-4"><circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alarm-clock-off">
-                        <path d="M6.87 6.87a8 8 0 1 0 11.26 11.26"/><path d="M19.9 14.25a8 8 0 0 0-9.15-9.15"/><path d="m22 6-3-3"/><path d="M6.26 18.67 4 21"/><path d="m2 2 20 20"/><path d="M4 4 2 6"/>
-                    </svg>
-                  </span>
-                    <div class="display-time"></div>
-                </article>
-                <article class="delay-box">
-                    <span class="delay-icon">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alarm-clock"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/><path d="M6.38 18.7 4 21"/><path d="M17.64 18.67 20 21"/>
-                         </svg>
-                      </span>
-                    <div class="display-delay"></div>
-                </article>
-                <article class="speed-box">
-                    <div class="display-speed"></div>
-                </article>
-            </section>
-
-            <section class="info-box">
-                <article class="pop-box">
-                 <span class="info-box pop-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
-                </span>
-                    <div class="display-pop"></div>
-                </article>
-            </section>
-
-            <section class="info-box">
-                <article class="budget-box">
-                <span class="budget-icon">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-euro">
-                          <path d="M4 10h12"/><path d="M4 14h9"/>
-                          <path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/>
-                        </svg>
-                  </span>
-                    <div class="display-funds"></div>
-                </article>
-
-                <article class="debt-box">
-                <span class="debt-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-landmark"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>
-                    </svg>
-                </span>
-                    <div class="display-debt"></div>
-                </article>
-            </section>
-        </div>
-    </section>
 </div>
 
 <script type="module" src="/src/main.js"></script>
