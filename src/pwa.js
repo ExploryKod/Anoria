@@ -4,8 +4,6 @@ import { registerSW } from 'virtual:pwa-register'
 export function initPWA(app) {
     /**@type {HTMLDivElement}*/
     const pwaToast = app.querySelector('#pwa-toast')
-    /**@type {HTMLDivElement}*/
-    const pwaToastMessage = pwaToast.querySelector('.message #toast-message')
     /**@type {HTMLButtonElement}*/
     const pwaCloseBtn = pwaToast.querySelector('#pwa-close')
     /**@type {HTMLButtonElement}*/
