@@ -49,11 +49,9 @@ export function initPWA(app) {
 
             immediate: true,
             onOfflineReady() {
-                pwaToastMessage ? pwaToastMessage.innerHTML = 'Prêt pour fonctionner hors-ligne' : ""
                 showPwaToast(true)
             },
             onNeedRefresh() {
-                pwaToastMessage ? pwaToastMessage.innerHTML = 'Nouveaux élèments : il est nécessaire de recharger' : ""
                 showPwaToast(false)
             },
 
