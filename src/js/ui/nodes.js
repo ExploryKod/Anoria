@@ -55,3 +55,6 @@ export const pauseOverlay = document.querySelector('#pause-overlay');
 export const pauseButton = document.getElementById('pause-btn');
 export const playButton = document.getElementById('play-btn');
 export const replayButton = document.getElementById('play-again-btn');
+
+export const toolBar = document.getElementById('.toolbar');
+

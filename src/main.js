@@ -1,3 +1,4 @@
+import './tailwindcss.css'
 import { initPWA } from './pwa.js'
 
 const app = document.querySelector('#game-window')

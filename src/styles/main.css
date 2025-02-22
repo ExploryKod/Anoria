@@ -89,10 +89,12 @@ html, body {
 
 canvas {
     width: 100vw !important;
-    height: 100vh !important;
+    height: 100% !important;
 }
 
 .root-window {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
 }
@@ -103,15 +105,10 @@ canvas {
     height: 100%;
 }
 
-.game-window .toolbar {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
+.toolbar {
     background-color: var(--toolbar-bg-color);
     padding: 10px;
     display: flex;
-    flex-direction: column;
     justify-content: flex-start;
     align-items: center;
     gap: 20px;
@@ -170,7 +167,6 @@ canvas {
 }
 
 .toolbar .toolbar__container .toolbar-btn {
-    max-width: 40%;
     height: auto;
     display: flex;
     align-items: center;
@@ -186,7 +182,7 @@ canvas {
 }
 
 /* Panel layout to select object as house etc.. */
-.game-window .panel-layout, .game-window .pause-overlay, .game-window .over-overlay {
+.panel-layout, .game-window .pause-overlay, .game-window .over-overlay {
     width: 0;
     height: 0;
     position: absolute;
@@ -200,24 +196,24 @@ canvas {
     transition: opacity 0.3s ease-in;
 }
 
-.game-window .panel-layout {
+.panel-layout {
     display: flex;
     justify-content: flex-start;
     align-items: center;
 }
 
-.game-window .pause-overlay, .game-window .over-overlay {
+.pause-overlay, .game-window .over-overlay {
     border-radius: 15px;
 
 }
 
-.game-window .pause-overlay {
+.pause-overlay {
     display: flex;
     justify-content: center;
     align-items: flex-start;
 }
 
-.game-window .over-overlay {
+.over-overlay {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -236,7 +232,7 @@ canvas {
     justify-content: center;
 }
 
-.game-window .panel-close-btn {
+.panel-close-btn {
     width: 50px;
     height: 50px;
     border-radius: 10px;
@@ -262,7 +258,7 @@ canvas {
     transition: opacity 7s ease-in;
 }
 
-.game-window .pause-overlay .play-btn {
+.pause-overlay .play-btn {
     width: 150px;
     height: 150px;
     border-radius: 10px;
@@ -277,7 +273,7 @@ canvas {
     cursor: pointer;
 }
 
-.game-window .panel-layout .panel-close-btn:hover {
+.panel-layout .panel-close-btn:hover {
     background-color: var(--cta);
     color: #fff;
 }
@@ -295,7 +291,7 @@ canvas {
 }
 
 
-.game-window .panel-layout.active {
+.panel-layout.active {
     width: 100%;
     height: 50%;
     border-radius: 0;
@@ -310,7 +306,7 @@ canvas {
 
 
 
-.game-window .panel-layout .panel-inner {
+.panel-layout .panel-inner {
     min-width: 250px;
     min-height: auto;
     max-width: 75%;
@@ -423,15 +419,10 @@ canvas {
 
 .info-panel-wrapper {
     z-index: 998;
-    position: absolute;
-    top: 0;
-    left: auto;
-    right: 0;
-    background-color: var(--toolbar-bg-color-05);
+    background-color: var(--toolbar-bg-color);
     display: flex;
     flex-direction: column;
     gap: 0;
-    border-radius: 0 0 0 10px;
 }
 
 /* Barre de progrés au dessus des informations */
