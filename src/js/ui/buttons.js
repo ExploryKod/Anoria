@@ -19,7 +19,8 @@ import {
     roadButton,
     selectButton,
     slowerButton,
-    toolBarButtons
+    toolBarButtons,
+    toolBar
 } from "./nodes.js";
 import { createGame } from '../game/game.js';
 import gameStore from "../stores/GameStore.js";
@@ -273,9 +274,6 @@ window.onload = async () => {
     toolIds = assetManager.getToolIds();
 
 
-
-
-
     updateSpeedDisplay();
 
     for (let i = 0; i < bubblyButtons.length; i++) {
@@ -355,4 +353,8 @@ window.onload = async () => {
         selectedControl.classList.add('selected');
         window.game.setActiveToolId(e.target.dataset.toolid);
     }
+
+    toolBar.addEventListener('click', (e) => {
+
+    })
 }
