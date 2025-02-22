@@ -46,15 +46,17 @@ export function initPWA(app) {
     window.addEventListener('load', () => {
         pwaCloseBtn.addEventListener('click', () => hidePwaToast(true))
         refreshSW = registerSW({
+
             immediate: true,
             onOfflineReady() {
-                pwaToastMessage.innerHTML = 'Prêt pour fonctionner hors-ligne'
+                pwaToastMessage ? pwaToastMessage.innerHTML = 'Prêt pour fonctionner hors-ligne' : ""
                 showPwaToast(true)
             },
             onNeedRefresh() {
-                pwaToastMessage.innerHTML = 'Nouveaux élèments : il est nécessaire de recharger'
+                pwaToastMessage ? pwaToastMessage.innerHTML = 'Nouveaux élèments : il est nécessaire de recharger' : ""
                 showPwaToast(false)
             },
+
             onRegisteredSW(swUrl, r) {
                 if (period <= 0) return
                 if (r?.active?.state === 'activated') {
