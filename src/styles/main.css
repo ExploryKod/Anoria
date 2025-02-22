@@ -637,6 +637,11 @@ footer a:hover {
 
 /* pwa */
 #pwa-toast {
+    display: none;
+    position: fixed;
+    top: 50%;
+    bottom: 50%;
+    transform: translate(-50%, -50%);
     visibility: hidden;
     margin: 16px;
     padding: 12px;
@@ -644,9 +649,7 @@ footer a:hover {
     border-radius: 4px;
     z-index: 1;
     text-align: left;
-    background: var(--lightgreen);
     box-shadow: 3px 4px 5px 0 #fff;
-    display: grid;
   }
   #pwa-toast .message {
     margin-bottom: 8px;
@@ -662,7 +665,7 @@ footer a:hover {
     padding: 3px 10px;
   }
   #pwa-toast.show {
-    visibility: visible;
+    display: grid;
   }
   button#pwa-refresh {
     display: none;
